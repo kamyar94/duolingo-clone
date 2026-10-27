@@ -1,6 +1,7 @@
 // The runner interface (section 4.4). Languages with a WebAssembly runtime run in the browser
-// (lib/coding/browser-runner.ts); all others go to the server runner of phase 6, which
-// implements ServerRunnerTransport. Until then those exercises say that they run on the server.
+// (lib/coding/browser-runner.ts); all others go to the code runners on the server through a
+// ServerRunnerTransport (lib/coding/server-transport.ts, installed by browser-runner.ts).
+// Without a transport those exercises say that they run on the server.
 import { languageInfo, type CodeLanguage } from "./languages";
 import type { RunEvent, RunRequest, RunResult } from "./types";
 
@@ -12,9 +13,8 @@ export interface CodeRunner {
 }
 
 /**
- * What phase 6 supplies: sends a run to the server (for example POST /api/code/run with the
- * session cookie) and streams its events back. Returning null means the server runner is not
- * available for this language.
+ * Sends a run to the server (POST /api/code/run with the session cookie) and passes its output
+ * on as events. Returning null means the server runner is not available for this language.
  */
 export type ServerRunnerTransport = (
   request: RunRequest,
@@ -22,10 +22,15 @@ export type ServerRunnerTransport = (
 ) => Promise<RunResult | null>;
 
 let transport: ServerRunnerTransport | null = null;
+let cancelTransport: (() => void) | null = null;
 
-/** Installs the server runner (phase 6). */
-export const setServerRunnerTransport = (next: ServerRunnerTransport | null) => {
+/** Installs the server runner, with a function that gives up on the run in progress. */
+export const setServerRunnerTransport = (
+  next: ServerRunnerTransport | null,
+  cancel: (() => void) | null = null
+) => {
   transport = next;
+  cancelTransport = next ? cancel : null;
 };
 
 export const SERVER_RUNNER_MESSAGE =
@@ -44,10 +49,11 @@ export const serverRunner: CodeRunner = {
       }
     );
   },
+  cancel: () => cancelTransport?.(),
 };
 
 export const serverRunnerAvailable = () => transport !== null;
 
-/** Whether a language's programs run on the server (phase 6) rather than in the browser. */
+/** Whether a language's programs run on the server rather than in the browser. */
 export const runsOnServer = (language: CodeLanguage) =>
   languageInfo(language).runtime === "server";

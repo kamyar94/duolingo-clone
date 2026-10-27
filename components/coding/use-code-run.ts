@@ -5,6 +5,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { browserRunner, runProgram } from "@/lib/coding/browser-runner";
 import { checkProgram, type CheckOptions } from "@/lib/coding/check";
 import type { LineDiagnostic } from "@/lib/coding/editor/setup";
+import { serverRunner } from "@/lib/coding/runner";
 import type {
   CheckReport,
   RunError,
@@ -116,7 +117,10 @@ export const useCodeRun = () => {
     [onEvent]
   );
 
-  const stop = useCallback(() => browserRunner.cancel?.(), []);
+  const stop = useCallback(() => {
+    browserRunner.cancel?.();
+    serverRunner.cancel?.();
+  }, []);
 
   const reset = useCallback(() => {
     generation.current++;

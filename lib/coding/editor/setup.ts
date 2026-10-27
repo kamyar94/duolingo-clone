@@ -92,6 +92,14 @@ const loadMode = async (mode: EditorMode): Promise<Extension> => {
       return legacy(
         (await import("@codemirror/legacy-modes/mode/shell")).shell as StreamParser<unknown>
       );
+    case "perl":
+      return legacy(
+        (await import("@codemirror/legacy-modes/mode/perl")).perl as StreamParser<unknown>
+      );
+    case "lua":
+      return legacy((await import("@codemirror/legacy-modes/mode/lua")).lua as StreamParser<unknown>);
+    case "php":
+      return legacy((await import("./php-mode")).phpMode());
   }
 };
 

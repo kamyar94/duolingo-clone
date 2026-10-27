@@ -202,8 +202,11 @@ describe("coding payloads", () => {
     });
   });
 
-  it("accepts the example coding course", () => {
-    const file = path.resolve(__dirname, "../../courses/coding-demo.json");
-    expect(checkCourse(JSON.parse(readFileSync(file, "utf8")))).toEqual([]);
-  });
+  it.each(["coding-demo.json", "server-languages-demo.json"])(
+    "accepts the example coding course %s",
+    (name) => {
+      const file = path.resolve(__dirname, "../../courses", name);
+      expect(checkCourse(JSON.parse(readFileSync(file, "utf8")))).toEqual([]);
+    }
+  );
 });

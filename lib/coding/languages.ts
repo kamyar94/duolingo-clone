@@ -7,7 +7,7 @@ export type LanguageInfo = {
   label: string;
   /** File name used for the single file of a program in this language. */
   file: string;
-  /** Where the program runs: a browser runtime, or the server runner (phase 6). */
+  /** Where the program runs: a browser runtime, or a code runner on the server (runners/). */
   runtime: Runtime;
   /** Function tests (`call`) are supported. */
   functionTests: boolean;
@@ -27,6 +27,9 @@ export const CODE_LANGUAGES = {
   go: { label: "Go", file: "main.go", runtime: "server", functionTests: false },
   rust: { label: "Rust", file: "main.rs", runtime: "server", functionTests: false },
   ruby: { label: "Ruby", file: "main.rb", runtime: "server", functionTests: false },
+  php: { label: "PHP", file: "main.php", runtime: "server", functionTests: false },
+  perl: { label: "Perl", file: "main.pl", runtime: "server", functionTests: false },
+  lua: { label: "Lua", file: "main.lua", runtime: "server", functionTests: false },
   bash: { label: "Bash", file: "main.sh", runtime: "server", functionTests: false },
 } as const satisfies Record<string, LanguageInfo>;
 
@@ -69,6 +72,9 @@ export const STARTERS: Partial<Record<CodeLanguage, string>> = {
   go: 'package main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("Hello, world!")\n}\n',
   rust: 'fn main() {\n    println!("Hello, world!");\n}\n',
   ruby: 'puts "Hello, world!"\n',
+  php: '<?php\n\necho "Hello, world!\\n";\n',
+  perl: 'use strict;\nuse warnings;\n\nprint "Hello, world!\\n";\n',
+  lua: 'print("Hello, world!")\n',
   bash: 'echo "Hello, world!"\n',
 };
 

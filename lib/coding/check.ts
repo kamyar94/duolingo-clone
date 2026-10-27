@@ -1,6 +1,7 @@
 // Checks a program against its tests (section 4.5) through any runner: input and output tests
-// run the program once each, function tests share one run, SQL tests share one run with their
-// check queries. The outcome is computed by lib/coding/tests.ts.
+// run the program once each (server languages send all inputs in one request, so the program
+// compiles once), function tests share one run, SQL tests share one run with their check
+// queries. The outcome is computed by lib/coding/tests.ts.
 import { languageInfo } from "./languages";
 import {
   evaluateCallTests,
@@ -90,7 +91,17 @@ export const checkProgram = async (
     }
   }
 
-  if (language !== "sql")
+  // A server language compiles once and runs every input in one request.
+  if (language !== "sql" && io.length > 1 && languageInfo(language).runtime === "server") {
+    const result = await run({ ...base, inputs: io.map(({ test }) => test.stdin ?? "") }, onEvent);
+    const missing = unavailable(result);
+    if (missing) return summarize([], { unavailable: missing });
+    firstError ??= result.error ?? result.runs?.find((single) => single.error)?.error;
+    io.forEach(({ test, index }, i) =>
+      // Without its own result (the program did not compile), each test gets the whole result.
+      outcomes.push(evaluateIoTest(test, index, result.runs?.[i] ?? result))
+    );
+  } else if (language !== "sql")
     for (const { test, index } of io) {
       const result = await run({ ...base, stdin: test.stdin ?? "" }, onEvent);
       const missing = unavailable(result);

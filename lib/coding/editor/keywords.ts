@@ -42,6 +42,17 @@ export const KEYWORDS: Partial<Record<EditorMode, string[]>> = {
     while yield puts print gets require attr_accessor`),
   bash: words(`if then else elif fi case esac for while until do done in function select time
     echo read printf local export return exit source test true false`),
+  php: words(`abstract and array as break callable case catch class clone const continue declare
+    default do echo else elseif empty enum extends final finally fn for foreach function global
+    if implements include instanceof interface isset list match namespace new or print private
+    protected public readonly require return static switch throw trait try unset use var while
+    xor yield true false null count strlen str_repeat implode explode array_map array_filter
+    fgets trim printf`),
+  perl: words(`my our local sub if elsif else unless while until for foreach last next redo
+    return use strict warnings print printf say chomp split join push pop shift unshift keys
+    values exists delete defined die open close sort map grep scalar`),
+  lua: words(`and break do else elseif end false for function goto if in local nil not or repeat
+    return then true until while print pairs ipairs tostring tonumber string table math io`),
 };
 
 /** A few snippets per language, written with ${} placeholders (CodeMirror snippet syntax). */
@@ -78,4 +89,13 @@ export const SNIPPETS: Partial<Record<EditorMode, [label: string, template: stri
   ],
   ruby: [["def", "def ${name}\n\t${}\nend"]],
   bash: [["for", "for ${item} in ${items}; do\n\t${}\ndone"]],
+  php: [
+    ["foreach", "foreach (${items} as ${item}) {\n\t${}\n}"],
+    ["function", "function ${name}(${}) {\n\t\n}"],
+  ],
+  perl: [["foreach", "foreach my ${item} (${items}) {\n\t${}\n}"]],
+  lua: [
+    ["for", "for ${i} = 1, ${n} do\n\t${}\nend"],
+    ["function", "function ${name}(${})\n\t\nend"],
+  ],
 };

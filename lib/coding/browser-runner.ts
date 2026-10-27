@@ -2,11 +2,13 @@
 // hidden, sandboxed frame per page (lib/coding/sandbox.ts, lib/coding/workers/frame.ts). The
 // frame has no network access: this page fetches the runtime files it asks for and hands them
 // over. TypeScript is transpiled first by the TypeScript worker, which also answers completions.
+// Languages without a browser runtime go to the code runners on the server (server-transport.ts).
 import { OUTPUT_LIMIT } from "./js-harness";
 import { languageInfo } from "./languages";
 import { DEFAULT_TIME_LIMIT_MS, MAX_TIME_LIMIT_MS } from "./payload";
-import { serverRunner, type CodeRunner } from "./runner";
+import { serverRunner, setServerRunnerTransport, type CodeRunner } from "./runner";
 import { FRAME_SANDBOX, isRuntimePath, runnerFrameHtml } from "./sandbox";
+import { createServerTransport } from "./server-transport";
 import { sourceLine } from "./transpile";
 import type { RunEvent, RunRequest, RunResult } from "./types";
 import type {
@@ -17,6 +19,9 @@ import type {
   TsRequest,
   TsResponse,
 } from "./workers/protocol";
+
+const server = createServerTransport();
+setServerRunnerTransport(server.transport, server.cancel);
 
 const READY_LIMIT_MS = 20_000;
 /** Loading Pyodide on a slow phone can take a while; the frame's own limits apply first. */

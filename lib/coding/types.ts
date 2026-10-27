@@ -172,6 +172,11 @@ export type RunRequest = {
   setup?: string;
   queries?: string[];
   timeLimitMs?: number;
+  /**
+   * Server languages: run the program once per input after one compile. The result then holds
+   * one result per input in `runs`. Without it the program runs once with `stdin`.
+   */
+  inputs?: string[];
 };
 
 export type RunResult = {
@@ -187,6 +192,10 @@ export type RunResult = {
   /** Output went over the cap and was cut. */
   truncated?: boolean;
   durationMs?: number;
+  /** Server runs with `inputs`: one result per input, from one compile. */
+  runs?: RunResult[];
+  /** Server runs: what the compiler printed when it succeeded (warnings). */
+  compileOutput?: string;
 };
 
 // ---- checks ----
