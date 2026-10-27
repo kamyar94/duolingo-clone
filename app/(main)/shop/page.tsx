@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 
@@ -52,7 +52,6 @@ const ShopPage = async () => {
           <Items
             hearts={userProgress.hearts}
             points={userProgress.points}
-            hasActiveSubscription={isPro}
           />
         </div>
       </FeedWrapper>

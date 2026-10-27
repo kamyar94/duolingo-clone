@@ -1,5 +1,5 @@
 {
-  "name": "duolingo-clone",
+  "name": "lingo-selfhosted",
   "version": "1.0.1",
   "private": true,
   "scripts": {
@@ -12,23 +12,20 @@
     "format:fix": "prettier --write .",
     "db:studio": "drizzle-kit studio",
     "db:push": "drizzle-kit push",
-    "db:prod": "tsx ./scripts/prod.ts"
+    "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
-    "@clerk/nextjs": "^7.9.17",
-    "@neondatabase/serverless": "^1.2.0",
     "@radix-ui/react-avatar": "^1.2.6",
     "@radix-ui/react-dialog": "^1.3.0",
     "@radix-ui/react-progress": "^1.1.16",
     "@radix-ui/react-separator": "^1.2.0",
     "@radix-ui/react-slot": "^1.5.0",
-    "@vercel/config": "^0.12.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.0",
-    "dotenv": "^18.0.1",
     "drizzle-orm": "^0.45.4",
     "lucide-react": "^1.52.0",
     "next": "^16.4.0",
+    "pg": "^8.23.1",
     "ra-data-simple-rest": "^5.15.3",
     "react": "^19.3.0",
     "react-admin": "^5.15.4",
@@ -37,21 +34,21 @@
     "react-dom": "^19.3.0",
     "react-use": "^17.6.1",
     "sonner": "^2.0.8",
-    "stripe": "^22.6.2",
     "tailwind-merge": "^3.7.0",
     "tailwindcss-animate": "^1.0.7",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "autoprefixer": "^10.6.1",
     "drizzle-kit": "^0.31.11",
+    "esbuild": "0.28.2",
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
     "eslint-config-prettier": "^10.1.8",
-    "pg": "^8.23.1",
     "postcss": "^8",
     "prettier": "^3.9.8",
     "prettier-plugin-tailwindcss": "^0.8.0",
@@ -65,7 +62,7 @@
     "email": "sanidhyyy@gmail.com",
     "url": "https://github.com/sanidhyy"
   },
-  "description": "Interactive platform for language learning with lessons, quizzes, and progress tracking.",
+  "description": "Self-hosted build of Lingo (duolingo-clone by Sanidhya Kumar Verma, MIT): own sign-in, local Postgres, no payments.",
   "keywords": [
     "reactjs",
     "nextjs",

@@ -1,14 +1,8 @@
-import { auth } from "@clerk/nextjs/server";
+import { getCurrentUser } from "@/lib/auth";
 
+// Admins are marked in the database (invite made with --admin, or scripts/lingo.mjs admin).
 export const getIsAdmin = async () => {
-  const { userId } = await auth();
+  const user = await getCurrentUser();
 
-  if (!userId) return false;
-
-  const adminIds =
-    process.env.CLERK_ADMIN_IDS?.split(",")
-      .map((id) => id.trim())
-      .filter(Boolean) ?? [];
-
-  return adminIds.includes(userId);
+  return !!user?.isAdmin;
 };

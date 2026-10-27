@@ -1,6 +1,6 @@
 import { cache } from "react";
 
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth";
 import { eq } from "drizzle-orm";
 
 import db from "./drizzle";
@@ -10,12 +10,13 @@ import {
   lessons,
   units,
   userProgress,
-  userSubscription,
 } from "./schema";
 
-const DAY_IN_MS = 86_400_000;
-
 export const getCourses = cache(async () => {
+  const { userId } = await auth();
+
+  if (!userId) return [];
+
   const data = await db.query.courses.findMany();
 
   return data;
@@ -205,26 +206,10 @@ export const getLessonPercentage = cache(async () => {
   return percentage;
 });
 
-export const getUserSubscription = cache(async () => {
-  const { userId } = await auth();
-
-  if (!userId) return null;
-
-  const data = await db.query.userSubscription.findFirst({
-    where: eq(userSubscription.userId, userId),
-  });
-
-  if (!data) return null;
-
-  const isActive =
-    data.stripePriceId &&
-    data.stripeCurrentPeriodEnd?.getTime() + DAY_IN_MS > Date.now();
-
-  return {
-    ...data,
-    isActive: !!isActive,
-  };
-});
+// Paid "Pro" subscriptions are not part of this self-hosted build, so nobody has one.
+export const getUserSubscription = cache(
+  async (): Promise<{ isActive: boolean } | null> => null
+);
 
 export const getTopTenUsers = cache(async () => {
   const { userId } = await auth();

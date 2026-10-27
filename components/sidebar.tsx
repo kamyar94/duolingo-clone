@@ -1,17 +1,19 @@
-import { ClerkLoading, ClerkLoaded, UserButton } from "@clerk/nextjs";
-import { Loader } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { getCurrentUser } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 import { SidebarItem } from "./sidebar-item";
+import { SignOutButton } from "./sign-out-button";
 
 type SidebarProps = {
   className?: string;
 };
 
-export const Sidebar = ({ className }: SidebarProps) => {
+export const Sidebar = async ({ className }: SidebarProps) => {
+  const user = await getCurrentUser();
+
   return (
     <div
       className={cn(
@@ -38,20 +40,16 @@ export const Sidebar = ({ className }: SidebarProps) => {
         />
         <SidebarItem label="Quests" href="/quests" iconSrc="/quests.svg" />
         <SidebarItem label="Shop" href="/shop" iconSrc="/shop.svg" />
+        {user?.isAdmin && (
+          <SidebarItem label="Admin" href="/admin" iconSrc="/mascot.svg" />
+        )}
       </div>
 
-      <div className="p-4">
-        <ClerkLoading>
-          <Loader className="h-5 w-5 animate-spin text-muted-foreground" />
-        </ClerkLoading>
-
-        <ClerkLoaded>
-          <UserButton
-            appearance={{
-              elements: { userButtonPopoverCard: { pointerEvents: "initial" } },
-            }}
-          />
-        </ClerkLoaded>
+      <div className="flex items-center justify-between gap-x-2 p-4">
+        <p className="truncate font-bold text-neutral-600">
+          {user?.displayName}
+        </p>
+        <SignOutButton compact />
       </div>
     </div>
   );

@@ -151,11 +151,55 @@ export const userProgressRelations = relations(userProgress, ({ one }) => ({
   }),
 }));
 
-export const userSubscription = pgTable("user_subscription", {
+// Accounts live in this database (no outside sign-in service). People join only with a
+// single-use invite code made on the server with scripts/lingo.mjs.
+export const users = pgTable("users", {
+  id: text("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  displayName: text("display_name").notNull(),
+  passwordHash: text("password_hash").notNull(),
+  imageSrc: text("image_src").notNull().default("/mascot.svg"),
+  isAdmin: boolean("is_admin").notNull().default(false),
+  disabled: boolean("disabled").notNull().default(false),
+  failedLogins: integer("failed_logins").notNull().default(0),
+  lockedUntil: timestamp("locked_until"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const usersRelations = relations(users, ({ many }) => ({
+  sessions: many(sessions),
+}));
+
+// One row per signed-in browser. The id is the SHA-256 of the cookie value, so a copy of the
+// database alone cannot be used to sign in.
+export const sessions = pgTable("sessions", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  expiresAt: timestamp("expires_at").notNull(),
+});
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
+}));
+
+// Single-use codes. A code with resetUserId set lets that existing account choose a new
+// password instead of creating a new account.
+export const invites = pgTable("invites", {
   id: serial("id").primaryKey(),
-  userId: text("user_id").notNull().unique(),
-  stripeCustomerId: text("stripe_customer_id").notNull().unique(),
-  stripeSubscriptionId: text("stripe_subscription_id").notNull().unique(),
-  stripePriceId: text("stripe_price_id").notNull(),
-  stripeCurrentPeriodEnd: timestamp("stripe_current_period_end").notNull(),
+  codeHash: text("code_hash").notNull().unique(),
+  note: text("note").notNull().default(""),
+  isAdmin: boolean("is_admin").notNull().default(false),
+  resetUserId: text("reset_user_id").references(() => users.id, {
+    onDelete: "cascade",
+  }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  expiresAt: timestamp("expires_at").notNull(),
+  usedAt: timestamp("used_at"),
+  usedBy: text("used_by"),
 });

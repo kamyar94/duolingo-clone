@@ -1,29 +1,27 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
+  poweredByHeader: false,
   images: { unoptimized: true },
   devIndicators: false,
   headers: async () => [
     {
-      source: "/api/(.*)",
+      source: "/(.*)",
       headers: [
+        { key: "X-Frame-Options", value: "DENY" },
+        { key: "X-Content-Type-Options", value: "nosniff" },
+        { key: "Referrer-Policy", value: "same-origin" },
         {
-          key: "Access-Control-Allow-Origin",
-          value: "*",
-        },
-        {
-          key: "Access-Control-Allow-Methods",
-          value: "GET, POST, PUT, DELETE, OPTIONS",
-        },
-        {
-          key: "Access-Control-Allow-Headers",
-          value: "Content-Type, Authorization",
-        },
-        {
-          key: "Content-Range",
-          value: "bytes : 0-9/*",
+          key: "Permissions-Policy",
+          value: "camera=(), microphone=(), geolocation=(), payment=()",
         },
       ],
+    },
+    {
+      // The admin screens (react-admin) read the list total from this header.
+      source: "/api/(.*)",
+      headers: [{ key: "Content-Range", value: "bytes : 0-9/*" }],
     },
   ],
 };

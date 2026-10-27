@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const siteConfig: Metadata = {
   title: "Lingo",
   description:
-    "Interactive platform for language learning with lessons, quizzes, and progress tracking.",
+    "Lessons, quizzes and progress tracking for the family.",
   keywords: [
     "reactjs",
     "nextjs",
@@ -23,8 +23,6 @@ export const siteConfig: Metadata = {
     "zustand",
     "mysql",
     "lucide-react",
-    "clerk-themes",
-    "clerk",
     "postcss",
     "prettier",
     "react-dom",

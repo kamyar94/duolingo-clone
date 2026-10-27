@@ -4,18 +4,24 @@ export {};
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
-      // neon db uri
-      DATABASE_URL: string;
+      // Postgres connection (read by the pg library itself)
+      PGHOST?: string;
+      PGUSER?: string;
+      PGPASSWORD?: string;
+      PGDATABASE?: string;
 
-      // stripe api key and webhook
-      STRIPE_API_SECRET_KEY: string;
-      STRIPE_WEBHOOK_SECRET: string;
+      // public address, used to print invite links
+      BASE_URL?: string;
 
-      // public app url
-      NEXT_PUBLIC_APP_URL: string;
+      // sign-in settings
+      SESSION_DAYS?: string;
+      MAX_LOGIN_ATTEMPTS?: string;
+      LOGIN_LOCK_MINUTES?: string;
+      // "false" only for a test without https
+      COOKIE_SECURE?: string;
 
-      // clerk admin user id(s) separated by comma (,)
-      CLERK_ADMIN_IDS: string;
+      // folder with your own pictures, audio and video for courses (served at /media/...)
+      MEDIA_DIR?: string;
     }
   }
 }
