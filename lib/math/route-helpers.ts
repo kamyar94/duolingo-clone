@@ -21,7 +21,7 @@ export const jsonOk = (body: unknown) =>
   NextResponse.json(body, { headers: { "cache-control": "no-store" } });
 
 /** Browsers send Origin on POST; it must name this site (the cookie is SameSite=Lax anyway). */
-const sameOrigin = (request: Request) => {
+export const sameOrigin = (request: Request) => {
   const origin = request.headers.get("origin");
   if (!origin) return true;
   const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
