@@ -1,9 +1,12 @@
 import { relations } from "drizzle-orm";
 import {
   boolean,
+  index,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
+  real,
   serial,
   text,
   timestamp,
@@ -11,6 +14,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 import { MAX_HEARTS } from "@/constants";
+import { CHALLENGE_TYPES } from "@/lib/exercises/types";
 
 export const courses = pgTable("courses", {
   id: serial("id").primaryKey(),
@@ -62,7 +66,8 @@ export const lessonsRelations = relations(lessons, ({ one, many }) => ({
   challenges: many(challenges),
 }));
 
-export const challengesEnum = pgEnum("type", ["SELECT", "ASSIST"]);
+// SELECT and ASSIST are upstream's; the coding and math types are listed in lib/exercises/types.ts.
+export const challengesEnum = pgEnum("type", CHALLENGE_TYPES);
 
 export const challenges = pgTable("challenges", {
   id: serial("id").primaryKey(),
@@ -78,6 +83,9 @@ export const challenges = pgTable("challenges", {
   hint: text("hint"),
   explanation: text("explanation"),
   order: integer("order").notNull(),
+  // Everything a coding or math exercise needs (language, starter code, tests, answer spec...).
+  // Null for SELECT and ASSIST. Checked per type by lib/exercises/payload.ts.
+  payload: jsonb("payload"),
 });
 
 export const challengesRelations = relations(challenges, ({ one, many }) => ({
@@ -207,3 +215,187 @@ export const invites = pgTable("invites", {
   usedAt: timestamp("used_at"),
   usedBy: text("used_by"),
 });
+
+// ---- Coding lessons and math practice (docs/DESIGN-coding-and-math.md) ----
+// New tables only, so upstream's tables keep their shape. Times are UTC like the rest.
+
+const createdAt = () => timestamp("created_at").notNull().defaultNow();
+const updatedAt = () =>
+  timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date());
+const userRef = () =>
+  text("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull();
+const challengeRef = () =>
+  integer("challenge_id")
+    .references(() => challenges.id, { onDelete: "cascade" })
+    .notNull();
+
+// The learner's unfinished work per challenge (code, ink strokes), restored on return.
+export const challengeDrafts = pgTable(
+  "challenge_drafts",
+  {
+    id: serial("id").primaryKey(),
+    userId: userRef(),
+    challengeId: challengeRef(),
+    draft: jsonb("draft").notNull(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [unique().on(t.userId, t.challengeId)]
+);
+
+// Playground programs saved under a name. files: [{ name, content }].
+export const codeSnippets = pgTable(
+  "code_snippets",
+  {
+    id: serial("id").primaryKey(),
+    userId: userRef(),
+    name: text("name").notNull(),
+    language: text("language").notNull(),
+    files: jsonb("files").notNull(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("code_snippets_user_idx").on(t.userId, t.updatedAt)]
+);
+
+// Animated solution scripts. Every save is a new version; old versions stay.
+export const mathSolutions = pgTable(
+  "math_solutions",
+  {
+    id: serial("id").primaryKey(),
+    challengeId: challengeRef(),
+    version: integer("version").notNull(),
+    script: jsonb("script").notNull(),
+    authorId: text("author_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    createdAt: createdAt(),
+  },
+  (t) => [unique().on(t.challengeId, t.version)]
+);
+
+// Stored step analyses, found again by a fingerprint of the problem, the solution version and
+// the learner's normalised lines, so the same work is answered without a new AI call.
+export const mathAnalyses = pgTable(
+  "math_analyses",
+  {
+    id: serial("id").primaryKey(),
+    fingerprint: text("fingerprint").notNull().unique(),
+    challengeId: challengeRef(),
+    solutionVersion: integer("solution_version"),
+    analysis: jsonb("analysis").notNull(),
+    commonMistake: boolean("common_mistake").notNull().default(false),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("math_analyses_challenge_idx").on(t.challengeId, t.commonMistake)]
+);
+
+// One handwritten attempt: strokes, the rendered image, recognised lines, the learner's
+// corrections, the final answer, the grading and any follow-up conversation.
+export const mathAttempts = pgTable(
+  "math_attempts",
+  {
+    id: serial("id").primaryKey(),
+    userId: userRef(),
+    challengeId: challengeRef(),
+    strokes: jsonb("strokes").notNull().default([]),
+    imagePath: text("image_path"),
+    recognizedLatex: jsonb("recognized_latex"),
+    correctedLatex: jsonb("corrected_latex"),
+    answer: text("answer"),
+    grading: jsonb("grading"),
+    analysisId: integer("analysis_id").references(() => mathAnalyses.id, {
+      onDelete: "set null",
+    }),
+    provider: text("provider"),
+    model: text("model"),
+    conversation: jsonb("conversation").notNull().default([]),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    index("math_attempts_user_idx").on(t.userId, t.challengeId, t.createdAt),
+    index("math_attempts_challenge_idx").on(t.challengeId),
+  ]
+);
+
+// Per account and AI provider: the encrypted key (AES-256-GCM, lib/ai/crypto.ts), its last
+// four characters for display, the model chosen per task, and the tasks sent to this provider.
+export const userAiSettings = pgTable(
+  "user_ai_settings",
+  {
+    id: serial("id").primaryKey(),
+    userId: userRef(),
+    provider: text("provider").notNull(),
+    encryptedKey: text("encrypted_key"),
+    keyLastFour: text("key_last_four"),
+    models: jsonb("models").notNull().default({}),
+    tasks: text("tasks").array().notNull().default([]),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [unique().on(t.userId, t.provider)]
+);
+
+export const userVoiceSettings = pgTable("user_voice_settings", {
+  userId: text("user_id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  enabled: boolean("enabled").notNull().default(false),
+  voice: text("voice"),
+  speed: real("speed").notNull().default(1),
+  updatedAt: updatedAt(),
+});
+
+// Tokens used per request, so every account can see its own usage.
+export const aiUsage = pgTable(
+  "ai_usage",
+  {
+    id: serial("id").primaryKey(),
+    userId: userRef(),
+    provider: text("provider").notNull(),
+    model: text("model").notNull(),
+    task: text("task").notNull(),
+    inputTokens: integer("input_tokens").notNull().default(0),
+    outputTokens: integer("output_tokens").notNull().default(0),
+    createdAt: createdAt(),
+  },
+  (t) => [index("ai_usage_user_idx").on(t.userId, t.createdAt)]
+);
+
+export const challengeDraftsRelations = relations(challengeDrafts, ({ one }) => ({
+  challenge: one(challenges, {
+    fields: [challengeDrafts.challengeId],
+    references: [challenges.id],
+  }),
+}));
+
+export const mathSolutionsRelations = relations(mathSolutions, ({ one }) => ({
+  challenge: one(challenges, {
+    fields: [mathSolutions.challengeId],
+    references: [challenges.id],
+  }),
+}));
+
+export const mathAttemptsRelations = relations(mathAttempts, ({ one }) => ({
+  challenge: one(challenges, {
+    fields: [mathAttempts.challengeId],
+    references: [challenges.id],
+  }),
+  analysis: one(mathAnalyses, {
+    fields: [mathAttempts.analysisId],
+    references: [mathAnalyses.id],
+  }),
+}));
+
+export const mathAnalysesRelations = relations(mathAnalyses, ({ one }) => ({
+  challenge: one(challenges, {
+    fields: [mathAnalyses.challengeId],
+    references: [challenges.id],
+  }),
+}));

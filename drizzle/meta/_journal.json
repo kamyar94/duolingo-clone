@@ -15,6 +15,13 @@
       "when": 1793071817243,
       "tag": "0001_challenge_notes",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793117743130,
+      "tag": "0002_learning_tools",
+      "breakpoints": true
     }
   ]
 }
