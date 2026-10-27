@@ -1,0 +1,352 @@
+{
+  "title": "SQL basics (example)",
+  "imageSrc": "/playground.svg",
+  "units": [
+    {
+      "title": "SQL",
+      "description": "Selecting, joining and grouping rows",
+      "lessons": [
+        {
+          "title": "Selecting rows",
+          "challenges": [
+            {
+              "type": "CODE_READ",
+              "question": "Your first query",
+              "explanation": "SELECT names the columns you want, and FROM names the table they come from.",
+              "payload": {
+                "language": "sql",
+                "setup": "CREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, age INTEGER);\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 3), (2, 'Rex', 'dog', 5), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 2), (5, 'Coco', 'bird', 4);",
+                "text": "A `SELECT` statement asks the database for columns of a table. The table `pets` has the columns `id`, `name`, `kind` and `age`.\n\nPress Run, then change the columns and run it again.",
+                "code": "SELECT name, kind FROM pets;\n"
+              }
+            },
+            {
+              "type": "CODE_OUTPUT",
+              "question": "What does this query return?",
+              "hint": "Keep the pets younger than 4, then sort them by age with the oldest first.",
+              "explanation": "Milo (3), Buddy (2) and Luna (1) are younger than 4, and DESC puts the oldest first. The first line of the result holds the column names.",
+              "payload": {
+                "language": "sql",
+                "setup": "CREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, age INTEGER);\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 3), (2, 'Rex', 'dog', 5), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 2), (5, 'Coco', 'bird', 4);",
+                "code": "SELECT name, age FROM pets WHERE age < 4 ORDER BY age DESC;\n",
+                "expect": "name | age\nMilo | 3\nBuddy | 2\nLuna | 1",
+                "choices": [
+                  "name | age\nMilo | 3\nBuddy | 2\nLuna | 1",
+                  "name | age\nLuna | 1\nBuddy | 2\nMilo | 3",
+                  "name | age\nMilo | 3\nBuddy | 2",
+                  "name | age\nRex | 5\nCoco | 4\nMilo | 3"
+                ]
+              }
+            },
+            {
+              "type": "CODE_FILL",
+              "question": "List the names of the pets older than 3, oldest first.",
+              "hint": "Which sign keeps the larger ages, and which keyword reverses the order?",
+              "explanation": "age > 3 keeps Rex (5) and Coco (4), and DESC puts the largest age first.",
+              "payload": {
+                "language": "sql",
+                "setup": "CREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, age INTEGER);\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 3), (2, 'Rex', 'dog', 5), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 2), (5, 'Coco', 'bird', 4);",
+                "template": "SELECT name\nFROM pets\nWHERE age ___ 3\nORDER BY age ___;\n",
+                "answers": [
+                  ">",
+                  "DESC"
+                ],
+                "distractors": [
+                  "<",
+                  "ASC"
+                ],
+                "tests": [
+                  {
+                    "rows": [
+                      [
+                        "Rex"
+                      ],
+                      [
+                        "Coco"
+                      ]
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "type": "CODE_ORDER",
+              "question": "Put the lines in order to list the dogs, oldest first.",
+              "hint": "A query reads SELECT, FROM, WHERE and ORDER BY, in that order.",
+              "explanation": "SELECT and FROM come first, WHERE filters the rows, and ORDER BY sorts what is left.",
+              "payload": {
+                "language": "sql",
+                "setup": "CREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, age INTEGER);\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 3), (2, 'Rex', 'dog', 5), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 2), (5, 'Coco', 'bird', 4);",
+                "lines": [
+                  "SELECT name",
+                  "FROM pets",
+                  "WHERE kind = 'dog'",
+                  "ORDER BY age DESC;"
+                ],
+                "distractors": [
+                  "GROUP BY kind"
+                ],
+                "tests": [
+                  {
+                    "rows": [
+                      [
+                        "Rex"
+                      ],
+                      [
+                        "Buddy"
+                      ]
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "type": "CODE_WRITE",
+              "question": "List the names of all cats, youngest first.",
+              "hint": "Filter with WHERE kind = 'cat' and sort with ORDER BY age.",
+              "explanation": "WHERE keeps only the cats, and ORDER BY age sorts them from the youngest to the oldest.",
+              "payload": {
+                "language": "sql",
+                "setup": "CREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, age INTEGER);\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 3), (2, 'Rex', 'dog', 5), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 2), (5, 'Coco', 'bird', 4);",
+                "starter": "SELECT name FROM pets;\n",
+                "tests": [
+                  {
+                    "name": "Cats, youngest first",
+                    "rows": [
+                      [
+                        "Luna"
+                      ],
+                      [
+                        "Milo"
+                      ]
+                    ]
+                  },
+                  {
+                    "name": "The table is unchanged",
+                    "query": "SELECT COUNT(*) FROM pets",
+                    "rows": [
+                      [
+                        5
+                      ]
+                    ],
+                    "visible": false
+                  }
+                ],
+                "solution": "SELECT name FROM pets WHERE kind = 'cat' ORDER BY age;\n"
+              }
+            },
+            {
+              "type": "CODE_FIX",
+              "question": "The query should count the pets of each kind, but it gives one row per pet. Fix it.",
+              "hint": "Which column should be shared by the rows of one group?",
+              "explanation": "GROUP BY name makes a group for every name. GROUP BY kind makes one group per kind of pet.",
+              "payload": {
+                "language": "sql",
+                "setup": "CREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, age INTEGER);\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 3), (2, 'Rex', 'dog', 5), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 2), (5, 'Coco', 'bird', 4);",
+                "starter": "SELECT kind, COUNT(*) FROM pets GROUP BY name;\n",
+                "tests": [
+                  {
+                    "name": "One row per kind",
+                    "rows": [
+                      [
+                        "bird",
+                        1
+                      ],
+                      [
+                        "cat",
+                        2
+                      ],
+                      [
+                        "dog",
+                        2
+                      ]
+                    ],
+                    "ordered": false
+                  },
+                  {
+                    "name": "The table is unchanged",
+                    "query": "SELECT COUNT(*) FROM pets",
+                    "rows": [
+                      [
+                        5
+                      ]
+                    ],
+                    "visible": false
+                  }
+                ],
+                "solution": "SELECT kind, COUNT(*) FROM pets GROUP BY kind;\n"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Joining and grouping",
+          "challenges": [
+            {
+              "type": "CODE_READ",
+              "question": "Joining two tables",
+              "explanation": "JOIN lines up the rows of two tables where the ON condition is true.",
+              "payload": {
+                "language": "sql",
+                "setup": "CREATE TABLE homes (id INTEGER PRIMARY KEY, street TEXT);\nCREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, home_id INTEGER);\nINSERT INTO homes VALUES (1, 'Oak Street'), (2, 'Pine Street'), (3, 'Elm Street');\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 1), (2, 'Rex', 'dog', 2), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 3), (5, 'Coco', 'bird', 2);",
+                "text": "Each pet row holds the `id` of its home in `home_id`. `JOIN ... ON` pairs every pet with the home row that has that id.\n\nTry swapping the order of the two columns.",
+                "code": "SELECT homes.street AS street, pets.name AS pet\nFROM pets\nJOIN homes ON pets.home_id = homes.id\nORDER BY homes.street, pets.name;\n"
+              }
+            },
+            {
+              "type": "CODE_OUTPUT",
+              "question": "What does this query return?",
+              "hint": "Count the pets of each street. ORDER BY pets DESC puts the largest count first, and ties are sorted by street.",
+              "explanation": "Oak Street has Milo and Luna, Pine Street has Rex and Coco, and Elm Street has Buddy. Oak and Pine tie with 2 pets, so the street names break the tie.",
+              "payload": {
+                "language": "sql",
+                "setup": "CREATE TABLE homes (id INTEGER PRIMARY KEY, street TEXT);\nCREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, home_id INTEGER);\nINSERT INTO homes VALUES (1, 'Oak Street'), (2, 'Pine Street'), (3, 'Elm Street');\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 1), (2, 'Rex', 'dog', 2), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 3), (5, 'Coco', 'bird', 2);",
+                "code": "SELECT homes.street, COUNT(*) AS pets\nFROM homes\nJOIN pets ON pets.home_id = homes.id\nGROUP BY homes.street\nORDER BY pets DESC, homes.street;\n",
+                "expect": "street | pets\nOak Street | 2\nPine Street | 2\nElm Street | 1",
+                "choices": [
+                  "street | pets\nOak Street | 2\nPine Street | 2\nElm Street | 1",
+                  "street | pets\nElm Street | 1\nOak Street | 2\nPine Street | 2",
+                  "street | pets\nOak Street | 3\nPine Street | 1\nElm Street | 1",
+                  "street | pets\nOak Street | 2\nPine Street | 2"
+                ]
+              }
+            },
+            {
+              "type": "CODE_FILL",
+              "question": "List each dog together with the street where it lives.",
+              "hint": "The keyword that pairs rows of two tables, and the column of homes that holds the number to compare.",
+              "explanation": "JOIN homes ON pets.home_id = homes.id pairs each pet with its home. Buddy lives on Elm Street and Rex on Pine Street.",
+              "payload": {
+                "language": "sql",
+                "setup": "CREATE TABLE homes (id INTEGER PRIMARY KEY, street TEXT);\nCREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, home_id INTEGER);\nINSERT INTO homes VALUES (1, 'Oak Street'), (2, 'Pine Street'), (3, 'Elm Street');\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 1), (2, 'Rex', 'dog', 2), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 3), (5, 'Coco', 'bird', 2);",
+                "template": "SELECT homes.street, pets.name\nFROM pets\n___ homes ON pets.home_id = homes.___\nWHERE pets.kind = 'dog'\nORDER BY homes.street;\n",
+                "answers": [
+                  "JOIN",
+                  "id"
+                ],
+                "distractors": [
+                  "WHERE",
+                  "street"
+                ],
+                "tests": [
+                  {
+                    "rows": [
+                      [
+                        "Elm Street",
+                        "Buddy"
+                      ],
+                      [
+                        "Pine Street",
+                        "Rex"
+                      ]
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "type": "CODE_ORDER",
+              "question": "Put the lines in order to list the streets where a cat lives.",
+              "hint": "GROUP BY comes after WHERE, and the statement ends with a semicolon.",
+              "explanation": "The join pairs pets with homes, WHERE keeps the cats, and GROUP BY lists each street once.",
+              "payload": {
+                "language": "sql",
+                "setup": "CREATE TABLE homes (id INTEGER PRIMARY KEY, street TEXT);\nCREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, home_id INTEGER);\nINSERT INTO homes VALUES (1, 'Oak Street'), (2, 'Pine Street'), (3, 'Elm Street');\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 1), (2, 'Rex', 'dog', 2), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 3), (5, 'Coco', 'bird', 2);",
+                "lines": [
+                  "SELECT homes.street",
+                  "FROM homes",
+                  "JOIN pets ON pets.home_id = homes.id",
+                  "WHERE pets.kind = 'cat'",
+                  "GROUP BY homes.street;"
+                ],
+                "tests": [
+                  {
+                    "rows": [
+                      [
+                        "Oak Street"
+                      ]
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "type": "CODE_WRITE",
+              "question": "List the streets where more than one pet lives, with their number of pets.",
+              "hint": "Group the rows by street, then keep the groups with HAVING COUNT(*) > 1.",
+              "explanation": "WHERE filters rows before grouping. HAVING filters the groups after COUNT(*) has been computed.",
+              "payload": {
+                "language": "sql",
+                "setup": "CREATE TABLE homes (id INTEGER PRIMARY KEY, street TEXT);\nCREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, home_id INTEGER);\nINSERT INTO homes VALUES (1, 'Oak Street'), (2, 'Pine Street'), (3, 'Elm Street');\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 1), (2, 'Rex', 'dog', 2), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 3), (5, 'Coco', 'bird', 2);",
+                "starter": "SELECT homes.street, COUNT(*)\nFROM homes\nJOIN pets ON pets.home_id = homes.id\n-- add what is missing\n",
+                "tests": [
+                  {
+                    "name": "Streets with two pets",
+                    "rows": [
+                      [
+                        "Oak Street",
+                        2
+                      ],
+                      [
+                        "Pine Street",
+                        2
+                      ]
+                    ],
+                    "ordered": false
+                  },
+                  {
+                    "name": "The table is unchanged",
+                    "query": "SELECT COUNT(*) FROM pets",
+                    "rows": [
+                      [
+                        5
+                      ]
+                    ],
+                    "visible": false
+                  }
+                ],
+                "solution": "SELECT homes.street, COUNT(*)\nFROM homes\nJOIN pets ON pets.home_id = homes.id\nGROUP BY homes.street\nHAVING COUNT(*) > 1;\n"
+              }
+            },
+            {
+              "type": "CODE_FIX",
+              "question": "The query should list the streets where dogs live, but it gives the wrong streets. Fix it.",
+              "hint": "Check which two columns the JOIN compares.",
+              "explanation": "pets.id numbers the pets, not the homes. The home of a pet is found through pets.home_id.",
+              "payload": {
+                "language": "sql",
+                "setup": "CREATE TABLE homes (id INTEGER PRIMARY KEY, street TEXT);\nCREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, home_id INTEGER);\nINSERT INTO homes VALUES (1, 'Oak Street'), (2, 'Pine Street'), (3, 'Elm Street');\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 1), (2, 'Rex', 'dog', 2), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 3), (5, 'Coco', 'bird', 2);",
+                "starter": "SELECT homes.street\nFROM homes\nJOIN pets ON pets.id = homes.id\nWHERE pets.kind = 'dog';\n",
+                "tests": [
+                  {
+                    "name": "Streets with dogs",
+                    "rows": [
+                      [
+                        "Elm Street"
+                      ],
+                      [
+                        "Pine Street"
+                      ]
+                    ],
+                    "ordered": false
+                  },
+                  {
+                    "name": "The table is unchanged",
+                    "query": "SELECT COUNT(*) FROM pets",
+                    "rows": [
+                      [
+                        5
+                      ]
+                    ],
+                    "visible": false
+                  }
+                ],
+                "solution": "SELECT homes.street\nFROM homes\nJOIN pets ON pets.home_id = homes.id\nWHERE pets.kind = 'dog';\n"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

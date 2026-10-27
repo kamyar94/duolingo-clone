@@ -1,0 +1,266 @@
+{
+  "title": "Python basics (example)",
+  "imageSrc": "/playground.svg",
+  "units": [
+    {
+      "title": "Python",
+      "description": "Printing, variables, functions and loops",
+      "lessons": [
+        {
+          "title": "Printing and variables",
+          "challenges": [
+            {
+              "type": "CODE_READ",
+              "question": "Your first Python program",
+              "explanation": "print() writes a line to the console, and a variable keeps a value under a name so you can use it again.",
+              "payload": {
+                "language": "python",
+                "text": "`print()` shows values in the console, and a variable is a name for a value.\n\nPress Run, then change the place and run it again.",
+                "code": "place = \"Rome\"\nprint(\"Hello,\", place)\nprint(\"2 + 3 =\", 2 + 3)\n"
+              }
+            },
+            {
+              "type": "CODE_OUTPUT",
+              "question": "What does this program print?",
+              "hint": "Multiplication is done before subtraction.",
+              "explanation": "a * b is 12, and 12 - 2 is 10.",
+              "payload": {
+                "language": "python",
+                "code": "a = 4\nb = 3\nprint(a * b - 2)\n",
+                "expect": "10",
+                "choices": [
+                  "10",
+                  "12",
+                  "14",
+                  "7"
+                ]
+              }
+            },
+            {
+              "type": "CODE_FILL",
+              "question": "Complete the program so that it prints the total cost, 12.",
+              "hint": "The total is the price times the quantity.",
+              "explanation": "With a price of 4 and a quantity of 3, the total is 12.",
+              "payload": {
+                "language": "python",
+                "template": "price = ___\nquantity = 3\ntotal = price * ___\nprint(total)\n",
+                "answers": [
+                  "4",
+                  "quantity"
+                ],
+                "distractors": [
+                  "total",
+                  "7"
+                ],
+                "tests": [
+                  {
+                    "expect": "12"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "CODE_ORDER",
+              "question": "Put the lines in order so the program prints Hello, Rome!",
+              "hint": "A variable has to exist before another line uses it.",
+              "explanation": "place is created first, greeting is built from it, and print shows the greeting.",
+              "payload": {
+                "language": "python",
+                "lines": [
+                  "place = \"Rome\"",
+                  "greeting = \"Hello, \" + place + \"!\"",
+                  "print(greeting)"
+                ],
+                "distractors": [
+                  "print(place)"
+                ],
+                "tests": [
+                  {
+                    "expect": "Hello, Rome!"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "CODE_WRITE",
+              "question": "Read a whole number and print its double.",
+              "hint": "input() gives text, so turn it into a number with int() before you multiply.",
+              "explanation": "int(input()) reads the number and n * 2 doubles it.",
+              "payload": {
+                "language": "python",
+                "starter": "n = int(input())\n# print the double of n\n",
+                "tests": [
+                  {
+                    "stdin": "4\n",
+                    "expect": "8"
+                  },
+                  {
+                    "stdin": "10\n",
+                    "expect": "20"
+                  },
+                  {
+                    "stdin": "-3\n",
+                    "expect": "-6",
+                    "visible": false
+                  }
+                ],
+                "solution": "n = int(input())\nprint(n * 2)\n"
+              }
+            },
+            {
+              "type": "CODE_FIX",
+              "question": "The program should print the average of two numbers. Fix it.",
+              "hint": "Division is done before addition. Which part has to be added first?",
+              "explanation": "a + b / 2 divides only b by 2. Brackets make the sum come first: (a + b) / 2.",
+              "payload": {
+                "language": "python",
+                "starter": "a = int(input())\nb = int(input())\nprint(a + b / 2)\n",
+                "tests": [
+                  {
+                    "name": "Average of 4 and 10",
+                    "stdin": "4\n10\n",
+                    "expect": "^7(\\.0)?$",
+                    "match": "regex"
+                  },
+                  {
+                    "name": "Average of 6 and 6",
+                    "stdin": "6\n6\n",
+                    "expect": "^6(\\.0)?$",
+                    "match": "regex"
+                  },
+                  {
+                    "stdin": "1\n2\n",
+                    "expect": "^1\\.5$",
+                    "match": "regex",
+                    "visible": false
+                  }
+                ],
+                "solution": "a = int(input())\nb = int(input())\nprint((a + b) / 2)\n"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Functions and loops",
+          "challenges": [
+            {
+              "type": "CODE_READ",
+              "question": "A function and a loop",
+              "explanation": "def defines a function, return hands a value back, and range(1, 4) counts 1, 2 and 3.",
+              "payload": {
+                "language": "python",
+                "text": "A function packs steps under a name. A `for` loop repeats a block, and `range(1, 4)` counts from 1 up to 3.\n\nChange the range and run it again.",
+                "code": "def square(n):\n    return n * n\n\nfor i in range(1, 4):\n    print(i, square(i))\n"
+              }
+            },
+            {
+              "type": "CODE_OUTPUT",
+              "question": "What does this program print? Type the output.",
+              "hint": "range(1, 5) gives 1, 2, 3 and 4.",
+              "explanation": "The loop adds 1 + 2 + 3 + 4, so total ends as 10.",
+              "payload": {
+                "language": "python",
+                "code": "total = 0\nfor i in range(1, 5):\n    total += i\nprint(total)\n",
+                "expect": "10"
+              }
+            },
+            {
+              "type": "CODE_FILL",
+              "question": "Print the even numbers from 2 to 8, one per line.",
+              "hint": "range(start, stop, step) stops before stop.",
+              "explanation": "range(2, 10, 2) gives 2, 4, 6 and 8, and print(i) shows each one.",
+              "payload": {
+                "language": "python",
+                "template": "for i in range(2, ___, 2):\n    print(___)\n",
+                "answers": [
+                  "10",
+                  "i"
+                ],
+                "distractors": [
+                  "8",
+                  "n"
+                ],
+                "tests": [
+                  {
+                    "expect": "2\n4\n6\n8"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "CODE_ORDER",
+              "question": "Put the lines in order so the program prints HELLO!",
+              "hint": "The function is defined first, and its body is indented under def.",
+              "explanation": "The return line belongs to the function, so it is indented. The call comes last.",
+              "payload": {
+                "language": "python",
+                "lines": [
+                  "def shout(word):",
+                  "    return word.upper() + \"!\"",
+                  "print(shout(\"hello\"))"
+                ],
+                "tests": [
+                  {
+                    "expect": "HELLO!"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "CODE_WRITE",
+              "question": "Write a function is_even(n) that returns True when n is even.",
+              "hint": "An even number leaves no remainder when divided by 2.",
+              "explanation": "n % 2 is the remainder, so n % 2 == 0 is True exactly for even numbers.",
+              "payload": {
+                "language": "python",
+                "starter": "def is_even(n):\n    pass\n",
+                "tests": [
+                  {
+                    "call": "is_even(4)",
+                    "expect": "True"
+                  },
+                  {
+                    "call": "is_even(7)",
+                    "expect": "False"
+                  },
+                  {
+                    "call": "is_even(0)",
+                    "expect": "True",
+                    "visible": false
+                  }
+                ],
+                "solution": "def is_even(n):\n    return n % 2 == 0\n"
+              }
+            },
+            {
+              "type": "CODE_FIX",
+              "question": "sum_to(n) should add 1 + 2 + ... + n, but the answer is too small. Fix it.",
+              "hint": "range(1, n) stops before n.",
+              "explanation": "range(1, n) never reaches n. Use range(1, n + 1) to include it.",
+              "payload": {
+                "language": "python",
+                "starter": "def sum_to(n):\n    total = 0\n    for i in range(1, n):\n        total += i\n    return total\n",
+                "tests": [
+                  {
+                    "call": "sum_to(4)",
+                    "expect": "10"
+                  },
+                  {
+                    "call": "sum_to(1)",
+                    "expect": "1"
+                  },
+                  {
+                    "call": "sum_to(0)",
+                    "expect": "0",
+                    "visible": false
+                  }
+                ],
+                "solution": "def sum_to(n):\n    total = 0\n    for i in range(1, n + 1):\n        total += i\n    return total\n"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

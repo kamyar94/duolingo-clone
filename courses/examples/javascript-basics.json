@@ -1,0 +1,257 @@
+{
+  "title": "JavaScript basics (example)",
+  "imageSrc": "/playground.svg",
+  "units": [
+    {
+      "title": "JavaScript",
+      "description": "Values, arrays and functions",
+      "lessons": [
+        {
+          "title": "Values and output",
+          "challenges": [
+            {
+              "type": "CODE_READ",
+              "question": "Your first JavaScript program",
+              "explanation": "const makes a name for a value, a template string fills in values between ${ }, and console.log prints.",
+              "payload": {
+                "language": "javascript",
+                "text": "`console.log` prints values to the console. A string in backticks can hold values inside `${ }`.\n\nPress Run, then change the language and run it again.",
+                "code": "const language = \"JavaScript\";\nconst year = 2026;\nconsole.log(`Hello from ${language}!`);\nconsole.log(\"Next year is\", year + 1);\n"
+              }
+            },
+            {
+              "type": "CODE_OUTPUT",
+              "question": "What does this program print? Type the output.",
+              "hint": "The plus sign joins text, but it adds numbers.",
+              "explanation": "\"5\" is text, so \"5\" + 3 joins them into \"53\". 5 + 3 adds two numbers and gives 8. console.log separates its values with a space.",
+              "payload": {
+                "language": "javascript",
+                "code": "console.log(\"5\" + 3, 5 + 3);\n",
+                "expect": "53 8"
+              }
+            },
+            {
+              "type": "CODE_FILL",
+              "question": "Complete the program so that it prints the sum of the prices, 16.",
+              "hint": "A running total starts at zero. The loop visits every price in the list.",
+              "explanation": "total starts at 0, and the loop adds each price of the list prices to it: 3 + 5 + 8 = 16.",
+              "payload": {
+                "language": "javascript",
+                "template": "const prices = [3, 5, 8];\nlet total = ___;\nfor (const price of ___) {\n  total += price;\n}\nconsole.log(total);\n",
+                "answers": [
+                  "0",
+                  "prices"
+                ],
+                "distractors": [
+                  "1",
+                  "price"
+                ],
+                "tests": [
+                  {
+                    "expect": "16"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "CODE_ORDER",
+              "question": "Put the lines in order so the program prints 2, 4, 6.",
+              "hint": "The list has to exist before it is mapped, and the mapped list before it is printed.",
+              "explanation": "map builds a new list with every number doubled, and join turns it into text with commas.",
+              "payload": {
+                "language": "javascript",
+                "lines": [
+                  "const numbers = [1, 2, 3];",
+                  "const doubled = numbers.map((n) => n * 2);",
+                  "console.log(doubled.join(\", \"));"
+                ],
+                "tests": [
+                  {
+                    "expect": "2, 4, 6"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "CODE_WRITE",
+              "question": "Write a function capitalize(word) that returns the word with a capital first letter.",
+              "hint": "word[0] is the first letter, and word.slice(1) is the rest.",
+              "explanation": "Make the first letter upper case with toUpperCase() and add the rest of the word back.",
+              "payload": {
+                "language": "javascript",
+                "starter": "function capitalize(word) {\n  // return the word with a capital first letter\n}\n",
+                "tests": [
+                  {
+                    "call": "capitalize(\"lingo\")",
+                    "expect": "\"Lingo\""
+                  },
+                  {
+                    "call": "capitalize(\"code\")",
+                    "expect": "\"Code\""
+                  },
+                  {
+                    "call": "capitalize(\"a\")",
+                    "expect": "\"A\"",
+                    "visible": false
+                  }
+                ],
+                "solution": "function capitalize(word) {\n  return word[0].toUpperCase() + word.slice(1);\n}\n"
+              }
+            },
+            {
+              "type": "CODE_FIX",
+              "question": "larger(a, b) should return the larger of two numbers, but it returns the smaller one. Fix it.",
+              "hint": "Look at the comparison sign.",
+              "explanation": "a < b ? a : b picks a when a is smaller. Turning the sign around picks the larger one.",
+              "payload": {
+                "language": "javascript",
+                "starter": "function larger(a, b) {\n  return a < b ? a : b;\n}\n",
+                "tests": [
+                  {
+                    "call": "larger(2, 5)",
+                    "expect": "5"
+                  },
+                  {
+                    "call": "larger(9, 3)",
+                    "expect": "9"
+                  },
+                  {
+                    "call": "larger(4, 4)",
+                    "expect": "4",
+                    "visible": false
+                  }
+                ],
+                "solution": "function larger(a, b) {\n  return a > b ? a : b;\n}\n"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Arrays and functions",
+          "challenges": [
+            {
+              "type": "CODE_READ",
+              "question": "Filtering a list",
+              "explanation": "filter keeps the items for which the function returns true, and length counts the items.",
+              "payload": {
+                "language": "javascript",
+                "text": "An array holds a list of values. `filter` keeps the values for which an arrow function says yes.\n\nChange the limit from 80 and run it again.",
+                "code": "const scores = [72, 85, 90];\nconst passed = scores.filter((s) => s >= 80);\nconsole.log(passed);\nconsole.log(passed.length, \"of\", scores.length, \"passed\");\n"
+              }
+            },
+            {
+              "type": "CODE_OUTPUT",
+              "question": "What does this program print?",
+              "hint": "push adds an item at the end of the array.",
+              "explanation": "The array starts with three items, and push adds a fourth, so its length is 4.",
+              "payload": {
+                "language": "javascript",
+                "code": "const a = [1, 2, 3];\na.push(4);\nconsole.log(a.length);\n",
+                "expect": "4",
+                "choices": [
+                  "3",
+                  "4",
+                  "5",
+                  "undefined"
+                ]
+              }
+            },
+            {
+              "type": "CODE_FILL",
+              "question": "Join the words with commas and print them in capital letters.",
+              "hint": "One method joins an array into text, and another makes text upper case.",
+              "explanation": "join(\", \") gives \"sun, moon, star\", and toUpperCase() makes every letter a capital.",
+              "payload": {
+                "language": "javascript",
+                "template": "const words = [\"sun\", \"moon\", \"star\"];\nconst text = words.___(\", \");\nconsole.log(text.___());\n",
+                "answers": [
+                  "join",
+                  "toUpperCase"
+                ],
+                "distractors": [
+                  "split",
+                  "length"
+                ]
+              }
+            },
+            {
+              "type": "CODE_ORDER",
+              "question": "Put the lines in order so the program prints positive.",
+              "hint": "The function is defined before it is called, and the if block sits inside it.",
+              "explanation": "The if statement returns early for positive numbers. Other numbers reach the last return.",
+              "payload": {
+                "language": "javascript",
+                "lines": [
+                  "function sign(n) {",
+                  "  if (n > 0) {",
+                  "    return \"positive\";",
+                  "  }",
+                  "  return \"not positive\";",
+                  "}",
+                  "console.log(sign(5));"
+                ]
+              }
+            },
+            {
+              "type": "CODE_WRITE",
+              "question": "Write a function sumEven(numbers) that adds up the even numbers of an array.",
+              "hint": "filter the even numbers first, then add them up with reduce, or use a loop.",
+              "explanation": "n % 2 === 0 is true for even numbers. The sum of an empty list is 0.",
+              "payload": {
+                "language": "javascript",
+                "starter": "function sumEven(numbers) {\n  // add up the even numbers\n}\n",
+                "tests": [
+                  {
+                    "call": "sumEven([1, 2, 3, 4])",
+                    "expect": "6"
+                  },
+                  {
+                    "call": "sumEven([])",
+                    "expect": "0"
+                  },
+                  {
+                    "call": "sumEven([7, 9])",
+                    "expect": "0",
+                    "visible": false
+                  },
+                  {
+                    "call": "sumEven([2, 2, 5])",
+                    "expect": "4",
+                    "visible": false
+                  }
+                ],
+                "solution": "function sumEven(numbers) {\n  return numbers.filter((n) => n % 2 === 0).reduce((a, b) => a + b, 0);\n}\n"
+              }
+            },
+            {
+              "type": "CODE_FIX",
+              "question": "The program should print even or odd for the number it reads. Press Run and fix the error.",
+              "hint": "One equals sign assigns a value. Comparing needs more.",
+              "explanation": "n % 2 = 0 tries to assign. Three equals signs, n % 2 === 0, compare the two sides.",
+              "payload": {
+                "language": "javascript",
+                "starter": "const n = Number(input());\nif (n % 2 = 0) {\n  console.log(\"even\");\n} else {\n  console.log(\"odd\");\n}\n",
+                "tests": [
+                  {
+                    "stdin": "4\n",
+                    "expect": "even"
+                  },
+                  {
+                    "stdin": "7\n",
+                    "expect": "odd"
+                  },
+                  {
+                    "stdin": "0\n",
+                    "expect": "even",
+                    "visible": false
+                  }
+                ],
+                "solution": "const n = Number(input());\nif (n % 2 === 0) {\n  console.log(\"even\");\n} else {\n  console.log(\"odd\");\n}\n"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

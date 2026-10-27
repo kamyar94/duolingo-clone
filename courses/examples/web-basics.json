@@ -1,0 +1,397 @@
+{
+  "title": "Web basics (example)",
+  "imageSrc": "/playground.svg",
+  "units": [
+    {
+      "title": "HTML and CSS",
+      "description": "Structure a page and style it",
+      "lessons": [
+        {
+          "title": "HTML structure",
+          "challenges": [
+            {
+              "type": "WEB_LIVE",
+              "question": "Add a level 1 heading that says Welcome, and a paragraph below it.",
+              "hint": "A level 1 heading is written with the h1 tag, and a paragraph with the p tag.",
+              "explanation": "<h1>Welcome</h1> is the heading and <p>...</p> the paragraph. The checks read the page that the browser builds from your HTML.",
+              "payload": {
+                "html": "<main>\n  <!-- Add the heading and the paragraph here. -->\n</main>\n",
+                "css": "main {\n  font-family: sans-serif;\n}\n",
+                "js": "",
+                "editable": [
+                  "html"
+                ],
+                "checks": [
+                  {
+                    "name": "One level 1 heading",
+                    "selector": "main h1",
+                    "count": 1
+                  },
+                  {
+                    "name": "The heading says Welcome",
+                    "selector": "main h1",
+                    "text": "Welcome"
+                  },
+                  {
+                    "name": "A paragraph follows the heading",
+                    "selector": "main h1 + p"
+                  },
+                  {
+                    "name": "The paragraph is not empty",
+                    "selector": "main p",
+                    "text": "\\S",
+                    "textMatch": "regex",
+                    "visible": false
+                  }
+                ],
+                "solution": {
+                  "html": "<main>\n  <h1>Welcome</h1>\n  <p>This is my first page.</p>\n</main>\n",
+                  "css": "main {\n  font-family: sans-serif;\n}\n",
+                  "js": ""
+                }
+              }
+            },
+            {
+              "type": "WEB_LIVE",
+              "question": "Turn the three fruits into a bulleted list.",
+              "hint": "A bulleted list is a ul element, and each item inside it is an li element.",
+              "explanation": "<ul> holds the list and every <li> is one bullet. The three paragraphs are replaced by the three items.",
+              "payload": {
+                "html": "<h2>Fruit</h2>\n<p>Apple</p>\n<p>Banana</p>\n<p>Cherry</p>\n",
+                "css": "",
+                "js": "",
+                "editable": [
+                  "html"
+                ],
+                "checks": [
+                  {
+                    "name": "One bulleted list",
+                    "selector": "ul",
+                    "count": 1
+                  },
+                  {
+                    "name": "Three list items",
+                    "selector": "ul > li",
+                    "count": 3
+                  },
+                  {
+                    "name": "The first item is Apple",
+                    "selector": "ul > li",
+                    "text": "Apple"
+                  },
+                  {
+                    "name": "No loose paragraphs are left",
+                    "selector": "p",
+                    "count": 0,
+                    "visible": false
+                  }
+                ],
+                "solution": {
+                  "html": "<h2>Fruit</h2>\n<ul>\n  <li>Apple</li>\n  <li>Banana</li>\n  <li>Cherry</li>\n</ul>\n",
+                  "css": "",
+                  "js": ""
+                }
+              }
+            },
+            {
+              "type": "WEB_LIVE",
+              "question": "Turn the words Read more into a link to https://example.org.",
+              "hint": "A link is an a element, and its address goes into the href attribute.",
+              "explanation": "<a href=\"https://example.org\">Read more</a> shows the words Read more and sends the reader to the address in href.",
+              "payload": {
+                "html": "<p>Want to know more? Read more</p>\n",
+                "css": "",
+                "js": "",
+                "editable": [
+                  "html"
+                ],
+                "checks": [
+                  {
+                    "name": "One link",
+                    "selector": "a",
+                    "count": 1
+                  },
+                  {
+                    "name": "The link says Read more",
+                    "selector": "a",
+                    "text": "Read more"
+                  },
+                  {
+                    "name": "The link goes to example.org",
+                    "selector": "a",
+                    "attr": {
+                      "href": "https://example.org"
+                    }
+                  },
+                  {
+                    "name": "The question stays in the paragraph",
+                    "selector": "p",
+                    "text": "Want to know more?",
+                    "textMatch": "contains",
+                    "visible": false
+                  }
+                ],
+                "solution": {
+                  "html": "<p>Want to know more? <a href=\"https://example.org\">Read more</a></p>\n",
+                  "css": "",
+                  "js": ""
+                }
+              }
+            },
+            {
+              "type": "WEB_LIVE",
+              "question": "Add a button that says Subscribe to the form.",
+              "hint": "Use a button element inside the form, and give it type=\"button\" so that it does not send the form.",
+              "explanation": "<button type=\"button\">Subscribe</button> adds a button. The email field that was already there must stay.",
+              "payload": {
+                "html": "<form>\n  <label>Email <input type=\"email\" name=\"email\"></label>\n  <!-- Add the button here. -->\n</form>\n",
+                "css": "",
+                "js": "",
+                "editable": [
+                  "html"
+                ],
+                "checks": [
+                  {
+                    "name": "One button in the form",
+                    "selector": "form button",
+                    "count": 1
+                  },
+                  {
+                    "name": "The button says Subscribe",
+                    "selector": "form button",
+                    "text": "Subscribe"
+                  },
+                  {
+                    "name": "The button does not send the form",
+                    "selector": "form button",
+                    "attr": {
+                      "type": "button"
+                    }
+                  },
+                  {
+                    "name": "The email field is still there",
+                    "selector": "form input[type=email]",
+                    "count": 1,
+                    "visible": false
+                  }
+                ],
+                "solution": {
+                  "html": "<form>\n  <label>Email <input type=\"email\" name=\"email\"></label>\n  <button type=\"button\">Subscribe</button>\n</form>\n",
+                  "css": "",
+                  "js": ""
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "CSS and a little JavaScript",
+          "challenges": [
+            {
+              "type": "WEB_LIVE",
+              "question": "Make the heading navy blue.",
+              "hint": "The CSS property for the colour of text is color.",
+              "explanation": "h1 { color: navy; } selects every h1 and sets its text colour. The checks compare the colour the browser really shows.",
+              "payload": {
+                "html": "<h1>Lingo</h1>\n<p>Learn a little every day.</p>\n",
+                "css": "/* Make the heading navy blue. */\n",
+                "js": "",
+                "editable": [
+                  "css"
+                ],
+                "checks": [
+                  {
+                    "name": "The heading is navy",
+                    "selector": "h1",
+                    "style": {
+                      "color": "navy"
+                    }
+                  },
+                  {
+                    "name": "The paragraph keeps its colour",
+                    "selector": "p",
+                    "style": {
+                      "color": "black"
+                    },
+                    "visible": false
+                  }
+                ],
+                "solution": {
+                  "html": "<h1>Lingo</h1>\n<p>Learn a little every day.</p>\n",
+                  "css": "h1 {\n  color: navy;\n}\n",
+                  "js": ""
+                }
+              }
+            },
+            {
+              "type": "WEB_LIVE",
+              "question": "Give the primary button white text on a green background with rounded corners of 8px.",
+              "hint": "A class selector starts with a dot. You need color, background-color and border-radius.",
+              "explanation": ".primary { ... } styles only the elements with class primary, so the Cancel button stays as it was.",
+              "payload": {
+                "html": "<button class=\"primary\">Save</button>\n<button>Cancel</button>\n",
+                "css": "button {\n  padding: 8px 16px;\n}\n",
+                "js": "",
+                "editable": [
+                  "css"
+                ],
+                "checks": [
+                  {
+                    "name": "White text",
+                    "selector": "button.primary",
+                    "style": {
+                      "color": "white"
+                    }
+                  },
+                  {
+                    "name": "Green background",
+                    "selector": "button.primary",
+                    "style": {
+                      "background-color": "green"
+                    }
+                  },
+                  {
+                    "name": "Rounded corners",
+                    "selector": "button.primary",
+                    "style": {
+                      "border-top-left-radius": "8px"
+                    }
+                  },
+                  {
+                    "name": "The Cancel button keeps its padding",
+                    "selector": "button:not(.primary)",
+                    "style": {
+                      "padding-top": "8px"
+                    },
+                    "visible": false
+                  }
+                ],
+                "solution": {
+                  "html": "<button class=\"primary\">Save</button>\n<button>Cancel</button>\n",
+                  "css": "button {\n  padding: 8px 16px;\n}\n\n.primary {\n  color: white;\n  background-color: green;\n  border-radius: 8px;\n}\n",
+                  "js": ""
+                }
+              }
+            },
+            {
+              "type": "WEB_LIVE",
+              "question": "Put the three words in a row, centred, with 12px between them.",
+              "hint": "display: flex puts the children in a row. justify-content places them along the row, and gap spaces them.",
+              "explanation": "A flex container lays its children out in a row. justify-content: center centres them, and gap: 12px spaces them apart.",
+              "payload": {
+                "html": "<div class=\"row\">\n  <span>One</span>\n  <span>Two</span>\n  <span>Three</span>\n</div>\n",
+                "css": ".row {\n  border: 1px dashed gray;\n}\n",
+                "js": "",
+                "editable": [
+                  "css"
+                ],
+                "checks": [
+                  {
+                    "name": "The row is a flex container",
+                    "selector": ".row",
+                    "style": {
+                      "display": "flex"
+                    }
+                  },
+                  {
+                    "name": "The words are centred",
+                    "selector": ".row",
+                    "style": {
+                      "justify-content": "center"
+                    }
+                  },
+                  {
+                    "name": "12px between the words",
+                    "selector": ".row",
+                    "style": {
+                      "column-gap": "12px"
+                    },
+                    "visible": false
+                  }
+                ],
+                "solution": {
+                  "html": "<div class=\"row\">\n  <span>One</span>\n  <span>Two</span>\n  <span>Three</span>\n</div>\n",
+                  "css": ".row {\n  border: 1px dashed gray;\n  display: flex;\n  justify-content: center;\n  gap: 12px;\n}\n",
+                  "js": ""
+                }
+              }
+            },
+            {
+              "type": "WEB_LIVE",
+              "question": "Hide the secret note without deleting it from the page.",
+              "hint": "The display property can switch an element off. The note stays in the HTML.",
+              "explanation": ".secret { display: none; } removes the note from the layout, but it is still part of the page.",
+              "payload": {
+                "html": "<p class=\"note\">Everybody can read this.</p>\n<p class=\"note secret\">Only you can read this.</p>\n",
+                "css": "",
+                "js": "",
+                "editable": [
+                  "css"
+                ],
+                "checks": [
+                  {
+                    "name": "The secret note is still in the page",
+                    "selector": ".secret",
+                    "count": 1
+                  },
+                  {
+                    "name": "The secret note is hidden",
+                    "selector": ".secret",
+                    "style": {
+                      "display": "none"
+                    }
+                  },
+                  {
+                    "name": "The other note is shown",
+                    "selector": ".note:not(.secret)",
+                    "style": {
+                      "display": "block"
+                    },
+                    "visible": false
+                  }
+                ],
+                "solution": {
+                  "html": "<p class=\"note\">Everybody can read this.</p>\n<p class=\"note secret\">Only you can read this.</p>\n",
+                  "css": ".secret {\n  display: none;\n}\n",
+                  "js": ""
+                }
+              }
+            },
+            {
+              "type": "WEB_LIVE",
+              "question": "Use JavaScript to change the text of the greeting to Hello from JavaScript!",
+              "hint": "document.getElementById finds the element, and its textContent holds the text.",
+              "explanation": "The script runs after the page is built, finds the paragraph by its id and replaces its text.",
+              "payload": {
+                "html": "<p id=\"greeting\">Loading...</p>\n",
+                "css": "",
+                "js": "// Set the text of #greeting to: Hello from JavaScript!\n",
+                "editable": [
+                  "js"
+                ],
+                "checks": [
+                  {
+                    "name": "The greeting changed",
+                    "selector": "#greeting",
+                    "text": "Hello from JavaScript!"
+                  },
+                  {
+                    "name": "There is still one greeting",
+                    "selector": "#greeting",
+                    "count": 1,
+                    "visible": false
+                  }
+                ],
+                "solution": {
+                  "html": "<p id=\"greeting\">Loading...</p>\n",
+                  "css": "",
+                  "js": "document.getElementById(\"greeting\").textContent = \"Hello from JavaScript!\";\n"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
