@@ -29,6 +29,9 @@ COPY --from=build /src/public ./public
 COPY --from=build /src/drizzle ./drizzle
 COPY --from=build /src/courses ./courses
 COPY --from=build /src/dist ./scripts
+# Writable folder for the narration audio that the voice server made (deploy/docker-compose.yml
+# mounts a volume here; a new volume takes over this owner).
+RUN mkdir -p /voice-data && chown node:node /voice-data
 USER node
 EXPOSE 3000
 CMD ["node", "scripts/start.mjs"]
