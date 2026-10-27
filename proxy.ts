@@ -14,11 +14,13 @@ export default function proxy(req: NextRequest) {
   if (pathname.startsWith("/api/") || pathname.startsWith("/media/"))
     return new NextResponse("Unauthorized.", { status: 401 });
 
-  // Relative redirect, so it stays on https behind the Cloudflare tunnel.
-  return new NextResponse(null, {
-    status: 307,
-    headers: { Location: "/sign-in" },
-  });
+  // Built from the forwarded protocol, so it stays on https behind the Cloudflare tunnel.
+  const proto =
+    req.headers.get("x-forwarded-proto")?.split(",")[0] ||
+    req.nextUrl.protocol.replace(":", "");
+  const host = req.headers.get("host") ?? req.nextUrl.host;
+
+  return NextResponse.redirect(new URL("/sign-in", `${proto}://${host}`));
 }
 
 export const config = {

@@ -3,7 +3,6 @@
 import { auth, currentUser } from "@/lib/auth";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 import { MAX_HEARTS, POINTS_TO_REFILL } from "@/constants";
 import db from "@/db/drizzle";
@@ -41,7 +40,7 @@ export const upsertUserProgress = async (courseId: number) => {
 
     revalidatePath("/courses");
     revalidatePath("/learn");
-    redirect("/learn");
+    return;
   }
 
   await db.insert(userProgress).values({
@@ -53,7 +52,6 @@ export const upsertUserProgress = async (courseId: number) => {
 
   revalidatePath("/courses");
   revalidatePath("/learn");
-  redirect("/learn");
 };
 
 export const reduceHearts = async (challengeId: number) => {

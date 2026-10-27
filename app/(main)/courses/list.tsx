@@ -25,7 +25,11 @@ export const List = ({ courses, activeCourseId }: ListProps) => {
     if (id === activeCourseId) return router.push("/learn");
 
     startTransition(() => {
-      upsertUserProgress(id).catch(() => toast.error("Something went wrong."));
+      // The action saves the choice; moving on happens here, because a redirect thrown inside
+      // the action would reach the catch below and show an error toast.
+      upsertUserProgress(id)
+        .then(() => router.push("/learn"))
+        .catch(() => toast.error("Something went wrong."));
     });
   };
 
