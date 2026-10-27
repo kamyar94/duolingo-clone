@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { ReviewList, type ReviewRow } from "@/components/math/review-list";
@@ -32,7 +33,10 @@ const MathReviewPage = async () => {
       <h1 className="mb-2 text-2xl font-bold text-neutral-800">Math review</h1>
       <p className="mb-6 text-muted-foreground">
         The newest stored explanations of learners&apos; work. A common mistake is shown
-        straight away to anyone whose work matches it.
+        straight away to anyone whose work matches it.{" "}
+        <Link href="/math-author" className="font-bold text-sky-600 hover:underline">
+          Write animated solutions
+        </Link>
       </p>
       <ReviewList rows={rows} />
     </div>

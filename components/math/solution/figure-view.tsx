@@ -13,6 +13,8 @@ type FigureViewProps = {
   figure: Figure;
   /** Drawing progress per shape id, 0 to 1. */
   parts: Record<string, number>;
+  /** Author mode: called with the figure point that was clicked. */
+  onPick?: (point: Point2) => void;
 };
 
 const unit = (from: Point2, to: Point2): Point2 => {
@@ -29,7 +31,7 @@ const traced = (p: number) => ({
   strokeDashoffset: 1 - p,
 });
 
-export const FigureView = ({ figure, parts }: FigureViewProps) => {
+export const FigureView = ({ figure, parts, onPick }: FigureViewProps) => {
   const uid = useId().replace(/:/g, "");
   const scale = Math.max(figure.width, figure.height) / 320;
   const font = 13 * scale;
@@ -201,8 +203,20 @@ export const FigureView = ({ figure, parts }: FigureViewProps) => {
       data-figure-svg={figure.id}
       viewBox={`0 0 ${figure.width} ${figure.height}`}
       className="mx-auto block h-auto w-full"
-      style={{ maxWidth: Math.max(240, Math.min(figure.width * 1.6, 560)), aspectRatio: `${figure.width} / ${figure.height}` }}
       role="img"
+      onClick={
+        onPick
+          ? (event) => {
+              const rect = event.currentTarget.getBoundingClientRect();
+              const scale = Math.min(rect.width / figure.width, rect.height / figure.height) || 1;
+              onPick([
+                Math.round((event.clientX - rect.left) / scale),
+                Math.round((event.clientY - rect.top) / scale),
+              ]);
+            }
+          : undefined
+      }
+      style={{ cursor: onPick ? "crosshair" : undefined, maxWidth: Math.max(240, Math.min(figure.width * 1.6, 560)), aspectRatio: `${figure.width} / ${figure.height}` }}
       aria-label={figure.shapes
         .filter((shape) => (parts[shape.id] ?? 0) > 0 && (shape.label || shape.type === "text"))
         .map((shape) => plainLabel(shape.type === "text" ? shape.text : (shape.label ?? "")))

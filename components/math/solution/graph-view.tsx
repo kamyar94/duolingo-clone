@@ -20,11 +20,13 @@ import styles from "./player.module.css";
 type GraphViewProps = {
   graph: Graph;
   parts: Record<string, number>;
+  /** Author mode: called with the graph point that was clicked. */
+  onPick?: (point: Point2) => void;
 };
 
 const AREA_SAMPLES = 48;
 
-export const GraphView = ({ graph, parts }: GraphViewProps) => {
+export const GraphView = ({ graph, parts, onPick }: GraphViewProps) => {
   const functions = useMemo(
     () =>
       Object.fromEntries(
@@ -121,6 +123,7 @@ export const GraphView = ({ graph, parts }: GraphViewProps) => {
         zoom={false}
         viewBox={{ x: graph.view.x, y: graph.view.y, padding: 0 }}
         preserveAspectRatio={false}
+        onClick={onPick ? (point) => onPick([point[0], point[1]]) : undefined}
       >
         <Coordinates.Cartesian subdivisions={false} />
         {graph.items.map(draw)}
