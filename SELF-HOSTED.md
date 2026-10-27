@@ -27,7 +27,8 @@ what is different here.
 - **Coding lessons and math practice** are being built in phases after
   `docs/DESIGN-coding-and-math.md`. The groundwork is in place. New challenge types render
   through an exercise registry, each account keeps its own encrypted AI keys, and an egress
-  proxy is the app's only way out to the AI providers (see below).
+  proxy is the app's only way out to the AI providers (see below). Math practice with a pen
+  works now (see "Math practice" below).
 
 ## Running it
 
@@ -123,6 +124,73 @@ refuse a payload that does not match. `update` replaces payloads in place like t
 Outside Docker the server tool needs tsx, because the payload checks are TypeScript, so run it
 as `pnpm exec tsx scripts/lingo.mjs <command>`.
 
+## Math practice
+
+A `MATH` challenge shows its statement with the math typeset by KaTeX, an optional figure, a
+writing canvas and an answer box. The learner works the problem by hand with a pen, a finger or
+the mouse and then presses Submit. The handwriting is sent as a picture to the provider and
+model the learner chose for recognition, and the lines come back as LaTeX in editable math
+fields, so a misread symbol can be fixed without another AI call. The next Check grades the
+work, and the lesson counts the result for hearts and points like any other answer. The
+example course `courses/math-demo.json` has one problem of each answer kind that the automatic
+check covers.
+
+```json
+{
+  "type": "MATH",
+  "question": "A cyclist rides 120 m at 12 m/s. How long does the ride take?",
+  "payload": {
+    "statement": "A cyclist rides $120\\,\\mathrm{m}$ at $12\\,\\mathrm{m/s}$. How long does the ride take?",
+    "figure": { "src": "/media/cyclist.svg", "alt": "A cyclist on a straight road" },
+    "answer": { "kind": "numeric", "value": 10, "unit": "s", "tolerance": 0.01 },
+    "solution": ["t = \\frac{d}{v}", "t = \\frac{120}{12} = 10\\,\\mathrm{s}"]
+  }
+}
+```
+
+- `statement` (optional) is the problem text with math between dollar signs. Without it the
+  question is shown.
+- `figure` (optional) is a picture on this site, usually `/media/<file name>`, with an `alt`
+  text, an optional `caption` and an optional display `width` in pixels.
+- `answer` says how the final answer is checked. The kind `numeric` takes a `value` (a number,
+  or LaTeX that evaluates to one), an optional absolute `tolerance` or `relativeTolerance`, and
+  an optional `unit` written like `m/s`, `km/h`, `kg*m/s^2` or `deg`. Learners may answer in any
+  unit of the same kind, which is converted before comparing. The kind `expression` takes the
+  expected expression or equation as LaTeX in `value` and accepts every equivalent form. The
+  kind `choice` takes a list of `choices` and the index of the right one in `correct`, counted
+  from 0, or a list of indexes when several must be picked. The kind `freeform` has no
+  automatic check, so the AI grader judges the whole worked solution, guided by an optional
+  `value` that describes a full answer.
+- `solution` (optional but recommended) is the reference solution as LaTeX lines. Only the AI
+  grader sees it.
+
+The learner's browser never receives the stored answer, the tolerance or the reference
+solution. Without a tolerance, a numeric answer must match up to rounding noise, so give one
+whenever learners round.
+
+Grading has two layers, and the first one decides. The Cortex Compute Engine checks the final
+answer against the `answer` of the course file. The AI model then studies the steps and returns
+the first wrong line, the kind of mistake, an explanation, the corrected line and a hint. When
+the two disagree about the final answer, the automatic check counts and the disagreement is
+kept with the attempt. Every explanation is stored under a fingerprint of the problem, its
+solution version and the learner's normalised lines, so the same work submitted again is
+answered from the database without an AI call. Admins see the stored explanations on
+`/math-review`, with how often each was used and how often the check disagreed, and can mark
+good ones as common mistakes of their problem. Learners can type follow-up questions about an
+explanation, and the conversation is stored with the attempt.
+
+The routes under `/api/math` accept requests from signed-in accounts on this site only. A
+handwriting picture may be a PNG of at most 3 MB and 2048 by 8192 pixels, and a drawing at most
+100,000 points. Each account may send 30 requests a minute to each math route, on top of the
+AI limits below. The strokes of every attempt are kept, so the same handwriting can be read
+again later with another provider.
+
+The canvas keeps the learner's writing as a draft on the server and in the browser, so a reload
+loses nothing. Once a pen touches the canvas, fingers stop drawing and pan and zoom instead,
+which keeps a resting palm off the page. The page `/pen-check` shows live what a pen, a finger
+or a mouse reports (pressure, tilt, buttons and samples per second), and the readings can be
+copied as text. It is the quickest way to see whether a new device reports pressure.
+
 ## AI settings, keys and the egress proxy
 
 Math practice uses an AI provider chosen by each learner, with the learner's own key. The
@@ -153,6 +221,12 @@ course imports and the AI service against a real Postgres when `LINGO_TEST_PG_UR
 server where the test user may create databases, for example
 `postgres://lingo:secret@127.0.0.1:5432/postgres`. They create their own databases and drop
 them afterwards.
+
+`tests/e2e/math-http.test.ts` runs math practice end to end over HTTP against the production
+build. It starts the standalone server with a provider mock, signs a test account in, posts
+strokes, grades the read lines and checks that the same work is answered from the stored
+analysis without a provider call. Run `pnpm build` first, then the tests with `LINGO_E2E=1`
+next to `LINGO_TEST_PG_URL`. The app listens on port 3102 unless `LINGO_E2E_PORT` names another.
 
 ## Keeping up with upstream
 

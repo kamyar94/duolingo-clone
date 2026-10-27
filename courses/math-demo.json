@@ -1,0 +1,46 @@
+{
+  "title": "Math (example)",
+  "imageSrc": "/mascot.svg",
+  "units": [
+    {
+      "title": "Unit 1",
+      "description": "Three kinds of answers",
+      "lessons": [
+        {
+          "title": "Motion and algebra",
+          "challenges": [
+            {
+              "type": "MATH",
+              "question": "A cyclist rides 120 m at 12 m/s. How long does the ride take?",
+              "hint": "Time is distance divided by speed.",
+              "explanation": "t = d / v = 120 m / 12 m/s = 10 s.",
+              "payload": {
+                "statement": "A cyclist rides $120\\,\\mathrm{m}$ at $12\\,\\mathrm{m/s}$. How long does the ride take?\n\nWork it out by hand, then give the time.",
+                "answer": { "kind": "numeric", "value": 10, "unit": "s", "tolerance": 0.01 },
+                "solution": ["t = \\frac{d}{v}", "t = \\frac{120\\,\\mathrm{m}}{12\\,\\mathrm{m/s}} = 10\\,\\mathrm{s}"]
+              }
+            },
+            {
+              "type": "MATH",
+              "question": "Expand (x + 1)^2.",
+              "payload": {
+                "statement": "Expand $(x+1)^2$.",
+                "answer": { "kind": "expression", "value": "x^2+2x+1" },
+                "solution": ["(x+1)^2 = (x+1)(x+1)", "= x^2 + x + x + 1", "= x^2 + 2x + 1"]
+              }
+            },
+            {
+              "type": "MATH",
+              "question": "Which number solves 2x - 4 = 6?",
+              "payload": {
+                "statement": "Which number solves $2x - 4 = 6$?",
+                "answer": { "kind": "choice", "choices": ["$x = 1$", "$x = 5$", "$x = -5$"], "correct": 1 },
+                "solution": ["2x = 10", "x = 5"]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
