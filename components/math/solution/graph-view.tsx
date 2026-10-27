@@ -1,6 +1,6 @@
 "use client";
 
-// Graphs of a solution script, drawn with Mafs (MIT, https://mafs.dev). Each item is drawn up
+// Graphs of a solution script, drawn with Mafs (MIT licence). Each item is drawn up
 // to its progress in the frame: a curve grows from left to right, a point moves along its
 // function, an area fills and a vector or segment grows from its start. Panning and zooming
 // are off, so the view always matches the script.
