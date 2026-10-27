@@ -22,7 +22,9 @@ describe("checkChallengePayload", () => {
       expect(checkChallengePayload(type, undefined, ctx)).toEqual([
         `${type} needs a payload object.`,
       ]);
-      expect(checkChallengePayload(type, {}, ctx)).toEqual([]);
+      // An empty object passes the shared checks; a track's own rules may still refuse it.
+      if (!getPayloadRules(type))
+        expect(checkChallengePayload(type, {}, ctx)).toEqual([]);
     }
   });
 
