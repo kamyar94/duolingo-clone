@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -10,6 +10,9 @@ import { toast } from "sonner";
 
 import { upsertChallengeProgress } from "@/actions/challenge-progress";
 import { reduceHearts } from "@/actions/user-progress";
+import { ExerciseHost } from "@/components/exercises/exercise-host";
+import { getExercise } from "@/components/exercises/registry";
+import type { ExerciseCheck } from "@/components/exercises/types";
 import { MAX_HEARTS } from "@/constants";
 import { challengeOptions, challenges } from "@/db/schema";
 import { useHeartsModal } from "@/store/use-hearts-modal";
@@ -81,6 +84,15 @@ export const Quiz = ({
   const challenge = challenges[activeIndex];
   const options = challenge?.challengeOptions ?? [];
 
+  // Coding and math challenges render through the exercise registry and report their result.
+  const exercise = challenge ? getExercise(challenge.type) : null;
+  const [exerciseCheck, setExerciseCheck] = useState<ExerciseCheck | null>(null);
+  const [checking, setChecking] = useState(false);
+  const setCheck = useCallback(
+    (check: ExerciseCheck | null) => setExerciseCheck(() => check),
+    []
+  );
+
   const onNext = () => {
     setActiveIndex((current) => current + 1);
   };
@@ -92,7 +104,7 @@ export const Quiz = ({
   };
 
   const onContinue = () => {
-    if (!selectedOption) return;
+    if (!selectedOption && !exercise) return;
 
     if (status === "wrong") {
       setStatus("none");
@@ -107,11 +119,26 @@ export const Quiz = ({
       return;
     }
 
+    if (exercise) {
+      if (!exerciseCheck || checking || pending) return;
+      setChecking(true);
+      Promise.resolve()
+        .then(exerciseCheck)
+        .then((result) => result && applyResult(result.correct))
+        .catch(() => toast.error("Something went wrong. Please try again."))
+        .finally(() => setChecking(false));
+      return;
+    }
+
     const correctOption = options.find((option) => option.correct);
 
     if (!correctOption) return;
 
-    if (correctOption.id === selectedOption) {
+    applyResult(correctOption.id === selectedOption);
+  };
+
+  const applyResult = (correct: boolean) => {
+    if (correct) {
       startTransition(() => {
         upsertChallengeProgress(challenge.id)
           .then((response) => {
@@ -201,6 +228,37 @@ export const Quiz = ({
       </>
     );
   }
+
+  if (exercise)
+    return (
+      <>
+        {incorrectAudio}
+        {correctAudio}
+        <Header
+          hearts={hearts}
+          percentage={percentage}
+          hasActiveSubscription={!!userSubscription?.isActive}
+        />
+
+        <ExerciseHost
+          key={challenge.id}
+          entry={exercise}
+          challenge={challenge}
+          status={status}
+          disabled={pending || checking}
+          setCheck={setCheck}
+          onResult={(result) => applyResult(result.correct)}
+        />
+
+        <Footer
+          disabled={
+            pending || checking || (status === "none" && !exerciseCheck)
+          }
+          status={status}
+          onCheck={onContinue}
+        />
+      </>
+    );
 
   const title =
     challenge.type === "ASSIST"

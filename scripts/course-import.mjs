@@ -1,8 +1,14 @@
 // Course files (JSON) to database rows. Shared by scripts/start.mjs (demo course on a new
 // database) and scripts/lingo.mjs (import and update commands). The format is described in
 // SELF-HOSTED.md.
+//
+// The coding and math types carry a payload, checked by lib/exercises/payload.ts and the rules of
+// each track. Those are TypeScript files: the Docker build bundles this script with esbuild, and
+// outside Docker it runs with tsx (pnpm exec tsx scripts/lingo.mjs ...).
+import { checkChallengePayload } from "../lib/exercises/payload.ts";
+import { CHALLENGE_TYPES, isExerciseType } from "../lib/exercises/types.ts";
 
-const TYPES = new Set(["SELECT", "ASSIST"]);
+const TYPES = new Set(CHALLENGE_TYPES);
 const isPath = (v) => typeof v === "string" && v.startsWith("/");
 
 export const checkCourse = (course) => {
@@ -28,14 +34,21 @@ export const checkCourse = (course) => {
 
       (lesson.challenges ?? []).forEach((ch, c) => {
         const C = `challenge ${c + 1}`;
-        if (!TYPES.has(ch.type)) errors.push(where(U, L, C, 'type must be "SELECT" or "ASSIST".'));
+        if (!TYPES.has(ch.type)) errors.push(where(U, L, C, `type must be one of ${[...TYPES].join(", ")}.`));
         if (typeof ch.question !== "string" || !ch.question.trim()) errors.push(where(U, L, C, "question missing."));
         for (const key of ["hint", "explanation"])
           if (ch[key] != null && typeof ch[key] !== "string") errors.push(where(U, L, C, `${key} must be text.`));
+        if (ch.options != null && !Array.isArray(ch.options)) errors.push(where(U, L, C, "options must be a list."));
         const options = Array.isArray(ch.options) ? ch.options : [];
-        if (options.length < 2) errors.push(where(U, L, C, "needs at least two options."));
-        if (options.filter((o) => o.correct === true).length !== 1)
-          errors.push(where(U, L, C, "needs exactly one option with correct: true."));
+        // Multiple choice needs its options; coding and math exercises may use them or not.
+        if (!isExerciseType(ch.type)) {
+          if (options.length < 2) errors.push(where(U, L, C, "needs at least two options."));
+          if (options.filter((o) => o.correct === true).length !== 1)
+            errors.push(where(U, L, C, "needs exactly one option with correct: true."));
+        }
+        if (TYPES.has(ch.type))
+          for (const problem of checkChallengePayload(ch.type, ch.payload, { question: ch.question ?? "", options }))
+            errors.push(where(U, L, C, problem));
         options.forEach((o, i) => {
           const O = `option ${i + 1}`;
           if (typeof o.text !== "string" || !o.text.trim()) errors.push(where(U, L, C, O, "text missing."));
@@ -51,6 +64,8 @@ export const checkCourse = (course) => {
 
 const one = async (client, text, values) => (await client.query(text, values)).rows[0];
 const note = (value) => (typeof value === "string" && value.trim() ? value.trim() : null);
+const payloadOf = (ch) => (ch.payload == null ? null : JSON.stringify(ch.payload));
+const optionsOf = (ch) => (Array.isArray(ch.options) ? ch.options : []);
 
 // Adds the whole course in one transaction: either all of it lands or none of it does.
 export const importCourse = async (pool, course) => {
@@ -88,11 +103,11 @@ export const importCourse = async (pool, course) => {
         for (const [c, ch] of lesson.challenges.entries()) {
           const { id: challengeId } = await one(
             client,
-            'insert into challenges (lesson_id, type, question, hint, explanation, "order") values ($1, $2, $3, $4, $5, $6) returning id',
-            [lessonId, ch.type, ch.question, note(ch.hint), note(ch.explanation), c + 1]
+            'insert into challenges (lesson_id, type, question, hint, explanation, "order", payload) values ($1, $2, $3, $4, $5, $6, $7) returning id',
+            [lessonId, ch.type, ch.question, note(ch.hint), note(ch.explanation), c + 1, payloadOf(ch)]
           );
           counts.challenges++;
-          for (const o of ch.options) {
+          for (const o of optionsOf(ch)) {
             await client.query(
               "insert into challenge_options (challenge_id, text, correct, image_src, audio_src) values ($1, $2, $3, $4, $5)",
               [challengeId, o.text, o.correct === true, o.imageSrc ?? null, o.audioSrc ?? null]
@@ -112,8 +127,8 @@ export const importCourse = async (pool, course) => {
 };
 
 // Applies a changed file to the course with the same title, in place, so everyone's progress
-// stays: titles, descriptions, questions, answers, pictures, sounds, hints and explanations are
-// replaced. Units, lessons, challenges and options must match the database in number and order;
+// stays: titles, descriptions, types, questions, answers, pictures, sounds, hints, explanations
+// and payloads are replaced. Units, lessons, challenges and options must match the database in number and order;
 // otherwise nothing changes.
 export const updateCourse = async (pool, course) => {
   const errors = checkCourse(course);
@@ -151,14 +166,14 @@ export const updateCourse = async (pool, course) => {
         sameCount(`${L} challenges`, challengeIds, lesson.challenges);
         for (const [c, ch] of lesson.challenges.entries()) {
           await client.query(
-            "update challenges set type = $2, question = $3, hint = $4, explanation = $5 where id = $1",
-            [challengeIds[c], ch.type, ch.question, note(ch.hint), note(ch.explanation)]
+            "update challenges set type = $2, question = $3, hint = $4, explanation = $5, payload = $6 where id = $1",
+            [challengeIds[c], ch.type, ch.question, note(ch.hint), note(ch.explanation), payloadOf(ch)]
           );
           counts.challenges++;
 
           const optionIds = await ids("select id from challenge_options where challenge_id = $1 order by id", challengeIds[c]);
-          sameCount(`${L} > challenge ${c + 1} options`, optionIds, ch.options);
-          for (const [o, option] of ch.options.entries()) {
+          sameCount(`${L} > challenge ${c + 1} options`, optionIds, optionsOf(ch));
+          for (const [o, option] of optionsOf(ch).entries()) {
             await client.query(
               "update challenge_options set text = $2, correct = $3, image_src = $4, audio_src = $5 where id = $1",
               [optionIds[o], option.text, option.correct === true, option.imageSrc ?? null, option.audioSrc ?? null]

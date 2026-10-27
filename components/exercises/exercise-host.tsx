@@ -1,0 +1,106 @@
+"use client";
+
+import { useCallback, useEffect, type KeyboardEvent } from "react";
+
+import {
+  ChallengeExplanation,
+  ChallengeHint,
+} from "@/app/lesson/challenge-notes";
+import { cn } from "@/lib/utils";
+
+import type {
+  ExerciseCheck,
+  ExerciseEntry,
+  ExerciseProps,
+  ExerciseResult,
+  ExerciseStatus,
+  LessonChallenge,
+} from "./types";
+
+type ExerciseHostProps = {
+  entry: ExerciseEntry;
+  challenge: LessonChallenge;
+  status: ExerciseStatus;
+  disabled: boolean;
+  setCheck: (check: ExerciseCheck | null) => void;
+  onResult: (result: ExerciseResult) => void;
+};
+
+// Enter checks the answer anywhere in a lesson (footer shortcut). Inside an editor, a text
+// field or a math field it must type a new line instead, so it does not reach the footer.
+const EDITABLE =
+  "input, textarea, select, [contenteditable=''], [contenteditable='true'], math-field, [data-exercise-keys]";
+
+const keepTypingKeys = (event: KeyboardEvent<HTMLDivElement>) => {
+  const target = event.target as HTMLElement | null;
+  if (event.key === "Enter" && target?.closest?.(EDITABLE))
+    event.stopPropagation();
+};
+
+// Lays out one coding or math exercise in the lesson: heading, hint, the exercise itself and,
+// once checked, the explanation. Mounted with key={challenge.id}, so every challenge starts fresh.
+export const ExerciseHost = ({
+  entry,
+  challenge,
+  status,
+  disabled,
+  setCheck,
+  onResult,
+}: ExerciseHostProps) => {
+  const Exercise = entry.component;
+  const wide = entry.layout === "wide";
+  const title = entry.title ? entry.title(challenge) : challenge.question;
+
+  // A check registered by this exercise must not outlive it.
+  useEffect(() => () => setCheck(null), [setCheck]);
+
+  const reportResult = useCallback<ExerciseProps["reportResult"]>(
+    (result) => {
+      if (status === "none" && !disabled) onResult(result);
+    },
+    [status, disabled, onResult]
+  );
+
+  return (
+    <div className="flex-1" onKeyDown={keepTypingKeys}>
+      <div className="flex h-full items-center justify-center">
+        <div
+          className={cn(
+            "flex w-full flex-col gap-y-8 px-6",
+            wide
+              ? "max-w-[1140px] lg:px-10"
+              : "lg:min-h-[350px] lg:w-[600px] lg:gap-y-12 lg:px-0"
+          )}
+        >
+          {title && (
+            <h1 className="text-center text-lg font-bold text-neutral-700 lg:text-start lg:text-3xl">
+              {title}
+            </h1>
+          )}
+
+          <div>
+            {challenge.hint && (
+              <ChallengeHint hint={challenge.hint} answered={status !== "none"} />
+            )}
+
+            <Exercise
+              challenge={challenge}
+              status={status}
+              disabled={disabled}
+              practice={challenge.completed}
+              setCheck={setCheck}
+              reportResult={reportResult}
+            />
+
+            {status !== "none" && challenge.explanation && (
+              <ChallengeExplanation
+                explanation={challenge.explanation}
+                status={status}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

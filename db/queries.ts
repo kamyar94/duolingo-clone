@@ -3,6 +3,8 @@ import { cache } from "react";
 import { auth } from "@/lib/auth";
 import { eq } from "drizzle-orm";
 
+import { toClientPayload } from "@/lib/exercises/payload";
+
 import db from "./drizzle";
 import {
   challengeProgress,
@@ -183,7 +185,10 @@ export const getLesson = cache(async (id?: number) => {
       challenge.challengeProgress.length > 0 &&
       challenge.challengeProgress.every((progress) => progress.completed);
 
-    return { ...challenge, completed };
+    // Coding and math payloads go to the browser without hidden answers.
+    const payload = toClientPayload(challenge.type, challenge.payload);
+
+    return { ...challenge, payload, completed };
   });
 
   return { ...data, challenges: normalizedChallenges };
