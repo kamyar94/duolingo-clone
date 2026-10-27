@@ -149,10 +149,10 @@ try {
           if (errors.length) process.exitCode = 1;
         } else if (command === "import") {
           const r = await importCourse(pool, course);
-          console.log(`${file}: added "${course.title}" (${r.units} units, ${r.lessons} lessons, ${r.challenges} challenges).`);
+          console.log(`${file}: added "${course.title}" (${r.units} units, ${r.lessons} lessons, ${r.challenges} challenges${r.solutions ? `, ${r.solutions} new solution versions` : ""}).`);
         } else {
           const r = await updateCourse(pool, course);
-          console.log(`${file}: updated "${course.title}" (${r.units} units, ${r.lessons} lessons, ${r.challenges} challenges).`);
+          console.log(`${file}: updated "${course.title}" (${r.units} units, ${r.lessons} lessons, ${r.challenges} challenges${r.solutions ? `, ${r.solutions} new solution versions` : ""}).`);
         }
       }
       break;

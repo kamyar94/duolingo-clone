@@ -17,7 +17,43 @@
               "payload": {
                 "statement": "A cyclist rides $120\\,\\mathrm{m}$ at $12\\,\\mathrm{m/s}$. How long does the ride take?\n\nWork it out by hand, then give the time.",
                 "answer": { "kind": "numeric", "value": 10, "unit": "s", "tolerance": 0.01 },
-                "solution": ["t = \\frac{d}{v}", "t = \\frac{120\\,\\mathrm{m}}{12\\,\\mathrm{m/s}} = 10\\,\\mathrm{s}"]
+                "solution": ["t = \\frac{d}{v}", "t = \\frac{120\\,\\mathrm{m}}{12\\,\\mathrm{m/s}} = 10\\,\\mathrm{s}"],
+                "solutionScript": {
+                  "format": 1,
+                  "title": "Time from distance and speed",
+                  "question": [
+                    { "text": "A cyclist rides " },
+                    { "id": "q-d", "text": "$120\\,\\mathrm{m}$" },
+                    { "text": " at " },
+                    { "id": "q-v", "text": "$12\\,\\mathrm{m/s}$" },
+                    { "text": ". " },
+                    { "id": "q-ask", "text": "How long does the ride take?" }
+                  ],
+                  "givens": [
+                    { "id": "d", "symbol": "d", "value": 120, "unit": "m", "span": "q-d", "label": "distance" },
+                    { "id": "v", "symbol": "v", "value": 12, "unit": "m/s", "span": "q-v", "label": "speed" }
+                  ],
+                  "equations": [
+                    {
+                      "id": "motion",
+                      "states": [
+                        { "id": "rule", "latex": "\\term{d}{d} \\term{eq}{=} \\term{v}{v}\\,\\term{t}{t}" },
+                        { "id": "solved", "latex": "\\term{t}{t} \\term{eq}{=} \\frac{\\term{d}{d}}{\\term{v}{v}}" },
+                        { "id": "numbers", "latex": "\\term{t}{t} \\term{eq}{=} \\frac{\\term{dv}{120\\,\\mathrm{m}}}{\\term{vv}{12\\,\\mathrm{m/s}}}" },
+                        { "id": "result", "latex": "\\term{t}{t} \\term{eq}{=} \\frac{\\term{dv}{120\\,\\mathrm{m}}}{\\term{vv}{12\\,\\mathrm{m/s}}} \\term{eq2}{=} \\term{res}{10\\,\\mathrm{s}}" }
+                      ]
+                    }
+                  ],
+                  "steps": [
+                    { "kind": "Extract", "given": "d", "duration": 3, "narration": "The ride is 120 metres long. That is the distance, d." },
+                    { "kind": "Extract", "given": "v", "duration": 3, "narration": "The cyclist rides at 12 metres per second. That is the speed, v." },
+                    { "kind": "Relate", "equation": "motion", "state": "rule", "givens": ["d", "v"], "duration": 3.5, "narration": "At a steady speed, distance is speed times time." },
+                    { "kind": "Transform", "equation": "motion", "to": "solved", "duration": 3.5, "narration": "Divide both sides by v to get the time on its own." },
+                    { "kind": "Substitute", "equation": "motion", "to": "numbers", "pairs": [{ "given": "d", "term": "dv" }, { "given": "v", "term": "vv" }], "duration": 3.5, "narration": "Put in the distance and the speed." },
+                    { "kind": "Transform", "equation": "motion", "to": "result", "duration": 4, "narration": "120 divided by 12 is 10, and metres divided by metres per second leave seconds." },
+                    { "kind": "Answer", "equation": "motion", "term": "res", "span": "q-ask", "text": "The ride takes 10 s.", "duration": 3, "narration": "The ride takes 10 seconds." }
+                  ]
+                }
               }
             },
             {
@@ -36,6 +72,152 @@
                 "statement": "Which number solves $2x - 4 = 6$?",
                 "answer": { "kind": "choice", "choices": ["$x = 1$", "$x = 5$", "$x = -5$"], "correct": 1 },
                 "solution": ["2x = 10", "x = 5"]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Graphs and figures",
+          "challenges": [
+            {
+              "type": "MATH",
+              "question": "A cart speeds up evenly: its speed is v = 2t (in m/s, with t in s). How far does it go in the first 3 seconds?",
+              "hint": "The distance is the area under the speed graph.",
+              "explanation": "The area under v = 2t from 0 to 3 s is a triangle: d = 1/2 * 3 s * 6 m/s = 9 m.",
+              "payload": {
+                "statement": "A cart speeds up evenly: its speed is $v = 2t$ (in $\\mathrm{m/s}$, with $t$ in $\\mathrm{s}$). How far does it go in the first $3$ seconds?",
+                "answer": { "kind": "numeric", "value": 9, "unit": "m", "tolerance": 0.01 },
+                "solution": ["v(3) = 2 \\cdot 3 = 6\\,\\mathrm{m/s}", "d = \\frac{1}{2} \\cdot 3\\,\\mathrm{s} \\cdot 6\\,\\mathrm{m/s} = 9\\,\\mathrm{m}"],
+                "solutionScript": {
+                  "format": 1,
+                  "title": "Distance as the area under the speed graph",
+                  "question": [
+                    { "text": "A cart speeds up evenly: its speed is " },
+                    { "id": "q-rule", "text": "$v = 2t$" },
+                    { "text": " (in $\\mathrm{m/s}$, with $t$ in $\\mathrm{s}$). " },
+                    { "id": "q-ask", "text": "How far does it go" },
+                    { "text": " in the first " },
+                    { "id": "q-T", "text": "$3$ seconds" },
+                    { "text": "?" }
+                  ],
+                  "givens": [
+                    { "id": "T", "symbol": "T", "value": 3, "unit": "s", "span": "q-T", "label": "time" },
+                    { "id": "vT", "symbol": "v_T", "value": 6, "unit": "m/s", "label": "speed at T" }
+                  ],
+                  "graphs": [
+                    {
+                      "id": "speed",
+                      "view": { "x": [-0.5, 4.5], "y": [-1, 9] },
+                      "height": 260,
+                      "items": [
+                        { "id": "line", "type": "function", "fn": "2x", "domain": [0, 4.2], "color": "blue", "label": "v = 2t" },
+                        { "id": "cart", "type": "point", "along": "line", "from": 0, "to": 3, "color": "orange" },
+                        { "id": "edge", "type": "segment", "from": [3, 0], "to": [3, 6], "dashed": true, "color": "gray", "label": "6 m/s" },
+                        { "id": "area", "type": "area", "of": "line", "from": 0, "to": 3, "color": "green" }
+                      ]
+                    }
+                  ],
+                  "equations": [
+                    {
+                      "id": "area-eq",
+                      "states": [
+                        { "id": "rule", "latex": "\\term{d}{d} \\term{eq}{=} \\term{half}{\\frac{1}{2}} \\cdot \\term{T}{T} \\cdot \\term{vT}{v_T}" },
+                        { "id": "numbers", "latex": "\\term{d}{d} \\term{eq}{=} \\term{half}{\\frac{1}{2}} \\cdot \\term{Tv}{3\\,\\mathrm{s}} \\cdot \\term{vv}{6\\,\\mathrm{m/s}}" },
+                        { "id": "result", "latex": "\\term{d}{d} \\term{eq}{=} \\term{res}{9\\,\\mathrm{m}}" }
+                      ]
+                    }
+                  ],
+                  "notes": [
+                    { "id": "area-note", "text": "The distance is the green area under the speed line.", "target": { "element": "speed", "part": "area" } }
+                  ],
+                  "steps": [
+                    { "kind": "Extract", "given": "T", "duration": 2.5, "narration": "We look at the first 3 seconds." },
+                    { "kind": "Plot", "graph": "speed", "items": ["line"], "duration": 3, "narration": "The speed grows along the line v = 2t." },
+                    { "kind": "Plot", "graph": "speed", "items": ["cart"], "duration": 3, "narration": "Follow the cart along the line to t = 3 seconds." },
+                    { "kind": "Plot", "graph": "speed", "items": ["edge"], "duration": 2.5, "narration": "There its speed is 2 times 3, which is 6 metres per second." },
+                    { "kind": "Plot", "graph": "speed", "items": ["area"], "duration": 3, "narration": "The distance is the area under the speed line." },
+                    { "kind": "Annotate", "notes": ["area-note"], "duration": 2.5 },
+                    { "kind": "Relate", "equation": "area-eq", "state": "rule", "givens": ["T", "vT"], "duration": 3.5, "narration": "The area is a triangle: half of the base times the height." },
+                    { "kind": "Substitute", "equation": "area-eq", "to": "numbers", "pairs": [{ "given": "T", "term": "Tv" }, { "given": "vT", "term": "vv" }], "duration": 3.5, "narration": "The base is 3 seconds and the height is 6 metres per second." },
+                    { "kind": "Transform", "equation": "area-eq", "to": "result", "duration": 3.5, "narration": "Half of 3 times 6 is 9, and seconds times metres per second leave metres." },
+                    { "kind": "Answer", "equation": "area-eq", "term": "res", "span": "q-ask", "text": "The cart goes 9 m in the first 3 seconds.", "duration": 3 }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "MATH",
+              "question": "A ladder leans against a wall. Its foot is 3 m from the wall and its top is 4 m up the wall. How long is the ladder?",
+              "hint": "The ladder, the wall and the ground form a right triangle.",
+              "explanation": "By Pythagoras, c^2 = 3^2 + 4^2 = 25, so c = 5 m.",
+              "payload": {
+                "statement": "A ladder leans against a wall. Its foot is $3\\,\\mathrm{m}$ from the wall and its top is $4\\,\\mathrm{m}$ up the wall. How long is the ladder?",
+                "answer": { "kind": "numeric", "value": 5, "unit": "m", "tolerance": 0.01 },
+                "solution": ["c^2 = a^2 + b^2", "c^2 = 3^2 + 4^2 = 25", "c = 5\\,\\mathrm{m}"],
+                "solutionScript": {
+                  "format": 1,
+                  "title": "The Pythagorean theorem",
+                  "question": [
+                    { "text": "A ladder leans against a wall. Its foot is " },
+                    { "id": "q-a", "text": "$3\\,\\mathrm{m}$ from the wall" },
+                    { "text": " and its top is " },
+                    { "id": "q-b", "text": "$4\\,\\mathrm{m}$ up the wall" },
+                    { "text": ". " },
+                    { "id": "q-ask", "text": "How long is the ladder?" }
+                  ],
+                  "givens": [
+                    { "id": "a", "symbol": "a", "value": 3, "unit": "m", "span": "q-a", "label": "foot to wall" },
+                    { "id": "b", "symbol": "b", "value": 4, "unit": "m", "span": "q-b", "label": "height on the wall" }
+                  ],
+                  "figures": [
+                    {
+                      "id": "ladder",
+                      "width": 320,
+                      "height": 250,
+                      "shapes": [
+                        { "id": "ground", "type": "segment", "from": [20, 220], "to": [300, 220], "color": "gray" },
+                        { "id": "wall", "type": "rect", "at": [240, 10], "size": [24, 210], "color": "gray" },
+                        { "id": "B", "type": "point", "at": [90, 220], "label": "B" },
+                        { "id": "C", "type": "point", "at": [240, 220], "label": "C" },
+                        { "id": "A", "type": "point", "at": [240, 20], "label": "A" },
+                        { "id": "side-a", "type": "segment", "from": "B", "to": "C", "color": "blue", "label": "a = 3 m" },
+                        { "id": "side-b", "type": "segment", "from": "C", "to": "A", "color": "green", "label": "b = 4 m" },
+                        { "id": "corner", "type": "angle", "at": "C", "from": "B", "to": "A", "right": true },
+                        { "id": "side-c", "type": "segment", "from": "B", "to": "A", "color": "orange", "label": "c" }
+                      ]
+                    }
+                  ],
+                  "equations": [
+                    {
+                      "id": "pyth",
+                      "states": [
+                        { "id": "rule", "latex": "\\term{c}{c}^2 \\term{eq}{=} \\term{a}{a}^2 + \\term{b}{b}^2" },
+                        { "id": "numbers", "latex": "\\term{c}{c}^2 \\term{eq}{=} \\term{av}{(3\\,\\mathrm{m})}^2 + \\term{bv}{(4\\,\\mathrm{m})}^2" },
+                        { "id": "squares", "latex": "\\term{c}{c}^2 \\term{eq}{=} \\term{a2}{9\\,\\mathrm{m^2}} + \\term{b2}{16\\,\\mathrm{m^2}}" },
+                        { "id": "sum", "latex": "\\term{c}{c}^2 \\term{eq}{=} \\term{c2}{25\\,\\mathrm{m^2}}" },
+                        { "id": "root", "latex": "\\term{c}{c} \\term{eq}{=} \\term{res}{5\\,\\mathrm{m}}" }
+                      ]
+                    }
+                  ],
+                  "notes": [
+                    { "id": "hyp", "text": "The ladder is the side across from the right angle: the hypotenuse.", "target": { "element": "ladder", "part": "side-c" } }
+                  ],
+                  "steps": [
+                    { "kind": "Extract", "given": "a", "duration": 2.5, "narration": "The foot of the ladder is 3 metres from the wall." },
+                    { "kind": "Extract", "given": "b", "duration": 2.5, "narration": "The top is 4 metres up the wall." },
+                    { "kind": "Construct", "figure": "ladder", "shapes": ["ground", "wall", "B", "C", "A"], "duration": 2.5, "narration": "Draw the ground and the wall." },
+                    { "kind": "Construct", "figure": "ladder", "shapes": ["side-a", "side-b"], "duration": 2.5, "narration": "Mark the two distances along the ground and up the wall." },
+                    { "kind": "Construct", "figure": "ladder", "shapes": ["corner"], "duration": 2, "narration": "The wall stands straight up, so the corner is a right angle." },
+                    { "kind": "Construct", "figure": "ladder", "shapes": ["side-c"], "duration": 2, "narration": "The ladder closes the triangle." },
+                    { "kind": "Annotate", "notes": ["hyp"], "duration": 3, "narration": "It is the hypotenuse, the side across from the right angle." },
+                    { "kind": "Relate", "equation": "pyth", "state": "rule", "givens": ["a", "b"], "duration": 3.5, "narration": "Pythagoras: the square of the hypotenuse is the sum of the squares of the other two sides." },
+                    { "kind": "Substitute", "equation": "pyth", "to": "numbers", "pairs": [{ "given": "a", "term": "av" }, { "given": "b", "term": "bv" }], "duration": 3.5, "narration": "Put in 3 metres and 4 metres." },
+                    { "kind": "Transform", "equation": "pyth", "to": "squares", "duration": 3, "narration": "3 squared is 9 and 4 squared is 16." },
+                    { "kind": "Transform", "equation": "pyth", "to": "sum", "duration": 3, "narration": "Together that is 25 square metres." },
+                    { "kind": "Transform", "equation": "pyth", "to": "root", "duration": 3.5, "narration": "Take the square root of both sides: c is 5 metres." },
+                    { "kind": "Answer", "equation": "pyth", "term": "res", "span": "q-ask", "text": "The ladder is 5 m long.", "duration": 3 }
+                  ]
+                }
               }
             }
           ]

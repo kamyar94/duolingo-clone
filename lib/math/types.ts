@@ -64,6 +64,11 @@ export type MathPayload = {
   answer: AnswerSpec;
   /** Reference solution as LaTeX lines, sent to the AI grader only. */
   solution?: string[] | string;
+  /**
+   * An animated solution (lib/math/solution/types.ts). Only in course files: the import stores
+   * it in math_solutions and leaves it out of the challenge payload.
+   */
+  solutionScript?: unknown;
 };
 
 /** What the learner's browser receives: no stored answer, no reference solution. */

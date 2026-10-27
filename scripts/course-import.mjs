@@ -7,6 +7,7 @@
 // outside Docker it runs with tsx (pnpm exec tsx scripts/lingo.mjs ...).
 import { checkChallengePayload } from "../lib/exercises/payload.ts";
 import { CHALLENGE_TYPES, isExerciseType } from "../lib/exercises/types.ts";
+import { splitSolutionScript, storeCourseSolution } from "../lib/math/solution/course.ts";
 
 const TYPES = new Set(CHALLENGE_TYPES);
 const isPath = (v) => typeof v === "string" && v.startsWith("/");
@@ -64,7 +65,15 @@ export const checkCourse = (course) => {
 
 const one = async (client, text, values) => (await client.query(text, values)).rows[0];
 const note = (value) => (typeof value === "string" && value.trim() ? value.trim() : null);
-const payloadOf = (ch) => (ch.payload == null ? null : JSON.stringify(ch.payload));
+// A MATH solution script goes to math_solutions, not into the payload (lib/math/solution/course.ts).
+const payloadOf = (ch) => {
+  const { payload } = splitSolutionScript(ch.type, ch.payload);
+  return payload == null ? null : JSON.stringify(payload);
+};
+const storeScript = async (client, challengeId, ch, counts) => {
+  const { script } = splitSolutionScript(ch.type, ch.payload);
+  if (script && (await storeCourseSolution(client, challengeId, script))) counts.solutions++;
+};
 const optionsOf = (ch) => (Array.isArray(ch.options) ? ch.options : []);
 
 // Adds the whole course in one transaction: either all of it lands or none of it does.
@@ -73,7 +82,7 @@ export const importCourse = async (pool, course) => {
   if (errors.length) throw new Error(`The course file has problems:\n  ${errors.join("\n  ")}`);
 
   const client = await pool.connect();
-  const counts = { units: 0, lessons: 0, challenges: 0 };
+  const counts = { units: 0, lessons: 0, challenges: 0, solutions: 0 };
   try {
     await client.query("begin");
     const existing = await client.query("select id from courses where lower(title) = lower($1)", [course.title.trim()]);
@@ -107,6 +116,7 @@ export const importCourse = async (pool, course) => {
             [lessonId, ch.type, ch.question, note(ch.hint), note(ch.explanation), c + 1, payloadOf(ch)]
           );
           counts.challenges++;
+          await storeScript(client, challengeId, ch, counts);
           for (const o of optionsOf(ch)) {
             await client.query(
               "insert into challenge_options (challenge_id, text, correct, image_src, audio_src) values ($1, $2, $3, $4, $5)",
@@ -135,7 +145,7 @@ export const updateCourse = async (pool, course) => {
   if (errors.length) throw new Error(`The course file has problems:\n  ${errors.join("\n  ")}`);
 
   const client = await pool.connect();
-  const counts = { units: 0, lessons: 0, challenges: 0 };
+  const counts = { units: 0, lessons: 0, challenges: 0, solutions: 0 };
   const ids = async (text, id) => (await client.query(text, [id])).rows.map((r) => r.id);
   const sameCount = (what, inDb, inFile) => {
     if (inDb.length !== inFile.length)
@@ -170,6 +180,7 @@ export const updateCourse = async (pool, course) => {
             [challengeIds[c], ch.type, ch.question, note(ch.hint), note(ch.explanation), payloadOf(ch)]
           );
           counts.challenges++;
+          await storeScript(client, challengeIds[c], ch, counts);
 
           const optionIds = await ids("select id from challenge_options where challenge_id = $1 order by id", challengeIds[c]);
           sameCount(`${L} > challenge ${c + 1} options`, optionIds, optionsOf(ch));

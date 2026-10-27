@@ -7,6 +7,9 @@
 // reference solution for the AI grader (format in lib/math/types.ts and SELF-HOSTED.md).
 import type { PayloadRuleSet } from "../exercises/payload-types";
 
+import { SCRIPT_KEY } from "./solution/course";
+import { validateSolutionScript } from "./solution/validate";
+
 import {
   ANSWER_KINDS,
   type AnswerKind,
@@ -19,7 +22,7 @@ const MAX_LATEX = 1000;
 const MAX_CHOICES = 12;
 const MAX_SOLUTION_LINES = 100;
 
-const TOP_KEYS = new Set(["statement", "figure", "answer", "solution"]);
+const TOP_KEYS = new Set(["statement", "figure", "answer", "solution", SCRIPT_KEY]);
 const FIGURE_KEYS = new Set(["src", "alt", "caption", "width"]);
 const ANSWER_KEYS: Record<AnswerKind, Set<string>> = {
   numeric: new Set(["kind", "value", "tolerance", "relativeTolerance", "unit"]),
@@ -168,6 +171,12 @@ export const validateMathPayload = (
   if (payload.answer === undefined) problems.push("answer is required.");
   else problems.push(...checkAnswer(payload.answer));
   problems.push(...checkSolution(payload.solution));
+  if (payload[SCRIPT_KEY] !== undefined)
+    problems.push(
+      ...validateSolutionScript(payload[SCRIPT_KEY]).problems.map(
+        (problem) => `${SCRIPT_KEY}: ${problem}`
+      )
+    );
   if (options.length)
     problems.push("MATH takes its choices in payload.answer.choices, not in options.");
   return problems;
