@@ -123,6 +123,90 @@ refuse a payload that does not match. `update` replaces payloads in place like t
 Outside Docker the server tool needs tsx, because the payload checks are TypeScript, so run it
 as `pnpm exec tsx scripts/lingo.mjs <command>`.
 
+## Coding lessons
+
+Coding exercises run the learner's code in the browser. JavaScript, TypeScript, Python
+(Pyodide), SQL (sql.js) and web pages run on the learner's own device, so they never touch the
+server. Other languages (C#, Java, Kotlin, C, C++, Go, Rust, Ruby and Bash) are highlighted in
+the editor and can be written and saved, and they say that they run on the server, which a later
+phase adds. `courses/coding-demo.json` is an example course with one exercise of each type.
+
+Every coding payload names its `language` (`python`, `javascript`, `typescript`, `sql`,
+`csharp`, `java`, `kotlin`, `c`, `cpp`, `go`, `rust`, `ruby` or `bash`) and may set
+`timeLimitMs` (default 3000, at most 20000). SQL exercises add `setup`, the statements that
+create and fill the tables before the learner's code runs. The import refuses unknown fields,
+so a misspelt field name does not pass unnoticed. A `solution` field holds a reference answer
+for authors and is never sent to the browser.
+
+- `CODE_READ` has `code` and an optional `text` with the explanation. The learner runs and
+  changes the program, and Check simply moves on. `editable: false` keeps the program as it is.
+- `CODE_OUTPUT` has `code` and `expect`, the printed output. With `choices` (or the challenge's
+  `options`) the learner picks an answer, otherwise the learner types it. Run unlocks after the
+  answer is checked, since running would give it away.
+- `CODE_FILL` has a `template` with each blank written as `___`, `answers` with the accepted
+  text per blank and optional `distractors`. The learner taps chips or types. With `tests`
+  the completed program must pass them instead of matching the answers.
+- `CODE_ORDER` has the program's `lines` in the right order and optional `distractors`. In
+  Python the learner also sets the indentation (`indent: false` turns that off). With `tests`
+  the assembled program must pass them instead of matching the lines.
+- `CODE_WRITE` and `CODE_FIX` have `tests`, an optional `starter` (required for `CODE_FIX`,
+  where it is the program with the bug) and an optional `stdin` for Run.
+- `WEB_LIVE` has `html`, `css`, `js` and `checks`, and may limit the editable tabs with
+  `editable`.
+
+A test is visible unless it says `"visible": false`. Visible tests show the expected and the
+actual value when they fail, and hidden tests only show whether they passed. Hidden tests are
+not secret, because checking happens in the browser and the page data contains them.
+
+```json
+{ "stdin": "3\n4\n", "expect": "7", "match": "normalized" }
+{ "call": "area(2, 3)", "expect": "6", "visible": false }
+{ "query": "SELECT count(*) FROM items", "rows": [[2]] }
+{ "selector": "button.buy", "text": "Buy", "style": { "color": "white" } }
+```
+
+The first form feeds `stdin` to the program and compares what it prints with `expect`, either
+exactly (`exact`, line endings and one final newline aside), after normalising spaces
+(`normalized`, the default) or as a regular expression (`regex`). The second calls a function
+in JavaScript, TypeScript or Python and compares the value with `expect`, which is an
+expression in the same language, numbers within `tolerance`. For TypeScript exercises the call
+is written in plain JavaScript. SQL tests compare `rows` (in order unless `ordered` is false) or
+printed text with `expect`, taken from the learner's last result or from a `query` run after the
+learner's statements. Web checks, the fourth form, look at the rendered page through a
+selector, with an optional `count`, `text` (`textMatch` exact, contains or regex), `style`
+(computed values, so `white` matches `rgb(255, 255, 255)`) and `attr`.
+
+The runtimes are served by the app itself from `public/runtimes`, which
+`scripts/build-runtimes.mjs` fills before `pnpm dev`, before `pnpm build` and in the Dockerfile.
+It copies Pyodide, sql.js and the TypeScript compiler from `node_modules`, bundles the runner
+scripts of `lib/coding/workers` and downloads the Jedi and parso wheels for Python completion
+from PyPI with pinned hashes. Without network access the build continues and Python completion
+stays at keywords. The folder is about 30 MB and is not committed. Browsers keep the files and
+check them before each use, so the first Python exercise takes a few seconds and later ones load
+from the cache.
+
+Code runs in a hidden frame with `sandbox="allow-scripts"`, so it has its own opaque origin and
+no access to the app's cookies, storage or pages. The frame's content security policy has no
+network source at all. Its script is written into it under a nonce, the page hands it the
+runtime files it asks for, and each program runs in a web worker that is stopped when its time
+limit passes or when it prints more than 64 KB. Web exercises render in a second sandboxed
+frame with the same lack of network, and their JavaScript runs when the learner presses Run or
+Check, so a half-typed loop cannot freeze the page. The app's own pages add a content security
+policy with `worker-src 'self' blob:`, `object-src 'none'` and `base-uri 'self'`, and
+`X-Frame-Options` stays `DENY`, which frames written by the app itself are not subject to.
+
+The editor is CodeMirror 6. Every language completes keywords, snippets and words in the file.
+JavaScript and TypeScript also complete through the TypeScript language service in a worker,
+and Python through Jedi inside Pyodide, after a dot or on Ctrl+Space. On a desktop and a tablet
+in landscape the task, the editor and the output sit side by side with draggable dividers. On a
+phone or a tablet in portrait they stack, the output opens as a sheet from the bottom, and a bar
+of brackets, quotes, operators, tab and undo sits above the keyboard. Unfinished work is saved
+per challenge and comes back when the learner returns.
+
+The playground at `/playground` opens the same editor for any language, with programs saved to
+the account and opened, renamed, copied and deleted there. It keeps up to 200 programs per
+account, each up to 256 KB.
+
 ## AI settings, keys and the egress proxy
 
 Math practice uses an AI provider chosen by each learner, with the learner's own key. The

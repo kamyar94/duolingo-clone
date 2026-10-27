@@ -144,21 +144,21 @@ describe("function tests", () => {
 describe("SQL tests", () => {
   const sets = [
     {
-      columns: ["name", "age"],
+      columns: ["name", "size"],
       rows: [
-        ["Ada", 36],
-        ["Alan", 41],
+        ["Oslo", 7],
+        ["Lima", 10],
       ],
     },
   ];
 
   it("prints result sets with a header line", () => {
-    expect(formatResultSets(sets)).toBe("name | age\nAda | 36\nAlan | 41");
+    expect(formatResultSets(sets)).toBe("name | size\nOslo | 7\nLima | 10");
     expect(formatResultSets([{ columns: ["x"], rows: [[null]] }])).toBe("x\nNULL");
   });
 
   it("compares rows in order or as a set, numbers with a tolerance", () => {
-    expect(rowsEqual([["Ada", 36]], [["Ada", "36"]])).toBe(true);
+    expect(rowsEqual([["Oslo", 7]], [["Oslo", "7"]])).toBe(true);
     expect(rowsEqual([[0.1 + 0.2]], [[0.3]])).toBe(true);
     expect(rowsEqual([["a"], ["b"]], [["b"], ["a"]])).toBe(false);
     expect(rowsEqual([["a"], ["b"]], [["b"], ["a"]], false)).toBe(true);
@@ -168,13 +168,13 @@ describe("SQL tests", () => {
   it("checks the learner's last result, or a check query", () => {
     const run = ok("", { sets, queries: [{ output: "n\n2", sets: [{ columns: ["n"], rows: [[2]] }] }] });
     expect(
-      evaluateSqlTest({ rows: [["Alan", 41], ["Ada", 36]], ordered: false }, 0, run).passed
+      evaluateSqlTest({ rows: [["Lima", 10], ["Oslo", 7]], ordered: false }, 0, run).passed
     ).toBe(true);
-    expect(evaluateSqlTest({ expect: "name | age\nAda | 36\nAlan | 41" }, 1, run).passed).toBe(
+    expect(evaluateSqlTest({ expect: "name | size\nOslo | 7\nLima | 10" }, 1, run).passed).toBe(
       true
     );
     const query = run.queries![0];
-    expect(evaluateSqlTest({ query: "SELECT count(*) AS n FROM people", rows: [[2]] }, 2, run, query).passed).toBe(true);
+    expect(evaluateSqlTest({ query: "SELECT count(*) AS n FROM cities", rows: [[2]] }, 2, run, query).passed).toBe(true);
     expect(
       evaluateSqlTest({ query: "SELECT 1", expect: "x" }, 3, run, { output: "", sets: [], error: "no such table" })
     ).toMatchObject({ passed: false, message: "The check query failed: no such table" });

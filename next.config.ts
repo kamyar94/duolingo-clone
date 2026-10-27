@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: { unoptimized: true },
   devIndicators: false,
+  // The browser runtimes of the coding lessons are static files; the Dockerfile copies public/
+  // next to the server, so they need not be traced into it a second time.
+  outputFileTracingExcludes: { "/*": ["./public/runtimes/**/*"] },
   headers: async () => [
     {
       source: "/(.*)",

@@ -69,6 +69,13 @@ database is of little use for AI features without it.
 The third is a set of optional settings in `.env`. `AI_RATE_PER_MINUTE` and `AI_RATE_PER_DAY`
 limit the AI requests of each account, and `AI_REQUEST_TIMEOUT_MS` bounds a single request.
 
+Coding lessons need nothing new in the stack. JavaScript, TypeScript, Python, SQL and web
+exercises run in the learner's browser, and the app serves their runtimes (Pyodide, sql.js and
+the TypeScript compiler, about 30 MB) from its own image. The image build copies them in with
+`scripts/build-runtimes.mjs` and fetches two small Python wheels for code completion from PyPI,
+which is the only download the build adds. A build without that access still works and leaves
+Python completion at keywords.
+
 ## First start and updates
 
 On a new server, copy the templates to their real names, fill in the address, the database

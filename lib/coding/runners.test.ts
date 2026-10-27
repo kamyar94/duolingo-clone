@@ -21,9 +21,9 @@ describe("the JavaScript harness", () => {
         "console.error('careful');",
         "console.log(input(), input());",
       ].join("\n"),
-      stdin: "Ada\n42\n",
+      stdin: "Rome\n42\n",
     });
-    expect(result.stdout).toBe('Hi Ada [1, "two", { three: 3 }] null\n42 null\n');
+    expect(result.stdout).toBe('Hi Rome [1, "two", { three: 3 }] null\n42 null\n');
     expect(result.stderr).toBe("careful\n");
   });
 
@@ -98,15 +98,15 @@ describe("checking programs against their tests", () => {
 
   it("checks SQL exercises with sql.js", async () => {
     const setup =
-      "CREATE TABLE people (name TEXT, age INTEGER);\nINSERT INTO people VALUES ('Ada', 36), ('Alan', 41), ('Grace', 85);";
+      "CREATE TABLE cities (name TEXT, millions REAL);\nINSERT INTO cities VALUES ('Oslo', 0.7), ('Lima', 10.1), ('Cairo', 22.2);";
     const tests = [
-      { rows: [["Grace"], ["Alan"]] },
-      { expect: "name\nGrace\nAlan", visible: false },
+      { rows: [["Cairo"], ["Lima"]] },
+      { expect: "name\nCairo\nLima", visible: false },
     ];
     const right = await checkProgram(runSqlInNode, {
       language: "sql",
       setup,
-      code: "SELECT name FROM people WHERE age > 40 ORDER BY age DESC;",
+      code: "SELECT name FROM cities WHERE millions > 5 ORDER BY millions DESC;",
       tests,
     });
     expect(right.allPassed).toBe(true);
@@ -114,11 +114,11 @@ describe("checking programs against their tests", () => {
     const wrongOrder = await checkProgram(runSqlInNode, {
       language: "sql",
       setup,
-      code: "SELECT name FROM people WHERE age > 40 ORDER BY age;",
+      code: "SELECT name FROM cities WHERE millions > 5 ORDER BY millions;",
       tests,
     });
     expect(wrongOrder.outcomes.map((o) => o.passed)).toEqual([false, false]);
-    expect(wrongOrder.outcomes[0]).toMatchObject({ expected: "Grace\nAlan", actual: "Alan\nGrace" });
+    expect(wrongOrder.outcomes[0]).toMatchObject({ expected: "Cairo\nLima", actual: "Lima\nCairo" });
   });
 
   it("checks SQL changes with a query and reports errors on their line", async () => {

@@ -15,8 +15,8 @@
               "explanation": "print() writes a line to the console. An f-string fills in the values between braces.",
               "payload": {
                 "language": "python",
-                "text": "`print()` shows text in the console. A string that starts with `f` can hold values in braces.\n\nPress Run, then change the name and run it again.",
-                "code": "name = \"Ada\"\nprint(f\"Hello, {name}!\")\n"
+                "text": "`print()` shows text in the console. A string that starts with `f` can hold values in braces.\n\nPress Run, then change the word and run it again.",
+                "code": "topic = \"Python\"\nprint(f\"Hello, {topic}!\")\n"
               }
             },
             {
@@ -78,15 +78,15 @@
             },
             {
               "type": "CODE_FIX",
-              "question": "The program should greet the person whose name it reads. Fix it.",
-              "hint": "Look at what is printed: the variable, or the word name?",
-              "explanation": "The f-string needs braces around name to insert its value.",
+              "question": "The program should greet the city whose name it reads. Fix it.",
+              "hint": "Is the value of the variable printed, or the word city?",
+              "explanation": "The f-string needs braces around city to insert its value.",
               "payload": {
                 "language": "python",
-                "starter": "name = input()\nprint(f\"Hello, name!\")\n",
+                "starter": "city = input()\nprint(f\"Hello, city!\")\n",
                 "tests": [
-                  { "stdin": "Ada\n", "expect": "Hello, Ada!" },
-                  { "stdin": "Grace\n", "expect": "Hello, Grace!", "visible": false }
+                  { "stdin": "Paris\n", "expect": "Hello, Paris!" },
+                  { "stdin": "Lima\n", "expect": "Hello, Lima!", "visible": false }
                 ]
               }
             }
@@ -137,15 +137,15 @@
             },
             {
               "type": "CODE_WRITE",
-              "question": "Write a TypeScript function initials(name: string): string.",
-              "hint": "Split the name at spaces and take the first letter of each part.",
-              "explanation": "split(\" \") gives the parts, map takes each first letter, join puts them together.",
+              "question": "Write a TypeScript function acronym(phrase: string): string.",
+              "hint": "Split the phrase at spaces and take the first letter of each word, in capitals.",
+              "explanation": "split(\" \") gives the words, map takes each first letter in capitals, join puts them together.",
               "payload": {
                 "language": "typescript",
-                "starter": "function initials(name: string): string {\n  return \"\";\n}\n",
+                "starter": "function acronym(phrase: string): string {\n  return \"\";\n}\n",
                 "tests": [
-                  { "call": "initials(\"Ada Lovelace\")", "expect": "\"AL\"" },
-                  { "call": "initials(\"Grace Brewster Hopper\")", "expect": "\"GBH\"", "visible": false }
+                  { "call": "acronym(\"portable network graphics\")", "expect": "\"PNG\"" },
+                  { "call": "acronym(\"as soon as possible\")", "expect": "\"ASAP\"", "visible": false }
                 ]
               }
             },
@@ -178,14 +178,14 @@
           "challenges": [
             {
               "type": "CODE_WRITE",
-              "question": "List the names of the people older than 40, oldest first.",
-              "hint": "Use WHERE for the age and ORDER BY ... DESC for the order.",
-              "explanation": "SELECT name FROM people WHERE age > 40 ORDER BY age DESC;",
+              "question": "List the cities with more than 5 million people, largest first.",
+              "hint": "Use WHERE for the size and ORDER BY ... DESC for the order.",
+              "explanation": "SELECT name FROM cities WHERE millions > 5 ORDER BY millions DESC;",
               "payload": {
                 "language": "sql",
-                "setup": "CREATE TABLE people (name TEXT, age INTEGER);\nINSERT INTO people VALUES ('Ada', 36), ('Alan', 41), ('Grace', 85);",
-                "starter": "SELECT name FROM people;\n",
-                "tests": [{ "name": "Names, oldest first", "rows": [["Grace"], ["Alan"]] }]
+                "setup": "CREATE TABLE cities (name TEXT, millions REAL);\nINSERT INTO cities VALUES ('Oslo', 0.7), ('Lima', 10.1), ('Cairo', 22.2);",
+                "starter": "SELECT name FROM cities;\n",
+                "tests": [{ "name": "Large cities, largest first", "rows": [["Cairo"], ["Lima"]] }]
               }
             }
           ]
