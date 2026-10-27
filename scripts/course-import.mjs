@@ -138,7 +138,8 @@ export const importCourse = async (pool, course) => {
 
 // Applies a changed file to the course with the same title, in place, so everyone's progress
 // stays: titles, descriptions, types, questions, answers, pictures, sounds, hints, explanations
-// and payloads are replaced. Units, lessons, challenges and options must match the database in number and order;
+// and payloads are replaced, and a changed solution script becomes a new version. Units, lessons, challenges and
+// options must match the database in number and order;
 // otherwise nothing changes.
 export const updateCourse = async (pool, course) => {
   const errors = checkCourse(course);

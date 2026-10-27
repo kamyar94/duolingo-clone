@@ -28,7 +28,7 @@ what is different here.
   `docs/DESIGN-coding-and-math.md`. The groundwork is in place. New challenge types render
   through an exercise registry, each account keeps its own encrypted AI keys, and an egress
   proxy is the app's only way out to the AI providers (see below). Math practice with a pen
-  works now (see "Math practice" below).
+  works now, with animated solutions that authors write in the app (see "Math practice" below).
 
 ## Running it
 
@@ -133,7 +133,7 @@ model the learner chose for recognition, and the lines come back as LaTeX in edi
 fields, so a misread symbol can be fixed without another AI call. The next Check grades the
 work, and the lesson counts the result for hearts and points like any other answer. The
 example course `courses/math-demo.json` has one problem of each answer kind that the automatic
-check covers.
+check covers, and three problems with animated solutions.
 
 ```json
 {
@@ -191,6 +191,71 @@ which keeps a resting palm off the page. The page `/pen-check` shows live what a
 or a mouse reports (pressure, tilt, buttons and samples per second), and the readings can be
 copied as text. It is the quickest way to see whether a new device reports pressure.
 
+### Animated solutions
+
+A math problem can carry an animated solution that a learner opens after a check. The player
+draws every frame from a script and the position on its timeline, so dragging the handle
+backwards or forwards always shows exactly the right state. The question lights up where a
+given comes from, givens fly into the equations, terms that persist move from one form of an
+equation to the next while new terms fade in, graphs are drawn with Mafs and figures as SVG,
+and notes point at what they explain. When the check found a wrong line, the button "Watch the
+solution from your mistake" opens the player at the matching step, with the learner's line
+beside the correct one. Space plays or pauses, and the arrow keys move between steps.
+
+A course file carries the script of a problem in `payload.solutionScript`. Import and update
+store it in `math_solutions` as a new version, but only when it differs from the newest one,
+and the challenge keeps no copy, so the lesson page never sends it to a browser. The three
+problems with scripts in `courses/math-demo.json` show a cyclist's travel time, the area under
+a speed graph and the Pythagorean theorem with a figure.
+
+```json
+"solutionScript": {
+  "format": 1,
+  "question": [{ "text": "A cyclist rides " }, { "id": "q-d", "text": "$120\\,\\mathrm{m}$" }, { "text": " at 12 m/s." }],
+  "givens": [{ "id": "d", "symbol": "d", "value": 120, "unit": "m", "span": "q-d", "label": "distance" }],
+  "equations": [{ "id": "motion", "states": [
+    { "id": "rule", "latex": "\\term{d}{d} \\term{eq}{=} \\term{v}{v}\\,\\term{t}{t}" },
+    { "id": "solved", "latex": "\\term{t}{t} \\term{eq}{=} \\frac{\\term{d}{d}}{\\term{v}{v}}" }
+  ] }],
+  "steps": [
+    { "kind": "Extract", "given": "d", "duration": 3, "narration": "That is the distance, d." },
+    { "kind": "Relate", "equation": "motion", "givens": ["d"], "duration": 3 },
+    { "kind": "Transform", "equation": "motion", "to": "solved", "duration": 3 }
+  ]
+}
+```
+
+A script has `format` 1, the `question` split into spans, the `givens`, the `equations` with
+their `states`, and optional `graphs`, `figures`, `tables` and `notes`, followed by the
+`steps`. Each state is LaTeX in which terms are tagged as `\term{id}{...}`, and a term that
+keeps its id in the next state moves there. Each step has a `kind` (Extract, Relate,
+Substitute, Transform, Plot, Construct, Annotate or Answer), a `duration` in seconds and an
+optional `narration` that shows as a subtitle. Graph functions are written in `x`, such as
+`0.5*x^2`, and a small parser of their own reads them, so a script never runs code. The full
+list of fields is in `lib/math/solution/types.ts`, and the check in
+`lib/math/solution/validate.ts` names the field of every problem it finds.
+
+Admins write and change solutions on `/math-author`, which lists every math problem with the
+number of its versions. Selecting text in the question makes a given together with the step
+that lifts it out. Equation states are typed in math fields and tagged automatically by
+matching the state before, and a click on a term in one state and then on one in the next
+links or unlinks the two by hand. A palette adds graph items, geometry and diagram shapes,
+tables and notes, and a click on the preview places the selected one. A JSON tab edits
+everything at once, and the preview beside the editor plays the script as it stands. Every save
+adds a version, earlier versions stay and can be loaded again, and stored explanations keep the
+version they were made against.
+
+The button "Draft with AI" asks the author's own provider, the one chosen for drafting on
+`/settings/ai`, for a first script from the question and the reference answer. The reply is
+checked against the format before the editor shows it, and nothing is saved until the author
+saves. Playing a solution never calls an AI provider.
+
+Script equations are the only LaTeX that KaTeX renders with its `\htmlClass` and `\htmlId`
+commands, and only with the class and id names the player itself uses. The check refuses
+scripts that write these commands or link commands directly, and LaTeX from learners and from
+AI replies is always rendered without them. Learners can open a solution once they have checked
+or completed the problem, and authors can open every solution.
+
 ## AI settings, keys and the egress proxy
 
 Math practice uses an AI provider chosen by each learner, with the learner's own key. The
@@ -217,7 +282,7 @@ the proxy allowlist, templates for every settings file and a README that explain
 ## Tests
 
 `pnpm test` runs the unit tests with Vitest. The tests under `tests/db` also run migrations,
-course imports and the AI service against a real Postgres when `LINGO_TEST_PG_URL` names a
+course imports, the AI service and the versions and AI drafts of animated solutions against a real Postgres when `LINGO_TEST_PG_URL` names a
 server where the test user may create databases, for example
 `postgres://lingo:secret@127.0.0.1:5432/postgres`. They create their own databases and drop
 them afterwards.
@@ -225,7 +290,8 @@ them afterwards.
 `tests/e2e/math-http.test.ts` runs math practice end to end over HTTP against the production
 build. It starts the standalone server with a provider mock, signs a test account in, posts
 strokes, grades the read lines and checks that the same work is answered from the stored
-analysis without a provider call. Run `pnpm build` first, then the tests with `LINGO_E2E=1`
+analysis without a provider call. It also reads and saves solution versions and drafts a
+script through the mock. Run `pnpm build` first, then the tests with `LINGO_E2E=1`
 next to `LINGO_TEST_PG_URL`. The app listens on port 3102 unless `LINGO_E2E_PORT` names another.
 
 ## Keeping up with upstream
