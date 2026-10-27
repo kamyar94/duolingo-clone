@@ -1,0 +1,2 @@
+# Files read inside Linux containers keep LF line endings on every checkout.
+deploy/squid.conf text eol=lf
