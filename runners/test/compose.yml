@@ -73,6 +73,7 @@ services:
     environment:
       RUNNER_TOKEN: ${RUNNER_TOKEN:?set RUNNER_TOKEN}
       SMOKE_ONLY: ${SMOKE_ONLY:-}
+      SMOKE_INTERNET_ADDRESS: ${SMOKE_INTERNET_ADDRESS:-}
       SMOKE_PIDS_LIMIT: "128"
       RUNNER_URL_DOTNET: http://runner-dotnet:8080
       RUNNER_URL_JVM: http://runner-jvm:8080

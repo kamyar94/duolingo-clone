@@ -6,10 +6,12 @@
 // token out of reach, and two concurrent requests served one after the other.
 //
 // Environment: RUNNER_TOKEN, RUNNER_URL_<FAMILY> for the runners to test, SMOKE_ONLY (optional
-// comma list of languages), SMOKE_PIDS_LIMIT (the pids_limit of the runners, default 128).
+// comma list of languages), SMOKE_PIDS_LIMIT (the pids_limit of the runners, default 128) and
+// SMOKE_INTERNET_ADDRESS (optional, a public IP address that programs try to reach without DNS).
 
 const TOKEN = process.env.RUNNER_TOKEN ?? "";
 const PIDS_LIMIT = Number(process.env.SMOKE_PIDS_LIMIT) || 128;
+const INTERNET_ADDRESS = (process.env.SMOKE_INTERNET_ADDRESS ?? "").trim();
 const ONLY = (process.env.SMOKE_ONLY ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 
 const FAMILIES = {
@@ -485,7 +487,12 @@ const testLanguage = async (family, language, url, otherHosts) => {
   );
 
   // no network: the internet by address and by name, and the other runners
-  const targets = ["1.1.1.1 80", "example.com 443", ...otherHosts.map((h) => `${h} 8080`)];
+  const targets = [
+    ...(INTERNET_ADDRESS ? [`${INTERNET_ADDRESS} 80`] : []),
+    "example.com 443",
+    "example.org 80",
+    ...otherHosts.map((h) => `${h} 8080`),
+  ];
   r = await run(url, language, prog.network, { inputs: [targets.join("\n") + "\n"], timeLimitMs: 20000 });
   const net = r.body.runs?.[0]?.stdout ?? "";
   const blocked = targets.every((t) => net.includes(`${t.split(" ")[0]}:blocked`));

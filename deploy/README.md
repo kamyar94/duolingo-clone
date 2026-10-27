@@ -218,7 +218,8 @@ docker compose -f runners/test/compose.yml -p lingo-test-runners down
 
 The test's compose file reads the version settings of this one, so set `POSTGRES_VERSION`,
 `NODE_VERSION`, `SQUID_VERSION` and `CLOUDFLARED_VERSION` to any value while it runs. The last
-lines of the probe give the number of passed checks per language.
+lines of the probe give the number of passed checks per language. Setting `SMOKE_INTERNET_ADDRESS` to the
+address of a public server adds an attempt that needs no name lookup.
 
 ## Later phases
 
