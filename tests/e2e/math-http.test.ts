@@ -292,6 +292,13 @@ describe.skipIf(!enabled)("math practice over HTTP", () => {
     expect(body.analysisSource).toBe("common");
     expect(body.commonMistake).toBe(true);
     expect(calls.grading).toBe(1);
+    // A second check of a graded attempt is kept as a new attempt with the same reading.
+    expect(body.attemptId).not.toBe(attemptId);
+    const copy = (
+      await pool.query("select strokes, recognized_latex from math_attempts where id = $1", [body.attemptId])
+    ).rows[0];
+    expect(copy.strokes).toHaveLength(3);
+    expect(copy.recognized_latex).toEqual(RECOGNIZED);
   });
 
   it("stores typed follow-up questions with the attempt", async () => {

@@ -121,7 +121,7 @@ export const InkToolbar = ({
       role="toolbar"
       aria-label="Writing tools"
       className={cn(
-        "flex items-center gap-1 overflow-x-auto rounded-xl border-2 border-slate-200 bg-white p-1",
+        "flex items-center gap-1 overflow-x-auto rounded-xl border-2 border-slate-200 bg-white p-1 md:flex-wrap md:overflow-visible",
         className
       )}
     >

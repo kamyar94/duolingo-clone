@@ -383,17 +383,19 @@ export const gradeAttempt = async (input: {
     gradedAt: new Date().toISOString(),
   };
 
+  // A read attempt gets its first grading; every further check is a new attempt (with the
+  // same strokes and reading), so the attempt history keeps each graded try.
   let attemptId: number;
-  if (attempt) {
+  const graded = {
+    correctedLatex: input.lines,
+    answer: answerText(input.answer),
+    grading,
+    analysisId,
+  };
+  if (attempt && !attempt.grading) {
     await db
       .update(mathAttempts)
-      .set({
-        correctedLatex: input.lines,
-        answer: answerText(input.answer),
-        grading,
-        analysisId,
-        updatedAt: new Date(),
-      })
+      .set({ ...graded, updatedAt: new Date() })
       .where(eq(mathAttempts.id, attempt.id));
     attemptId = attempt.id;
   } else {
@@ -402,10 +404,12 @@ export const gradeAttempt = async (input: {
       .values({
         userId: input.userId,
         challengeId: challenge.id,
-        correctedLatex: input.lines,
-        answer: answerText(input.answer),
-        grading,
-        analysisId,
+        strokes: attempt?.strokes ?? [],
+        imagePath: attempt?.imagePath ?? null,
+        recognizedLatex: attempt?.recognizedLatex ?? null,
+        provider: attempt?.provider ?? null,
+        model: attempt?.model ?? null,
+        ...graded,
       })
       .returning({ id: mathAttempts.id });
     attemptId = row.id;
