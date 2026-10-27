@@ -261,7 +261,7 @@ or completed the problem, and authors can open every solution.
 Math practice uses an AI provider chosen by each learner, with the learner's own key. The
 page `/settings/ai`, linked from the sidebar, has one key field each for OpenAI, Anthropic and
 Google, a test button that sends a minimal request, a choice of provider and model for
-recognition, grading and drafting, and the voice preferences for a later phase. Model names
+recognition, grading and drafting, and the voice preferences. Model names
 are free text with documented defaults in `lib/ai/config.ts`, because providers retire models
 over time.
 
@@ -279,6 +279,59 @@ through `AI_PROXY_URL`, and the provider adapters in `lib/ai` send requests thro
 ProxyAgent, since Node's own fetch ignores proxy variables. `deploy/` has the compose file,
 the proxy allowlist, templates for every settings file and a README that explains each service.
 
+## Voice
+
+Lingo can read hints, explanations and the narration of animated solutions aloud, and a learner
+can hold a microphone button to ask a follow-up question by voice. The speech runs on a GPU
+computer on the home network, and `deploy/voice` is the stack for it, with its own README. It
+has a Kokoro container for text to speech, a speaches container with a Whisper model for speech
+to text, and a Caddy gateway in front of both. The gateway serves HTTPS with its own certificate
+authority, wants a long random bearer token on every request, and passes only the speech and
+transcription requests and two health checks. Moving the containers to the server later only
+changes the gateway address.
+
+The app reaches the gateway through the same egress proxy as the AI providers. Three settings
+make the connection. `VOICE_URL` and `VOICE_TOKEN` go into the secrets file next to
+`LINGO_SECRET_KEY`. `VOICE_CA_FILE` names the gateway's root certificate, which is the only
+authority the app trusts for this connection. And the egress proxy allows the gateway as one
+address and one port in the commented block of `squid.conf`. Optional settings are
+`VOICE_STT_MODEL` and `VOICE_DEFAULT_VOICE`, and `VOICE_DATA_DIR` and `VOICE_CACHE_MAX_MB` for the
+audio folder. Without `VOICE_URL` and `VOICE_TOKEN` the app shows no voice controls beyond the
+browser's own voice.
+
+Each account turns voice on, picks a voice and a speed on the settings page. The page also shows
+whether the gateway answers, plays a sample, and has a switch, kept on the device, that lets the
+browser's own speech synthesis read aloud when the gateway is away. Because the computer is a
+laptop that sometimes sleeps, the app asks `/api/voice/status` before it shows a voice control
+and hides the controls with a short note when the gateway cannot be reached. The rest of the app
+works the same without voice.
+
+The relays are `POST /api/voice/speech` for text to speech, `POST /api/voice/transcribe` for a
+recording and `GET /api/voice/narration/:challengeId/:step` for the narration of one solution
+step. All of them need a signed-in account and are limited per account, with a looser limit on
+requests and a tighter one on clips that have to be made and recordings that have to be
+transcribed. Text is limited to 3000 characters and a recording to 6 MB, and the container of a
+recording is recognized from its bytes rather than from the header the browser sent. A gateway
+that cannot be reached, times out or refuses the token gives a plain 503 with a short sentence
+and never shows the address or the token. Formulas in a text are turned into words before they
+are spoken.
+
+Narration clips are made once. The audio of a step is stored as a file in the folder named by
+`VOICE_DATA_DIR`, which is its own volume and not the read-only media folder. The file name is a
+hash of the model, the voice, the speed and the spoken text, so a narration that is edited gets a
+new clip on its next play and an unchanged one never reaches the GPU again, and the same holds
+for hints and explanations. The oldest clips are deleted when the folder passes
+`VOICE_CACHE_MAX_MB`. The solution player keeps the sound in step with the animation by
+following its clock. A step starts its clip, dragging the handle starts the clip of the new step
+at the matching offset, and a clip that is longer than its step holds the clock just before the
+step's end until the sentence is finished.
+
+The hold-to-talk button records in the browser, sends the recording to the transcription relay on
+release and puts the words in the question field. Nothing is sent to the AI until the learner
+presses send. The `Permissions-Policy` header allows the microphone for the app's own pages only.
+Browsers allow the microphone only on https pages or on localhost, and the Cloudflare tunnel
+provides https.
+
 ## Tests
 
 `pnpm test` runs the unit tests with Vitest. The tests under `tests/db` also run migrations,
@@ -293,6 +346,13 @@ strokes, grades the read lines and checks that the same work is answered from th
 analysis without a provider call. It also reads and saves solution versions and drafts a
 script through the mock. Run `pnpm build` first, then the tests with `LINGO_E2E=1`
 next to `LINGO_TEST_PG_URL`. The app listens on port 3102 unless `LINGO_E2E_PORT` names another.
+
+`tests/e2e/voice-http.test.ts` does the same for the voice relays, with a stand-in for the
+gateway that checks the bearer token. It covers sign-in and origin rules, the text and audio
+limits, the cache, narration under the solution's access rule, regeneration only when the text
+changes and the 503 when the gateway is away. It uses port 3112 unless `LINGO_E2E_VOICE_PORT`
+names another. The unit tests in `lib/voice` also run a throwaway HTTPS gateway to check that the
+certificate file is trusted and nothing else is, and they are skipped when `openssl` is missing.
 
 ## Keeping up with upstream
 
