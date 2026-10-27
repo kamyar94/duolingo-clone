@@ -20,5 +20,7 @@ export default defineConfig([
     "build/**",
     "next-env.d.ts",
     ".worktrees/**",
+    // Third-party runtimes copied in by scripts/build-runtimes.mjs (gitignored).
+    "public/runtimes/**",
   ]),
 ]);
