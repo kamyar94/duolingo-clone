@@ -1,0 +1,3019 @@
+{
+  "title": "Math problem sets (example)",
+  "imageSrc": "/mascot.svg",
+  "units": [
+    {
+      "title": "Algebra",
+      "description": "Equations, brackets and quadratics",
+      "lessons": [
+        {
+          "title": "Linear equations",
+          "challenges": [
+            {
+              "type": "MATH",
+              "question": "Solve 3x + 7 = 25 for x.",
+              "hint": "Undo the plus 7 first, then undo the multiplication by 3.",
+              "explanation": "Subtracting 7 from both sides gives 3x = 18, and dividing both sides by 3 gives x = 6.",
+              "payload": {
+                "statement": "Solve $3x + 7 = 25$ for $x$.",
+                "answer": {
+                  "kind": "numeric",
+                  "value": 6,
+                  "tolerance": 0.001
+                },
+                "solution": [
+                  "3x + 7 = 25",
+                  "3x = 18",
+                  "x = 6"
+                ],
+                "solutionScript": {
+                  "format": 1,
+                  "title": "Solving a linear equation",
+                  "question": [
+                    {
+                      "text": "Solve "
+                    },
+                    {
+                      "id": "q-eq",
+                      "text": "$3x + 7 = 25$"
+                    },
+                    {
+                      "text": " for "
+                    },
+                    {
+                      "id": "q-ask",
+                      "text": "$x$"
+                    },
+                    {
+                      "text": "."
+                    }
+                  ],
+                  "givens": [],
+                  "equations": [
+                    {
+                      "id": "lin",
+                      "states": [
+                        {
+                          "id": "start",
+                          "latex": "\\term{c3}{3}\\term{x}{x} \\term{p7}{+ 7} \\term{eq}{=} \\term{n25}{25}"
+                        },
+                        {
+                          "id": "minus",
+                          "latex": "\\term{c3}{3}\\term{x}{x} \\term{p7}{+ 7} \\term{m7}{- 7} \\term{eq}{=} \\term{n25}{25} \\term{m7r}{- 7}"
+                        },
+                        {
+                          "id": "simple",
+                          "latex": "\\term{c3}{3}\\term{x}{x} \\term{eq}{=} \\term{n18}{18}"
+                        },
+                        {
+                          "id": "divide",
+                          "latex": "\\frac{\\term{c3}{3}\\term{x}{x}}{\\term{d3}{3}} \\term{eq}{=} \\frac{\\term{n18}{18}}{\\term{d3r}{3}}"
+                        },
+                        {
+                          "id": "done",
+                          "latex": "\\term{x}{x} \\term{eq}{=} \\term{res}{6}"
+                        }
+                      ]
+                    }
+                  ],
+                  "steps": [
+                    {
+                      "kind": "Relate",
+                      "equation": "lin",
+                      "state": "start",
+                      "duration": 4,
+                      "narration": "We want x on its own. The equation says three x plus seven equals twenty-five."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "lin",
+                      "to": "minus",
+                      "duration": 3.5,
+                      "narration": "First subtract 7 from both sides, to undo the plus 7."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "lin",
+                      "to": "simple",
+                      "duration": 3.5,
+                      "narration": "On the left, plus 7 and minus 7 cancel. On the right, 25 minus 7 is 18."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "lin",
+                      "to": "divide",
+                      "duration": 3.5,
+                      "narration": "Now divide both sides by 3, to undo the multiplication."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "lin",
+                      "to": "done",
+                      "duration": 3.5,
+                      "narration": "Three x divided by three is x, and 18 divided by 3 is 6."
+                    },
+                    {
+                      "kind": "Answer",
+                      "equation": "lin",
+                      "term": "res",
+                      "span": "q-ask",
+                      "text": "x = 6. Check: 3 times 6 plus 7 is 25.",
+                      "duration": 4,
+                      "narration": "So x is 6. Check: three times six is eighteen, and eighteen plus seven is twenty-five."
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "MATH",
+              "question": "A taxi charges a fixed fee of 4 dollars plus 2.50 dollars per kilometre. A ride costs 19 dollars. How many kilometres was the ride?",
+              "hint": "Write the cost as 4 + 2.5 times the distance, and set it equal to 19.",
+              "explanation": "4 + 2.5k = 19 gives 2.5k = 15, so k = 6 kilometres.",
+              "payload": {
+                "statement": "A taxi charges a fixed fee of $4$ dollars plus $2.50$ dollars for every kilometre. A ride costs $19$ dollars in total. How many kilometres was the ride?",
+                "answer": {
+                  "kind": "numeric",
+                  "value": 6,
+                  "unit": "km",
+                  "tolerance": 0.01
+                },
+                "solution": [
+                  "4 + 2.5k = 19",
+                  "2.5k = 15",
+                  "k = 6\\,\\mathrm{km}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Brackets and quadratics",
+          "challenges": [
+            {
+              "type": "MATH",
+              "question": "Expand and simplify (x + 3)(x - 5).",
+              "hint": "Multiply every term of the first bracket by every term of the second.",
+              "explanation": "x times x is x², x times -5 is -5x, 3 times x is 3x and 3 times -5 is -15. Then -5x + 3x is -2x.",
+              "payload": {
+                "statement": "Expand and simplify $(x + 3)(x - 5)$.",
+                "answer": {
+                  "kind": "expression",
+                  "value": "x^2-2x-15"
+                },
+                "solution": [
+                  "(x+3)(x-5)",
+                  "x^2 - 5x + 3x - 15",
+                  "x^2 - 2x - 15"
+                ],
+                "solutionScript": {
+                  "format": 1,
+                  "title": "Expanding two brackets",
+                  "question": [
+                    {
+                      "text": "Expand and simplify "
+                    },
+                    {
+                      "id": "q-ask",
+                      "text": "$(x + 3)(x - 5)$"
+                    },
+                    {
+                      "text": "."
+                    }
+                  ],
+                  "givens": [],
+                  "equations": [
+                    {
+                      "id": "brackets",
+                      "states": [
+                        {
+                          "id": "start",
+                          "latex": "\\term{f1}{(x + 3)}\\term{f2}{(x - 5)}"
+                        },
+                        {
+                          "id": "terms",
+                          "latex": "\\term{f1}{(x + 3)}\\term{f2}{(x - 5)} \\term{eq}{=} \\term{p1}{x \\cdot x} \\term{p2}{+ x \\cdot (-5)} \\term{p3}{+ 3 \\cdot x} \\term{p4}{+ 3 \\cdot (-5)}"
+                        },
+                        {
+                          "id": "tidy",
+                          "latex": "\\term{f1}{(x + 3)}\\term{f2}{(x - 5)} \\term{eq}{=} \\term{p5}{x^2} \\term{p6}{- 5x} \\term{p7}{+ 3x} \\term{p8}{- 15}"
+                        },
+                        {
+                          "id": "done",
+                          "latex": "\\term{f1}{(x + 3)}\\term{f2}{(x - 5)} \\term{eq}{=} \\term{p5}{x^2} \\term{p9}{- 2x} \\term{p8}{- 15}"
+                        }
+                      ]
+                    }
+                  ],
+                  "steps": [
+                    {
+                      "kind": "Relate",
+                      "equation": "brackets",
+                      "state": "start",
+                      "duration": 4,
+                      "narration": "Two brackets side by side. Every term in the first must meet every term in the second."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "brackets",
+                      "to": "terms",
+                      "duration": 4.5,
+                      "narration": "Multiply x by x and by minus 5, then 3 by x and by minus 5. That gives four products."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "brackets",
+                      "to": "tidy",
+                      "duration": 4,
+                      "narration": "Tidy each product: x times x is x squared, x times minus 5 is minus 5x, and so on.",
+                      "links": [
+                        [
+                          "p1",
+                          "p5"
+                        ],
+                        [
+                          "p2",
+                          "p6"
+                        ],
+                        [
+                          "p3",
+                          "p7"
+                        ],
+                        [
+                          "p4",
+                          "p8"
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "brackets",
+                      "to": "done",
+                      "duration": 4,
+                      "narration": "Minus 5x and plus 3x combine to minus 2x.",
+                      "links": [
+                        [
+                          "p6",
+                          "p9"
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "Answer",
+                      "equation": "brackets",
+                      "span": "q-ask",
+                      "text": "(x + 3)(x - 5) = x² - 2x - 15",
+                      "duration": 4,
+                      "narration": "The expanded form is x squared minus two x minus fifteen."
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "MATH",
+              "question": "Which values of x solve x² - 5x + 6 = 0? Pick all that apply.",
+              "hint": "Try each value in the equation, or factor the left side.",
+              "explanation": "x² - 5x + 6 factors as (x - 2)(x - 3), so the solutions are 2 and 3. For 1 the left side is 2, and for 6 it is 12.",
+              "payload": {
+                "statement": "Which values of $x$ solve $x^2 - 5x + 6 = 0$? Pick all that apply.",
+                "answer": {
+                  "kind": "choice",
+                  "choices": [
+                    "$x = 1$",
+                    "$x = 2$",
+                    "$x = 3$",
+                    "$x = 6$"
+                  ],
+                  "correct": [
+                    1,
+                    2
+                  ]
+                },
+                "solution": [
+                  "x^2 - 5x + 6 = (x-2)(x-3) = 0",
+                  "x = 2 \\text{ or } x = 3"
+                ]
+              }
+            },
+            {
+              "type": "MATH",
+              "question": "Solve x² - 4x - 5 = 0. What is the positive solution?",
+              "hint": "Find two numbers that multiply to -5 and add to -4.",
+              "explanation": "x² - 4x - 5 = (x - 5)(x + 1), so x = 5 or x = -1. The positive solution is 5.",
+              "payload": {
+                "statement": "Solve $x^2 - 4x - 5 = 0$. What is the positive solution?",
+                "answer": {
+                  "kind": "numeric",
+                  "value": 5,
+                  "tolerance": 0.001
+                },
+                "solution": [
+                  "x^2 - 4x - 5 = 0",
+                  "(x-5)(x+1) = 0",
+                  "x = 5 \\text{ or } x = -1",
+                  "x = 5"
+                ],
+                "solutionScript": {
+                  "format": 1,
+                  "title": "Solving a quadratic by factoring",
+                  "question": [
+                    {
+                      "text": "Solve "
+                    },
+                    {
+                      "id": "q-eq",
+                      "text": "$x^2 - 4x - 5 = 0$"
+                    },
+                    {
+                      "text": ". "
+                    },
+                    {
+                      "id": "q-ask",
+                      "text": "What is the positive solution?"
+                    }
+                  ],
+                  "givens": [],
+                  "equations": [
+                    {
+                      "id": "quad",
+                      "states": [
+                        {
+                          "id": "start",
+                          "latex": "\\term{x2}{x^2} \\term{b}{- 4x} \\term{c}{- 5} \\term{eq}{=} \\term{z}{0}"
+                        },
+                        {
+                          "id": "factored",
+                          "latex": "\\term{f1}{(x - 5)}\\term{f2}{(x + 1)} \\term{eq}{=} \\term{z}{0}"
+                        },
+                        {
+                          "id": "zero",
+                          "latex": "\\term{g1}{x - 5 = 0} \\term{or}{\\text{ or }} \\term{g2}{x + 1 = 0}"
+                        },
+                        {
+                          "id": "roots",
+                          "latex": "\\term{r1}{x = 5} \\term{or}{\\text{ or }} \\term{r2}{x = -1}"
+                        },
+                        {
+                          "id": "pick",
+                          "latex": "\\term{res}{x = 5}"
+                        }
+                      ]
+                    }
+                  ],
+                  "graphs": [
+                    {
+                      "id": "parab",
+                      "view": {
+                        "x": [
+                          -3,
+                          7
+                        ],
+                        "y": [
+                          -10,
+                          10
+                        ]
+                      },
+                      "height": 260,
+                      "items": [
+                        {
+                          "id": "curve",
+                          "type": "function",
+                          "fn": "x^2-4*x-5",
+                          "domain": [
+                            -2.5,
+                            6.5
+                          ],
+                          "color": "blue",
+                          "label": "y = x² - 4x - 5"
+                        },
+                        {
+                          "id": "left",
+                          "type": "point",
+                          "at": [
+                            -1,
+                            0
+                          ],
+                          "color": "orange",
+                          "label": "-1"
+                        },
+                        {
+                          "id": "right",
+                          "type": "point",
+                          "at": [
+                            5,
+                            0
+                          ],
+                          "color": "green",
+                          "label": "5"
+                        }
+                      ]
+                    }
+                  ],
+                  "steps": [
+                    {
+                      "kind": "Relate",
+                      "equation": "quad",
+                      "state": "start",
+                      "duration": 4,
+                      "narration": "A quadratic equation: x squared minus 4x minus 5 equals zero."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "quad",
+                      "to": "factored",
+                      "duration": 4.5,
+                      "narration": "Two numbers that multiply to minus 5 and add to minus 4 are minus 5 and plus 1. So the left side factors."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "quad",
+                      "to": "zero",
+                      "duration": 4,
+                      "narration": "A product is zero only when one of its factors is zero.",
+                      "links": [
+                        [
+                          "f1",
+                          "g1"
+                        ],
+                        [
+                          "f2",
+                          "g2"
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "quad",
+                      "to": "roots",
+                      "duration": 4,
+                      "narration": "Solve each little equation: x is 5, or x is minus 1.",
+                      "links": [
+                        [
+                          "g1",
+                          "r1"
+                        ],
+                        [
+                          "g2",
+                          "r2"
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "Plot",
+                      "graph": "parab",
+                      "items": [
+                        "curve",
+                        "left",
+                        "right"
+                      ],
+                      "duration": 4,
+                      "narration": "The graph agrees: the curve crosses the x axis at minus 1 and at 5."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "quad",
+                      "to": "pick",
+                      "duration": 3.5,
+                      "narration": "The question asks for the positive solution, which is 5.",
+                      "links": [
+                        [
+                          "r1",
+                          "res"
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "Answer",
+                      "equation": "quad",
+                      "term": "res",
+                      "span": "q-ask",
+                      "text": "The positive solution is x = 5.",
+                      "duration": 3,
+                      "narration": "The positive solution is x equals five."
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Geometry",
+      "description": "Triangles, squares and proofs",
+      "lessons": [
+        {
+          "title": "Triangles",
+          "challenges": [
+            {
+              "type": "MATH",
+              "question": "The two legs of a right triangle measure 5 cm and 12 cm. How long is the hypotenuse?",
+              "hint": "The square of the hypotenuse is the sum of the squares of the legs.",
+              "explanation": "c² = 5² + 12² = 25 + 144 = 169, so c = 13 cm.",
+              "payload": {
+                "statement": "The two legs of a right triangle measure $5\\,\\mathrm{cm}$ and $12\\,\\mathrm{cm}$. How long is the hypotenuse?",
+                "answer": {
+                  "kind": "numeric",
+                  "value": 13,
+                  "unit": "cm",
+                  "tolerance": 0.01
+                },
+                "solution": [
+                  "c^2 = a^2 + b^2",
+                  "c^2 = 5^2 + 12^2 = 169",
+                  "c = 13\\,\\mathrm{cm}"
+                ],
+                "solutionScript": {
+                  "format": 1,
+                  "title": "The hypotenuse of a 5-12 triangle",
+                  "question": [
+                    {
+                      "text": "The two legs of a right triangle measure "
+                    },
+                    {
+                      "id": "q-a",
+                      "text": "$5\\,\\mathrm{cm}$"
+                    },
+                    {
+                      "text": " and "
+                    },
+                    {
+                      "id": "q-b",
+                      "text": "$12\\,\\mathrm{cm}$"
+                    },
+                    {
+                      "text": ". "
+                    },
+                    {
+                      "id": "q-ask",
+                      "text": "How long is the hypotenuse?"
+                    }
+                  ],
+                  "givens": [
+                    {
+                      "id": "a",
+                      "symbol": "a",
+                      "value": 5,
+                      "unit": "cm",
+                      "span": "q-a",
+                      "label": "short leg"
+                    },
+                    {
+                      "id": "b",
+                      "symbol": "b",
+                      "value": 12,
+                      "unit": "cm",
+                      "span": "q-b",
+                      "label": "long leg"
+                    }
+                  ],
+                  "equations": [
+                    {
+                      "id": "pyth",
+                      "states": [
+                        {
+                          "id": "rule",
+                          "latex": "\\term{c}{c}^2 \\term{eq}{=} \\term{a}{a}^2 + \\term{b}{b}^2"
+                        },
+                        {
+                          "id": "numbers",
+                          "latex": "\\term{c}{c}^2 \\term{eq}{=} \\term{av}{(5\\,\\mathrm{cm})}^2 + \\term{bv}{(12\\,\\mathrm{cm})}^2"
+                        },
+                        {
+                          "id": "squares",
+                          "latex": "\\term{c}{c}^2 \\term{eq}{=} \\term{a2}{25\\,\\mathrm{cm^2}} + \\term{b2}{144\\,\\mathrm{cm^2}}"
+                        },
+                        {
+                          "id": "sum",
+                          "latex": "\\term{c}{c}^2 \\term{eq}{=} \\term{c2}{169\\,\\mathrm{cm^2}}"
+                        },
+                        {
+                          "id": "root",
+                          "latex": "\\term{c}{c} \\term{eq}{=} \\term{res}{13\\,\\mathrm{cm}}"
+                        }
+                      ]
+                    }
+                  ],
+                  "figures": [
+                    {
+                      "id": "tri",
+                      "width": 300,
+                      "height": 300,
+                      "shapes": [
+                        {
+                          "id": "C",
+                          "type": "point",
+                          "at": [
+                            70,
+                            270
+                          ],
+                          "label": "C"
+                        },
+                        {
+                          "id": "B",
+                          "type": "point",
+                          "at": [
+                            170,
+                            270
+                          ],
+                          "label": "B"
+                        },
+                        {
+                          "id": "A",
+                          "type": "point",
+                          "at": [
+                            70,
+                            30
+                          ],
+                          "label": "A"
+                        },
+                        {
+                          "id": "leg-a",
+                          "type": "segment",
+                          "from": "C",
+                          "to": "B",
+                          "color": "blue",
+                          "label": "a = 5 cm"
+                        },
+                        {
+                          "id": "leg-b",
+                          "type": "segment",
+                          "from": "C",
+                          "to": "A",
+                          "color": "green",
+                          "label": "b = 12 cm"
+                        },
+                        {
+                          "id": "corner",
+                          "type": "angle",
+                          "at": "C",
+                          "from": "B",
+                          "to": "A",
+                          "right": true
+                        },
+                        {
+                          "id": "hyp",
+                          "type": "segment",
+                          "from": "A",
+                          "to": "B",
+                          "color": "orange",
+                          "label": "c"
+                        }
+                      ]
+                    }
+                  ],
+                  "notes": [
+                    {
+                      "id": "hyp-note",
+                      "text": "The hypotenuse is the side across from the right angle.",
+                      "target": {
+                        "element": "tri",
+                        "part": "hyp"
+                      }
+                    }
+                  ],
+                  "steps": [
+                    {
+                      "kind": "Extract",
+                      "given": "a",
+                      "duration": 3,
+                      "narration": "One leg is 5 centimetres long."
+                    },
+                    {
+                      "kind": "Extract",
+                      "given": "b",
+                      "duration": 3,
+                      "narration": "The other leg is 12 centimetres long."
+                    },
+                    {
+                      "kind": "Construct",
+                      "figure": "tri",
+                      "shapes": [
+                        "C",
+                        "B",
+                        "A"
+                      ],
+                      "duration": 2.5,
+                      "narration": "Draw the three corners of the triangle."
+                    },
+                    {
+                      "kind": "Construct",
+                      "figure": "tri",
+                      "shapes": [
+                        "leg-a",
+                        "leg-b",
+                        "corner"
+                      ],
+                      "duration": 3,
+                      "narration": "The legs meet in a right angle at C."
+                    },
+                    {
+                      "kind": "Construct",
+                      "figure": "tri",
+                      "shapes": [
+                        "hyp"
+                      ],
+                      "duration": 2.5,
+                      "narration": "The side we want closes the triangle."
+                    },
+                    {
+                      "kind": "Annotate",
+                      "notes": [
+                        "hyp-note"
+                      ],
+                      "duration": 3,
+                      "narration": "That side is the hypotenuse, across from the right angle."
+                    },
+                    {
+                      "kind": "Relate",
+                      "equation": "pyth",
+                      "state": "rule",
+                      "givens": [
+                        "a",
+                        "b"
+                      ],
+                      "duration": 3.5,
+                      "narration": "Pythagoras: the hypotenuse squared equals the sum of the legs squared."
+                    },
+                    {
+                      "kind": "Substitute",
+                      "equation": "pyth",
+                      "to": "numbers",
+                      "pairs": [
+                        {
+                          "given": "a",
+                          "term": "av"
+                        },
+                        {
+                          "given": "b",
+                          "term": "bv"
+                        }
+                      ],
+                      "duration": 3.5,
+                      "narration": "Put in 5 centimetres and 12 centimetres."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "pyth",
+                      "to": "squares",
+                      "duration": 3,
+                      "narration": "Five squared is 25 and twelve squared is 144."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "pyth",
+                      "to": "sum",
+                      "duration": 3,
+                      "narration": "Together that is 169 square centimetres."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "pyth",
+                      "to": "root",
+                      "duration": 3.5,
+                      "narration": "The square root of 169 is 13, so c is 13 centimetres."
+                    },
+                    {
+                      "kind": "Answer",
+                      "equation": "pyth",
+                      "term": "res",
+                      "span": "q-ask",
+                      "text": "The hypotenuse is 13 cm long.",
+                      "duration": 3,
+                      "narration": "The hypotenuse is 13 centimetres long."
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "MATH",
+              "question": "Two angles of a triangle measure 47 degrees and 68 degrees. What is the third angle?",
+              "hint": "The three angles of a triangle always add up to the same total.",
+              "explanation": "The angles add up to 180 degrees, so the third is 180 - 47 - 68 = 65 degrees.",
+              "payload": {
+                "statement": "Two angles of a triangle measure $47^\\circ$ and $68^\\circ$. What is the third angle?",
+                "answer": {
+                  "kind": "numeric",
+                  "value": 65,
+                  "unit": "deg",
+                  "tolerance": 0.01
+                },
+                "solution": [
+                  "A + B + C = 180^\\circ",
+                  "C = 180^\\circ - 47^\\circ - 68^\\circ",
+                  "C = 65^\\circ"
+                ],
+                "solutionScript": {
+                  "format": 1,
+                  "title": "The third angle of a triangle",
+                  "question": [
+                    {
+                      "text": "Two angles of a triangle measure "
+                    },
+                    {
+                      "id": "q-a",
+                      "text": "$47^\\circ$"
+                    },
+                    {
+                      "text": " and "
+                    },
+                    {
+                      "id": "q-b",
+                      "text": "$68^\\circ$"
+                    },
+                    {
+                      "text": ". "
+                    },
+                    {
+                      "id": "q-ask",
+                      "text": "What is the third angle?"
+                    }
+                  ],
+                  "givens": [
+                    {
+                      "id": "A",
+                      "symbol": "A",
+                      "value": 47,
+                      "unit": "deg",
+                      "span": "q-a",
+                      "label": "first angle"
+                    },
+                    {
+                      "id": "B",
+                      "symbol": "B",
+                      "value": 68,
+                      "unit": "deg",
+                      "span": "q-b",
+                      "label": "second angle"
+                    }
+                  ],
+                  "equations": [
+                    {
+                      "id": "sum",
+                      "states": [
+                        {
+                          "id": "rule",
+                          "latex": "\\term{A}{A} + \\term{B}{B} + \\term{C}{C} \\term{eq}{=} \\term{full}{180^\\circ}"
+                        },
+                        {
+                          "id": "solved",
+                          "latex": "\\term{C}{C} \\term{eq}{=} \\term{full}{180^\\circ} - \\term{A}{A} - \\term{B}{B}"
+                        },
+                        {
+                          "id": "numbers",
+                          "latex": "\\term{C}{C} \\term{eq}{=} \\term{full}{180^\\circ} - \\term{Av}{47^\\circ} - \\term{Bv}{68^\\circ}"
+                        },
+                        {
+                          "id": "result",
+                          "latex": "\\term{C}{C} \\term{eq}{=} \\term{res}{65^\\circ}"
+                        }
+                      ]
+                    }
+                  ],
+                  "figures": [
+                    {
+                      "id": "tri",
+                      "width": 300,
+                      "height": 260,
+                      "shapes": [
+                        {
+                          "id": "P",
+                          "type": "point",
+                          "at": [
+                            40,
+                            215
+                          ],
+                          "label": "P"
+                        },
+                        {
+                          "id": "Q",
+                          "type": "point",
+                          "at": [
+                            260,
+                            215
+                          ],
+                          "label": "Q"
+                        },
+                        {
+                          "id": "R",
+                          "type": "point",
+                          "at": [
+                            193,
+                            45
+                          ],
+                          "label": "R"
+                        },
+                        {
+                          "id": "outline",
+                          "type": "polygon",
+                          "points": [
+                            "P",
+                            "Q",
+                            "R"
+                          ]
+                        },
+                        {
+                          "id": "angP",
+                          "type": "angle",
+                          "at": "P",
+                          "from": "Q",
+                          "to": "R",
+                          "r": 34,
+                          "color": "blue",
+                          "label": "47°"
+                        },
+                        {
+                          "id": "angQ",
+                          "type": "angle",
+                          "at": "Q",
+                          "from": "R",
+                          "to": "P",
+                          "r": 34,
+                          "color": "green",
+                          "label": "68°"
+                        },
+                        {
+                          "id": "angR",
+                          "type": "angle",
+                          "at": "R",
+                          "from": "P",
+                          "to": "Q",
+                          "r": 30,
+                          "color": "orange",
+                          "label": "?"
+                        }
+                      ]
+                    }
+                  ],
+                  "steps": [
+                    {
+                      "kind": "Extract",
+                      "given": "A",
+                      "duration": 3,
+                      "narration": "One angle measures 47 degrees."
+                    },
+                    {
+                      "kind": "Extract",
+                      "given": "B",
+                      "duration": 3,
+                      "narration": "Another angle measures 68 degrees."
+                    },
+                    {
+                      "kind": "Construct",
+                      "figure": "tri",
+                      "shapes": [
+                        "P",
+                        "Q",
+                        "R",
+                        "outline"
+                      ],
+                      "duration": 2.5,
+                      "narration": "Here is the triangle."
+                    },
+                    {
+                      "kind": "Construct",
+                      "figure": "tri",
+                      "shapes": [
+                        "angP",
+                        "angQ",
+                        "angR"
+                      ],
+                      "duration": 3.5,
+                      "narration": "We know two of the angles. The third one is the unknown."
+                    },
+                    {
+                      "kind": "Relate",
+                      "equation": "sum",
+                      "state": "rule",
+                      "givens": [
+                        "A",
+                        "B"
+                      ],
+                      "duration": 3.5,
+                      "narration": "The three angles of a triangle always add up to 180 degrees."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "sum",
+                      "to": "solved",
+                      "duration": 3.5,
+                      "narration": "Move A and B to the other side to get the third angle on its own."
+                    },
+                    {
+                      "kind": "Substitute",
+                      "equation": "sum",
+                      "to": "numbers",
+                      "pairs": [
+                        {
+                          "given": "A",
+                          "term": "Av"
+                        },
+                        {
+                          "given": "B",
+                          "term": "Bv"
+                        }
+                      ],
+                      "duration": 3.5,
+                      "narration": "Put in 47 degrees and 68 degrees."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "sum",
+                      "to": "result",
+                      "duration": 3.5,
+                      "narration": "180 minus 47 minus 68 leaves 65 degrees."
+                    },
+                    {
+                      "kind": "Answer",
+                      "equation": "sum",
+                      "term": "res",
+                      "span": "q-ask",
+                      "text": "The third angle is 65°.",
+                      "duration": 3,
+                      "narration": "The third angle is 65 degrees."
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "Squares and quadrilaterals",
+          "challenges": [
+            {
+              "type": "MATH",
+              "question": "A square has perimeter p. Write its area in terms of p.",
+              "hint": "First find the side length from the perimeter.",
+              "explanation": "The side is p/4, and the area is the side squared: (p/4)² = p²/16.",
+              "payload": {
+                "statement": "A square has perimeter $p$. Write its area in terms of $p$.",
+                "answer": {
+                  "kind": "expression",
+                  "value": "\\frac{p^2}{16}"
+                },
+                "solution": [
+                  "p = 4s",
+                  "s = \\frac{p}{4}",
+                  "A = s^2 = \\left(\\frac{p}{4}\\right)^2 = \\frac{p^2}{16}"
+                ],
+                "solutionScript": {
+                  "format": 1,
+                  "title": "Area of a square from its perimeter",
+                  "question": [
+                    {
+                      "text": "A square has perimeter "
+                    },
+                    {
+                      "id": "q-p",
+                      "text": "$p$"
+                    },
+                    {
+                      "text": ". "
+                    },
+                    {
+                      "id": "q-ask",
+                      "text": "Write its area in terms of $p$."
+                    }
+                  ],
+                  "givens": [
+                    {
+                      "id": "p",
+                      "symbol": "p",
+                      "value": "p",
+                      "span": "q-p",
+                      "label": "perimeter"
+                    }
+                  ],
+                  "equations": [
+                    {
+                      "id": "per",
+                      "states": [
+                        {
+                          "id": "rule",
+                          "latex": "\\term{p}{p} \\term{eq}{=} \\term{four}{4}\\term{s}{s}"
+                        },
+                        {
+                          "id": "side",
+                          "latex": "\\term{s}{s} \\term{eq}{=} \\frac{\\term{p}{p}}{\\term{four}{4}}"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "area",
+                      "states": [
+                        {
+                          "id": "rule",
+                          "latex": "\\term{A}{A} \\term{eq}{=} \\term{s2}{s^2}"
+                        },
+                        {
+                          "id": "swap",
+                          "latex": "\\term{A}{A} \\term{eq}{=} \\term{sq}{\\left(\\frac{p}{4}\\right)^2}"
+                        },
+                        {
+                          "id": "done",
+                          "latex": "\\term{A}{A} \\term{eq}{=} \\term{res}{\\frac{p^2}{16}}"
+                        }
+                      ]
+                    }
+                  ],
+                  "figures": [
+                    {
+                      "id": "square",
+                      "width": 300,
+                      "height": 260,
+                      "shapes": [
+                        {
+                          "id": "sq",
+                          "type": "rect",
+                          "at": [
+                            70,
+                            30
+                          ],
+                          "size": [
+                            160,
+                            160
+                          ],
+                          "color": "blue"
+                        },
+                        {
+                          "id": "side-bottom",
+                          "type": "text",
+                          "at": [
+                            145,
+                            215
+                          ],
+                          "text": "s"
+                        },
+                        {
+                          "id": "side-right",
+                          "type": "text",
+                          "at": [
+                            248,
+                            115
+                          ],
+                          "text": "s"
+                        }
+                      ]
+                    }
+                  ],
+                  "steps": [
+                    {
+                      "kind": "Extract",
+                      "given": "p",
+                      "duration": 3,
+                      "narration": "We only know the perimeter, p."
+                    },
+                    {
+                      "kind": "Construct",
+                      "figure": "square",
+                      "shapes": [
+                        "sq",
+                        "side-bottom",
+                        "side-right"
+                      ],
+                      "duration": 3,
+                      "narration": "A square has four equal sides. Call the side s."
+                    },
+                    {
+                      "kind": "Relate",
+                      "equation": "per",
+                      "state": "rule",
+                      "givens": [
+                        "p"
+                      ],
+                      "duration": 3.5,
+                      "narration": "The perimeter is four sides: p equals 4 s."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "per",
+                      "to": "side",
+                      "duration": 3.5,
+                      "narration": "Divide by 4 to get the side: s equals p over 4."
+                    },
+                    {
+                      "kind": "Relate",
+                      "equation": "area",
+                      "state": "rule",
+                      "duration": 3.5,
+                      "narration": "The area of a square is its side squared."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "area",
+                      "to": "swap",
+                      "duration": 3.5,
+                      "narration": "Replace s by p over 4."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "area",
+                      "to": "done",
+                      "duration": 3.5,
+                      "narration": "Square the top and the bottom: p squared over sixteen."
+                    },
+                    {
+                      "kind": "Answer",
+                      "equation": "area",
+                      "term": "res",
+                      "span": "q-ask",
+                      "text": "The area is p²/16.",
+                      "duration": 3,
+                      "narration": "The area is p squared over sixteen."
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "MATH",
+              "question": "Which of these shapes always have two pairs of parallel sides? Pick all that apply.",
+              "hint": "Think of the shapes that are parallelograms.",
+              "explanation": "Rectangles and rhombuses are parallelograms, so both pairs of opposite sides are parallel. A trapezoid has only one pair of parallel sides, and a kite usually has none.",
+              "payload": {
+                "statement": "Which of these shapes always have two pairs of parallel sides? Pick all that apply.",
+                "answer": {
+                  "kind": "choice",
+                  "choices": [
+                    "Rectangle",
+                    "Rhombus",
+                    "Trapezoid",
+                    "Kite"
+                  ],
+                  "correct": [
+                    0,
+                    1
+                  ]
+                },
+                "solution": [
+                  "\\text{Rectangles and rhombuses are parallelograms.}"
+                ]
+              }
+            },
+            {
+              "type": "MATH",
+              "question": "Explain why the three angles of any triangle add up to 180 degrees.",
+              "hint": "Draw a line through one corner that is parallel to the opposite side.",
+              "explanation": "The parallel line makes alternate angles equal to the two base angles. Together with the top angle they fill a straight line, which is 180 degrees.",
+              "payload": {
+                "statement": "Explain why the three angles of any triangle add up to $180^\\circ$. A sketch helps.",
+                "answer": {
+                  "kind": "freeform",
+                  "value": "A full answer draws a line through one vertex parallel to the opposite side, uses alternate angles to show that the two base angles reappear next to the third angle, and concludes that the three angles fill a straight line of 180 degrees."
+                },
+                "solution": [
+                  "\\text{Draw a line through the top corner, parallel to the base.}",
+                  "\\text{The alternate angles at the two ends equal the two base angles.}",
+                  "\\alpha + \\beta + \\gamma = 180^\\circ \\text{ (a straight line)}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Calculus",
+      "description": "Slopes, areas and limits",
+      "lessons": [
+        {
+          "title": "Derivatives",
+          "challenges": [
+            {
+              "type": "MATH",
+              "question": "Differentiate f(x) = x³ - 6x.",
+              "hint": "Use the power rule on each term: the exponent comes down and drops by one.",
+              "explanation": "The derivative of x³ is 3x², and the derivative of -6x is -6, so f'(x) = 3x² - 6.",
+              "payload": {
+                "statement": "Differentiate $f(x) = x^3 - 6x$.",
+                "answer": {
+                  "kind": "expression",
+                  "value": "3x^2-6"
+                },
+                "solution": [
+                  "f(x) = x^3 - 6x",
+                  "f'(x) = 3x^2 - 6"
+                ]
+              }
+            },
+            {
+              "type": "MATH",
+              "question": "Find the slope of the tangent line to the curve y = x² at the point where x = 3.",
+              "hint": "The slope of the tangent is the derivative at that point.",
+              "explanation": "The derivative of x² is 2x. At x = 3 it equals 6.",
+              "payload": {
+                "statement": "Find the slope of the tangent line to the curve $y = x^2$ at the point where $x = 3$.",
+                "answer": {
+                  "kind": "numeric",
+                  "value": 6,
+                  "tolerance": 0.001
+                },
+                "solution": [
+                  "y' = 2x",
+                  "y'(3) = 2 \\cdot 3 = 6"
+                ],
+                "solutionScript": {
+                  "format": 1,
+                  "title": "Slope of a tangent line",
+                  "question": [
+                    {
+                      "text": "Find the slope of the tangent line to the curve "
+                    },
+                    {
+                      "id": "q-curve",
+                      "text": "$y = x^2$"
+                    },
+                    {
+                      "text": " at the point where "
+                    },
+                    {
+                      "id": "q-x",
+                      "text": "$x = 3$"
+                    },
+                    {
+                      "text": "."
+                    }
+                  ],
+                  "givens": [
+                    {
+                      "id": "x0",
+                      "symbol": "x_0",
+                      "value": 3,
+                      "span": "q-x",
+                      "label": "where"
+                    }
+                  ],
+                  "equations": [
+                    {
+                      "id": "slope",
+                      "states": [
+                        {
+                          "id": "fn",
+                          "latex": "\\term{y}{y} \\term{eq}{=} \\term{x2}{x^2}"
+                        },
+                        {
+                          "id": "deriv",
+                          "latex": "\\term{dy}{\\frac{dy}{dx}} \\term{eq}{=} \\term{two}{2x}"
+                        },
+                        {
+                          "id": "at3",
+                          "latex": "\\term{dy}{\\frac{dy}{dx}} \\term{eq}{=} \\term{two3}{2 \\cdot 3}"
+                        },
+                        {
+                          "id": "done",
+                          "latex": "\\term{dy}{\\frac{dy}{dx}} \\term{eq}{=} \\term{res}{6}"
+                        }
+                      ]
+                    }
+                  ],
+                  "graphs": [
+                    {
+                      "id": "curve",
+                      "view": {
+                        "x": [
+                          -1,
+                          5
+                        ],
+                        "y": [
+                          -2,
+                          18
+                        ]
+                      },
+                      "height": 280,
+                      "items": [
+                        {
+                          "id": "parab",
+                          "type": "function",
+                          "fn": "x^2",
+                          "domain": [
+                            -1,
+                            4.2
+                          ],
+                          "color": "blue",
+                          "label": "y = x²"
+                        },
+                        {
+                          "id": "pt",
+                          "type": "point",
+                          "along": "parab",
+                          "from": 0,
+                          "to": 3,
+                          "color": "orange"
+                        },
+                        {
+                          "id": "tan",
+                          "type": "segment",
+                          "from": [
+                            1.5,
+                            0
+                          ],
+                          "to": [
+                            4.2,
+                            16.2
+                          ],
+                          "color": "red",
+                          "label": "tangent"
+                        }
+                      ]
+                    }
+                  ],
+                  "steps": [
+                    {
+                      "kind": "Extract",
+                      "given": "x0",
+                      "duration": 3,
+                      "narration": "We want the slope where x is 3."
+                    },
+                    {
+                      "kind": "Plot",
+                      "graph": "curve",
+                      "items": [
+                        "parab"
+                      ],
+                      "duration": 3,
+                      "narration": "The curve y equals x squared is a parabola."
+                    },
+                    {
+                      "kind": "Plot",
+                      "graph": "curve",
+                      "items": [
+                        "pt"
+                      ],
+                      "duration": 3,
+                      "narration": "Follow the curve from the origin to the point where x is 3."
+                    },
+                    {
+                      "kind": "Plot",
+                      "graph": "curve",
+                      "items": [
+                        "tan"
+                      ],
+                      "duration": 3.5,
+                      "narration": "The tangent line just touches the curve there. Its slope is what we want."
+                    },
+                    {
+                      "kind": "Relate",
+                      "equation": "slope",
+                      "state": "fn",
+                      "duration": 3.5,
+                      "narration": "The curve has the equation y equals x squared."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "slope",
+                      "to": "deriv",
+                      "duration": 3.5,
+                      "narration": "The slope of the tangent is the derivative. By the power rule, x squared becomes 2 x."
+                    },
+                    {
+                      "kind": "Substitute",
+                      "equation": "slope",
+                      "to": "at3",
+                      "pairs": [
+                        {
+                          "given": "x0",
+                          "term": "two3"
+                        }
+                      ],
+                      "duration": 3.5,
+                      "narration": "Now put in x equals 3."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "slope",
+                      "to": "done",
+                      "duration": 3,
+                      "narration": "Two times three is six."
+                    },
+                    {
+                      "kind": "Answer",
+                      "equation": "slope",
+                      "term": "res",
+                      "span": "q-x",
+                      "text": "The tangent has slope 6 at x = 3.",
+                      "duration": 3,
+                      "narration": "The tangent line has slope six at x equals three."
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "MATH",
+              "question": "Find the smallest value that f(x) = x² - 4x + 7 takes.",
+              "hint": "At the lowest point of the curve the slope is zero.",
+              "explanation": "f'(x) = 2x - 4 is zero at x = 2, and f(2) = 4 - 8 + 7 = 3.",
+              "payload": {
+                "statement": "Find the smallest value that $f(x) = x^2 - 4x + 7$ takes.",
+                "answer": {
+                  "kind": "numeric",
+                  "value": 3,
+                  "tolerance": 0.001
+                },
+                "solution": [
+                  "f'(x) = 2x - 4 = 0",
+                  "x = 2",
+                  "f(2) = 2^2 - 4 \\cdot 2 + 7 = 3"
+                ],
+                "solutionScript": {
+                  "format": 1,
+                  "title": "The minimum of a parabola",
+                  "question": [
+                    {
+                      "text": "Find the "
+                    },
+                    {
+                      "id": "q-ask",
+                      "text": "smallest value"
+                    },
+                    {
+                      "text": " that "
+                    },
+                    {
+                      "id": "q-f",
+                      "text": "$f(x) = x^2 - 4x + 7$"
+                    },
+                    {
+                      "text": " takes."
+                    }
+                  ],
+                  "givens": [],
+                  "equations": [
+                    {
+                      "id": "slope",
+                      "states": [
+                        {
+                          "id": "rule",
+                          "latex": "\\term{fp}{f'(x)} \\term{eq}{=} \\term{a}{2x} \\term{b}{- 4}"
+                        },
+                        {
+                          "id": "zero",
+                          "latex": "\\term{a}{2x} \\term{b}{- 4} \\term{eq}{=} \\term{z}{0}"
+                        },
+                        {
+                          "id": "solved",
+                          "latex": "\\term{x}{x} \\term{eq}{=} \\term{two}{2}"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "value",
+                      "states": [
+                        {
+                          "id": "rule",
+                          "latex": "\\term{f}{f(2)} \\term{eq}{=} \\term{e}{2^2 - 4 \\cdot 2 + 7}"
+                        },
+                        {
+                          "id": "done",
+                          "latex": "\\term{f}{f(2)} \\term{eq}{=} \\term{res}{3}"
+                        }
+                      ]
+                    }
+                  ],
+                  "graphs": [
+                    {
+                      "id": "g",
+                      "view": {
+                        "x": [
+                          -1,
+                          5
+                        ],
+                        "y": [
+                          -1,
+                          14
+                        ]
+                      },
+                      "height": 270,
+                      "items": [
+                        {
+                          "id": "curve",
+                          "type": "function",
+                          "fn": "x^2-4*x+7",
+                          "domain": [
+                            -0.5,
+                            4.5
+                          ],
+                          "color": "blue",
+                          "label": "y = f(x)"
+                        },
+                        {
+                          "id": "low",
+                          "type": "point",
+                          "at": [
+                            2,
+                            3
+                          ],
+                          "color": "orange",
+                          "label": "lowest point"
+                        },
+                        {
+                          "id": "drop",
+                          "type": "segment",
+                          "from": [
+                            2,
+                            0
+                          ],
+                          "to": [
+                            2,
+                            3
+                          ],
+                          "dashed": true,
+                          "color": "gray"
+                        }
+                      ]
+                    }
+                  ],
+                  "steps": [
+                    {
+                      "kind": "Plot",
+                      "graph": "g",
+                      "items": [
+                        "curve"
+                      ],
+                      "duration": 3.5,
+                      "narration": "The graph is a parabola that opens upwards, so it has a lowest point."
+                    },
+                    {
+                      "kind": "Relate",
+                      "equation": "slope",
+                      "state": "rule",
+                      "duration": 4,
+                      "narration": "At the lowest point the tangent is flat, so the slope is zero. The derivative is 2x minus 4."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "slope",
+                      "to": "zero",
+                      "duration": 3.5,
+                      "narration": "Set the derivative equal to zero."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "slope",
+                      "to": "solved",
+                      "duration": 3.5,
+                      "narration": "Solving 2x equals 4 gives x equals 2."
+                    },
+                    {
+                      "kind": "Plot",
+                      "graph": "g",
+                      "items": [
+                        "low",
+                        "drop"
+                      ],
+                      "duration": 3,
+                      "narration": "So the lowest point sits above x equals 2."
+                    },
+                    {
+                      "kind": "Relate",
+                      "equation": "value",
+                      "state": "rule",
+                      "duration": 3.5,
+                      "narration": "To find how low it is, put x equals 2 into f."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "value",
+                      "to": "done",
+                      "duration": 3,
+                      "narration": "Four minus eight plus seven is three."
+                    },
+                    {
+                      "kind": "Answer",
+                      "equation": "value",
+                      "term": "res",
+                      "span": "q-ask",
+                      "text": "The smallest value of f is 3.",
+                      "duration": 3,
+                      "narration": "The smallest value is three."
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "Integrals and limits",
+          "challenges": [
+            {
+              "type": "MATH",
+              "question": "Evaluate the definite integral of 3x² from 0 to 2.",
+              "hint": "Find an antiderivative, then subtract its value at 0 from its value at 2.",
+              "explanation": "An antiderivative of 3x² is x³. At 2 it equals 8 and at 0 it equals 0, so the integral is 8.",
+              "payload": {
+                "statement": "Evaluate the definite integral $\\int_0^2 3x^2\\,dx$.",
+                "answer": {
+                  "kind": "numeric",
+                  "value": 8,
+                  "tolerance": 0.001
+                },
+                "solution": [
+                  "\\int_0^2 3x^2\\,dx = \\left[x^3\\right]_0^2",
+                  "= 2^3 - 0^3 = 8"
+                ],
+                "solutionScript": {
+                  "format": 1,
+                  "title": "A definite integral",
+                  "question": [
+                    {
+                      "text": "Evaluate the definite integral "
+                    },
+                    {
+                      "id": "q-int",
+                      "text": "$\\int_0^2 3x^2\\,dx$"
+                    },
+                    {
+                      "text": "."
+                    }
+                  ],
+                  "givens": [],
+                  "equations": [
+                    {
+                      "id": "int",
+                      "states": [
+                        {
+                          "id": "start",
+                          "latex": "\\term{lhs}{\\int_0^2 3x^2\\,dx}"
+                        },
+                        {
+                          "id": "anti",
+                          "latex": "\\term{lhs}{\\int_0^2 3x^2\\,dx} \\term{eq}{=} \\term{br}{\\left[x^3\\right]_0^2}"
+                        },
+                        {
+                          "id": "limits",
+                          "latex": "\\term{lhs}{\\int_0^2 3x^2\\,dx} \\term{eq}{=} \\term{br}{\\left[x^3\\right]_0^2} \\term{eq2}{=} \\term{ev}{2^3 - 0^3}"
+                        },
+                        {
+                          "id": "done",
+                          "latex": "\\term{lhs}{\\int_0^2 3x^2\\,dx} \\term{eq}{=} \\term{br}{\\left[x^3\\right]_0^2} \\term{eq2}{=} \\term{ev}{2^3 - 0^3} \\term{eq3}{=} \\term{res}{8}"
+                        }
+                      ]
+                    }
+                  ],
+                  "graphs": [
+                    {
+                      "id": "g",
+                      "view": {
+                        "x": [
+                          -0.5,
+                          2.5
+                        ],
+                        "y": [
+                          -1,
+                          14
+                        ]
+                      },
+                      "height": 270,
+                      "items": [
+                        {
+                          "id": "f",
+                          "type": "function",
+                          "fn": "3*x^2",
+                          "domain": [
+                            0,
+                            2.1
+                          ],
+                          "color": "blue",
+                          "label": "y = 3x²"
+                        },
+                        {
+                          "id": "under",
+                          "type": "area",
+                          "of": "f",
+                          "from": 0,
+                          "to": 2,
+                          "color": "green"
+                        }
+                      ]
+                    }
+                  ],
+                  "notes": [
+                    {
+                      "id": "area-note",
+                      "text": "The integral is the green area under the curve from 0 to 2.",
+                      "target": {
+                        "element": "g",
+                        "part": "under"
+                      }
+                    }
+                  ],
+                  "steps": [
+                    {
+                      "kind": "Plot",
+                      "graph": "g",
+                      "items": [
+                        "f"
+                      ],
+                      "duration": 3,
+                      "narration": "Here is the curve y equals three x squared."
+                    },
+                    {
+                      "kind": "Plot",
+                      "graph": "g",
+                      "items": [
+                        "under"
+                      ],
+                      "duration": 4,
+                      "narration": "The definite integral from 0 to 2 is the area under the curve between those two values."
+                    },
+                    {
+                      "kind": "Annotate",
+                      "notes": [
+                        "area-note"
+                      ],
+                      "duration": 2.5,
+                      "narration": "So we are computing this green area."
+                    },
+                    {
+                      "kind": "Relate",
+                      "equation": "int",
+                      "state": "start",
+                      "duration": 3.5,
+                      "narration": "We write the integral we need to evaluate."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "int",
+                      "to": "anti",
+                      "duration": 3.5,
+                      "narration": "An antiderivative of three x squared is x cubed."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "int",
+                      "to": "limits",
+                      "duration": 3.5,
+                      "narration": "Put in the upper limit 2 and subtract the value at the lower limit 0."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "int",
+                      "to": "done",
+                      "duration": 3,
+                      "narration": "Eight minus zero is eight."
+                    },
+                    {
+                      "kind": "Answer",
+                      "equation": "int",
+                      "term": "res",
+                      "span": "q-int",
+                      "text": "The integral equals 8.",
+                      "duration": 3,
+                      "narration": "The area under the curve is eight."
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "MATH",
+              "question": "What is the limit of sin(x) / x as x approaches 0?",
+              "hint": "Both the top and the bottom go to 0, so you cannot just substitute. Think of the graph of sin(x) near 0.",
+              "explanation": "Near 0, sin(x) is almost equal to x, so their ratio approaches 1. This is a standard limit.",
+              "payload": {
+                "statement": "What is $\\displaystyle\\lim_{x\\to 0}\\frac{\\sin x}{x}$?",
+                "answer": {
+                  "kind": "choice",
+                  "choices": [
+                    "$0$",
+                    "$1$",
+                    "$\\infty$",
+                    "The limit does not exist"
+                  ],
+                  "correct": 1
+                },
+                "solution": [
+                  "\\lim_{x\\to 0}\\frac{\\sin x}{x} = 1"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Probability and statistics",
+      "description": "Chance, means and spread",
+      "lessons": [
+        {
+          "title": "Probability",
+          "challenges": [
+            {
+              "type": "MATH",
+              "question": "A bag holds 4 red, 3 blue and 5 green marbles. One marble is drawn at random. What is the probability that it is not blue?",
+              "hint": "Count the marbles that are not blue and divide by all the marbles.",
+              "explanation": "There are 12 marbles and 9 of them are not blue, so the probability is 9/12 = 3/4 = 0.75.",
+              "payload": {
+                "statement": "A bag holds $4$ red, $3$ blue and $5$ green marbles. One marble is drawn at random. What is the probability that it is not blue?",
+                "answer": {
+                  "kind": "numeric",
+                  "value": 0.75,
+                  "tolerance": 0.001
+                },
+                "solution": [
+                  "P(\\text{not blue}) = \\frac{4+5}{12}",
+                  "= \\frac{3}{4} = 0.75"
+                ]
+              }
+            },
+            {
+              "type": "MATH",
+              "question": "Two fair dice are rolled. What is the probability that the sum is 8?",
+              "hint": "List the pairs of dice that add up to 8. There are 36 equally likely pairs in all.",
+              "explanation": "The pairs are (2,6), (3,5), (4,4), (5,3) and (6,2), so 5 of the 36 rolls count. The probability is 5/36, about 0.139.",
+              "payload": {
+                "statement": "Two fair dice are rolled. What is the probability that the sum is $8$?",
+                "answer": {
+                  "kind": "numeric",
+                  "value": "\\frac{5}{36}",
+                  "tolerance": 0.001
+                },
+                "solution": [
+                  "P = \\frac{5}{36} \\approx 0.139"
+                ],
+                "solutionScript": {
+                  "format": 1,
+                  "title": "Probability of a sum of 8",
+                  "question": [
+                    {
+                      "text": "Two fair dice are rolled. "
+                    },
+                    {
+                      "id": "q-ask",
+                      "text": "What is the probability that the sum is $8$?"
+                    }
+                  ],
+                  "givens": [
+                    {
+                      "id": "fav",
+                      "symbol": "k",
+                      "value": 5,
+                      "label": "ways to roll 8"
+                    },
+                    {
+                      "id": "all",
+                      "symbol": "N",
+                      "value": 36,
+                      "label": "possible rolls"
+                    }
+                  ],
+                  "equations": [
+                    {
+                      "id": "prob",
+                      "states": [
+                        {
+                          "id": "rule",
+                          "latex": "\\term{P}{P(\\text{sum } 8)} \\term{eq}{=} \\frac{\\term{fav}{k}}{\\term{all}{N}}"
+                        },
+                        {
+                          "id": "numbers",
+                          "latex": "\\term{P}{P(\\text{sum } 8)} \\term{eq}{=} \\frac{\\term{kv}{5}}{\\term{Nv}{36}}"
+                        },
+                        {
+                          "id": "approx",
+                          "latex": "\\term{P}{P(\\text{sum } 8)} \\term{eq}{=} \\frac{\\term{kv}{5}}{\\term{Nv}{36}} \\term{eq2}{\\approx} \\term{res}{0.139}"
+                        }
+                      ]
+                    }
+                  ],
+                  "tables": [
+                    {
+                      "id": "ways",
+                      "header": [
+                        "Die 1",
+                        "Die 2",
+                        "Sum"
+                      ],
+                      "rows": [
+                        [
+                          "2",
+                          "6",
+                          "8"
+                        ],
+                        [
+                          "3",
+                          "5",
+                          "8"
+                        ],
+                        [
+                          "4",
+                          "4",
+                          "8"
+                        ],
+                        [
+                          "5",
+                          "3",
+                          "8"
+                        ],
+                        [
+                          "6",
+                          "2",
+                          "8"
+                        ]
+                      ]
+                    }
+                  ],
+                  "steps": [
+                    {
+                      "kind": "Construct",
+                      "table": "ways",
+                      "rows": [
+                        0,
+                        1
+                      ],
+                      "duration": 3,
+                      "narration": "First list the ways to make 8: 2 and 6, then 3 and 5."
+                    },
+                    {
+                      "kind": "Construct",
+                      "table": "ways",
+                      "rows": [
+                        2,
+                        3,
+                        4
+                      ],
+                      "duration": 3.5,
+                      "narration": "Then 4 and 4, 5 and 3, and 6 and 2. That is five ways in all."
+                    },
+                    {
+                      "kind": "Relate",
+                      "equation": "prob",
+                      "state": "rule",
+                      "givens": [
+                        "fav",
+                        "all"
+                      ],
+                      "duration": 4,
+                      "narration": "The probability is the number of good rolls divided by the number of possible rolls."
+                    },
+                    {
+                      "kind": "Substitute",
+                      "equation": "prob",
+                      "to": "numbers",
+                      "pairs": [
+                        {
+                          "given": "fav",
+                          "term": "kv"
+                        },
+                        {
+                          "given": "all",
+                          "term": "Nv"
+                        }
+                      ],
+                      "duration": 3.5,
+                      "narration": "Five good rolls out of 6 times 6, which is 36."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "prob",
+                      "to": "approx",
+                      "duration": 3.5,
+                      "narration": "Five divided by 36 is about 0.139."
+                    },
+                    {
+                      "kind": "Answer",
+                      "equation": "prob",
+                      "term": "res",
+                      "span": "q-ask",
+                      "text": "The probability is 5/36, about 0.139.",
+                      "duration": 3,
+                      "narration": "The probability is five thirty-sixths, about 0.139."
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "MATH",
+              "question": "Which of these numbers could be the probability of an event? Pick all that apply.",
+              "hint": "A probability is never below 0 and never above 1.",
+              "explanation": "Probabilities lie between 0 and 1, both ends included. 1.2 is too large and -0.2 is below zero.",
+              "payload": {
+                "statement": "Which of these numbers could be the probability of an event? Pick all that apply.",
+                "answer": {
+                  "kind": "choice",
+                  "choices": [
+                    "$0$",
+                    "$0.75$",
+                    "$1$",
+                    "$1.2$",
+                    "$-0.2$"
+                  ],
+                  "correct": [
+                    0,
+                    1,
+                    2
+                  ]
+                },
+                "solution": [
+                  "0 \\le P \\le 1"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Statistics",
+          "challenges": [
+            {
+              "type": "MATH",
+              "question": "Five test scores are 72, 85, 90, 68 and 85. What is their mean?",
+              "hint": "Add the scores and divide by how many there are.",
+              "explanation": "The scores add up to 400, and 400 divided by 5 is 80.",
+              "payload": {
+                "statement": "Five test scores are $72,\\ 85,\\ 90,\\ 68,\\ 85$. What is their mean?",
+                "answer": {
+                  "kind": "numeric",
+                  "value": 80,
+                  "tolerance": 0.01
+                },
+                "solution": [
+                  "\\bar{x} = \\frac{72+85+90+68+85}{5}",
+                  "\\bar{x} = \\frac{400}{5} = 80"
+                ],
+                "solutionScript": {
+                  "format": 1,
+                  "title": "The mean of five scores",
+                  "question": [
+                    {
+                      "id": "q-n",
+                      "text": "Five"
+                    },
+                    {
+                      "text": " test scores are "
+                    },
+                    {
+                      "id": "q-data",
+                      "text": "$72,\\ 85,\\ 90,\\ 68,\\ 85$"
+                    },
+                    {
+                      "text": ". "
+                    },
+                    {
+                      "id": "q-ask",
+                      "text": "What is their mean?"
+                    }
+                  ],
+                  "givens": [
+                    {
+                      "id": "n",
+                      "symbol": "n",
+                      "value": 5,
+                      "span": "q-n",
+                      "label": "number of scores"
+                    }
+                  ],
+                  "equations": [
+                    {
+                      "id": "mean",
+                      "states": [
+                        {
+                          "id": "rule",
+                          "latex": "\\term{m}{\\bar{x}} \\term{eq}{=} \\frac{\\term{sum}{x_1 + x_2 + \\dots + x_n}}{\\term{n}{n}}"
+                        },
+                        {
+                          "id": "numbers",
+                          "latex": "\\term{m}{\\bar{x}} \\term{eq}{=} \\frac{\\term{vals}{72 + 85 + 90 + 68 + 85}}{\\term{nv}{5}}"
+                        },
+                        {
+                          "id": "total",
+                          "latex": "\\term{m}{\\bar{x}} \\term{eq}{=} \\frac{\\term{tot}{400}}{\\term{nv}{5}}"
+                        },
+                        {
+                          "id": "done",
+                          "latex": "\\term{m}{\\bar{x}} \\term{eq}{=} \\term{res}{80}"
+                        }
+                      ]
+                    }
+                  ],
+                  "tables": [
+                    {
+                      "id": "scores",
+                      "header": [
+                        "Score"
+                      ],
+                      "rows": [
+                        [
+                          "72"
+                        ],
+                        [
+                          "85"
+                        ],
+                        [
+                          "90"
+                        ],
+                        [
+                          "68"
+                        ],
+                        [
+                          "85"
+                        ]
+                      ]
+                    }
+                  ],
+                  "steps": [
+                    {
+                      "kind": "Extract",
+                      "given": "n",
+                      "duration": 3,
+                      "narration": "There are five scores."
+                    },
+                    {
+                      "kind": "Construct",
+                      "table": "scores",
+                      "rows": [
+                        0,
+                        1,
+                        2,
+                        3,
+                        4
+                      ],
+                      "duration": 3.5,
+                      "narration": "Here they are, one per row."
+                    },
+                    {
+                      "kind": "Relate",
+                      "equation": "mean",
+                      "state": "rule",
+                      "givens": [
+                        "n"
+                      ],
+                      "duration": 3.5,
+                      "narration": "The mean is the sum of the values divided by how many there are."
+                    },
+                    {
+                      "kind": "Substitute",
+                      "equation": "mean",
+                      "to": "numbers",
+                      "pairs": [
+                        {
+                          "given": "n",
+                          "term": "nv"
+                        }
+                      ],
+                      "duration": 3.5,
+                      "narration": "Add up the five scores and divide by 5."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "mean",
+                      "to": "total",
+                      "duration": 3.5,
+                      "narration": "72 plus 85 plus 90 plus 68 plus 85 is 400."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "mean",
+                      "to": "done",
+                      "duration": 3,
+                      "narration": "400 divided by 5 is 80."
+                    },
+                    {
+                      "kind": "Answer",
+                      "equation": "mean",
+                      "term": "res",
+                      "span": "q-ask",
+                      "text": "The mean score is 80.",
+                      "duration": 3,
+                      "narration": "The mean score is eighty."
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "MATH",
+              "question": "Find the population standard deviation of the data 1, 3, 5, 7.",
+              "hint": "Find the mean first, then average the squared distances from it, and take the square root.",
+              "explanation": "The mean is 4, the squared distances are 9, 1, 1 and 9, their average is 5, and the square root of 5 is about 2.24.",
+              "payload": {
+                "statement": "Find the population standard deviation of the data $1,\\ 3,\\ 5,\\ 7$.",
+                "answer": {
+                  "kind": "numeric",
+                  "value": "\\sqrt{5}",
+                  "tolerance": 0.01
+                },
+                "solution": [
+                  "\\bar{x} = 4",
+                  "\\sigma = \\sqrt{\\frac{9+1+1+9}{4}} = \\sqrt{5} \\approx 2.24"
+                ],
+                "solutionScript": {
+                  "format": 1,
+                  "title": "A standard deviation",
+                  "question": [
+                    {
+                      "text": "Find the "
+                    },
+                    {
+                      "id": "q-ask",
+                      "text": "population standard deviation"
+                    },
+                    {
+                      "text": " of the data "
+                    },
+                    {
+                      "id": "q-data",
+                      "text": "$1,\\ 3,\\ 5,\\ 7$"
+                    },
+                    {
+                      "text": "."
+                    }
+                  ],
+                  "givens": [],
+                  "equations": [
+                    {
+                      "id": "mean",
+                      "states": [
+                        {
+                          "id": "rule",
+                          "latex": "\\term{m}{\\bar{x}} \\term{eq}{=} \\frac{\\term{v}{1 + 3 + 5 + 7}}{\\term{n}{4}}"
+                        },
+                        {
+                          "id": "done",
+                          "latex": "\\term{m}{\\bar{x}} \\term{eq}{=} \\frac{\\term{tot}{16}}{\\term{n}{4}} \\term{eq2}{=} \\term{res}{4}"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "sd",
+                      "states": [
+                        {
+                          "id": "rule",
+                          "latex": "\\term{s}{\\sigma} \\term{eq}{=} \\sqrt{\\frac{\\term{ss}{\\sum (x - \\bar{x})^2}}{\\term{n}{n}}}"
+                        },
+                        {
+                          "id": "numbers",
+                          "latex": "\\term{s}{\\sigma} \\term{eq}{=} \\sqrt{\\frac{\\term{ssv}{9 + 1 + 1 + 9}}{\\term{nv}{4}}}"
+                        },
+                        {
+                          "id": "simple",
+                          "latex": "\\term{s}{\\sigma} \\term{eq}{=} \\term{root}{\\sqrt{5}}"
+                        },
+                        {
+                          "id": "approx",
+                          "latex": "\\term{s}{\\sigma} \\term{eq}{=} \\term{root}{\\sqrt{5}} \\term{eq2}{\\approx} \\term{res}{2.24}"
+                        }
+                      ]
+                    }
+                  ],
+                  "tables": [
+                    {
+                      "id": "dev",
+                      "header": [
+                        "x",
+                        "x - 4",
+                        "(x - 4)^2"
+                      ],
+                      "rows": [
+                        [
+                          "1",
+                          "-3",
+                          "9"
+                        ],
+                        [
+                          "3",
+                          "-1",
+                          "1"
+                        ],
+                        [
+                          "5",
+                          "1",
+                          "1"
+                        ],
+                        [
+                          "7",
+                          "3",
+                          "9"
+                        ]
+                      ]
+                    }
+                  ],
+                  "steps": [
+                    {
+                      "kind": "Relate",
+                      "equation": "mean",
+                      "state": "rule",
+                      "duration": 3.5,
+                      "narration": "First the mean: add the four values and divide by 4."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "mean",
+                      "to": "done",
+                      "duration": 3.5,
+                      "narration": "The sum is 16, and 16 divided by 4 is 4."
+                    },
+                    {
+                      "kind": "Construct",
+                      "table": "dev",
+                      "rows": [
+                        0,
+                        1,
+                        2,
+                        3
+                      ],
+                      "duration": 4.5,
+                      "narration": "Subtract the mean from each value, then square the result."
+                    },
+                    {
+                      "kind": "Relate",
+                      "equation": "sd",
+                      "state": "rule",
+                      "duration": 4.5,
+                      "narration": "The population standard deviation is the square root of the average squared distance from the mean."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "sd",
+                      "to": "numbers",
+                      "duration": 3.5,
+                      "narration": "The squared distances are 9, 1, 1 and 9, and there are 4 values."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "sd",
+                      "to": "simple",
+                      "duration": 3.5,
+                      "narration": "Nine plus one plus one plus nine is 20, and 20 divided by 4 is 5."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "sd",
+                      "to": "approx",
+                      "duration": 3,
+                      "narration": "The square root of 5 is about 2.24."
+                    },
+                    {
+                      "kind": "Answer",
+                      "equation": "sd",
+                      "term": "res",
+                      "span": "q-ask",
+                      "text": "The standard deviation is about 2.24.",
+                      "duration": 3,
+                      "narration": "The population standard deviation is about two point two four."
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "MATH",
+              "question": "A school finds that students who eat breakfast score higher on tests. Does this show that breakfast causes higher scores?",
+              "hint": "Could something else explain why the two go together?",
+              "explanation": "No. A link between two things (correlation) does not prove that one causes the other. Sleep, family income or motivation could affect both breakfast and scores.",
+              "payload": {
+                "statement": "A school finds that students who eat breakfast score higher on tests. Does this show that breakfast causes higher scores? Explain your reasoning.",
+                "answer": {
+                  "kind": "freeform",
+                  "value": "A full answer says that no, correlation does not prove causation, and names at least one other factor that could explain both, such as sleep, family income or motivation, or notes that the data comes from an observation and not an experiment."
+                },
+                "solution": [
+                  "\\text{No: the data shows a correlation, not a cause.}",
+                  "\\text{A third factor such as sleep or income could affect both.}",
+                  "\\text{Only a controlled experiment could test the cause.}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Physics word problems",
+      "description": "Motion, forces and energy",
+      "lessons": [
+        {
+          "title": "Motion",
+          "challenges": [
+            {
+              "type": "MATH",
+              "question": "A car starts from rest and speeds up at 2.5 m/s² for 8 s. How fast is it going then?",
+              "hint": "From rest, the speed gained is the acceleration times the time.",
+              "explanation": "v = a t = 2.5 m/s² times 8 s = 20 m/s.",
+              "payload": {
+                "statement": "A car starts from rest and speeds up at $2.5\\,\\mathrm{m/s^2}$ for $8\\,\\mathrm{s}$. How fast is it going then?",
+                "answer": {
+                  "kind": "numeric",
+                  "value": 20,
+                  "unit": "m/s",
+                  "tolerance": 0.01
+                },
+                "solution": [
+                  "v = at",
+                  "v = 2.5 \\cdot 8 = 20\\,\\mathrm{m/s}"
+                ],
+                "solutionScript": {
+                  "format": 1,
+                  "title": "Speed after steady acceleration",
+                  "question": [
+                    {
+                      "text": "A car starts from rest and speeds up at "
+                    },
+                    {
+                      "id": "q-a",
+                      "text": "$2.5\\,\\mathrm{m/s^2}$"
+                    },
+                    {
+                      "text": " for "
+                    },
+                    {
+                      "id": "q-t",
+                      "text": "$8\\,\\mathrm{s}$"
+                    },
+                    {
+                      "text": ". "
+                    },
+                    {
+                      "id": "q-ask",
+                      "text": "How fast is it going then?"
+                    }
+                  ],
+                  "givens": [
+                    {
+                      "id": "a",
+                      "symbol": "a",
+                      "value": 2.5,
+                      "unit": "m/s^2",
+                      "span": "q-a",
+                      "label": "acceleration"
+                    },
+                    {
+                      "id": "t",
+                      "symbol": "t",
+                      "value": 8,
+                      "unit": "s",
+                      "span": "q-t",
+                      "label": "time"
+                    }
+                  ],
+                  "equations": [
+                    {
+                      "id": "kin",
+                      "states": [
+                        {
+                          "id": "rule",
+                          "latex": "\\term{v}{v} \\term{eq}{=} \\term{a}{a}\\,\\term{t}{t}"
+                        },
+                        {
+                          "id": "numbers",
+                          "latex": "\\term{v}{v} \\term{eq}{=} \\term{av}{2.5\\,\\mathrm{m/s^2}} \\cdot \\term{tv}{8\\,\\mathrm{s}}"
+                        },
+                        {
+                          "id": "done",
+                          "latex": "\\term{v}{v} \\term{eq}{=} \\term{res}{20\\,\\mathrm{m/s}}"
+                        }
+                      ]
+                    }
+                  ],
+                  "steps": [
+                    {
+                      "kind": "Extract",
+                      "given": "a",
+                      "duration": 3,
+                      "narration": "The car speeds up by 2.5 metres per second, every second."
+                    },
+                    {
+                      "kind": "Extract",
+                      "given": "t",
+                      "duration": 3,
+                      "narration": "It does this for 8 seconds."
+                    },
+                    {
+                      "kind": "Relate",
+                      "equation": "kin",
+                      "state": "rule",
+                      "givens": [
+                        "a",
+                        "t"
+                      ],
+                      "duration": 4,
+                      "narration": "Starting from rest, the speed afterwards is the acceleration times the time."
+                    },
+                    {
+                      "kind": "Substitute",
+                      "equation": "kin",
+                      "to": "numbers",
+                      "pairs": [
+                        {
+                          "given": "a",
+                          "term": "av"
+                        },
+                        {
+                          "given": "t",
+                          "term": "tv"
+                        }
+                      ],
+                      "duration": 3.5,
+                      "narration": "Put in 2.5 metres per second squared and 8 seconds."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "kin",
+                      "to": "done",
+                      "duration": 4,
+                      "narration": "2.5 times 8 is 20, and metres per second squared times seconds leaves metres per second."
+                    },
+                    {
+                      "kind": "Answer",
+                      "equation": "kin",
+                      "term": "res",
+                      "span": "q-ask",
+                      "text": "The car reaches 20 m/s.",
+                      "duration": 3,
+                      "narration": "The car is going twenty metres per second."
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "MATH",
+              "question": "A stone is dropped from a bridge 45 m above the water. Take g = 10 m/s² and ignore the air. How long does the stone take to reach the water?",
+              "hint": "A dropped object falls a distance of one half g t squared.",
+              "explanation": "45 = 0.5 times 10 times t², so t² = 9 and t = 3 s.",
+              "payload": {
+                "statement": "A stone is dropped from a bridge $45\\,\\mathrm{m}$ above the water. Take $g = 10\\,\\mathrm{m/s^2}$ and ignore the air. How long does the stone take to reach the water?",
+                "answer": {
+                  "kind": "numeric",
+                  "value": 3,
+                  "unit": "s",
+                  "tolerance": 0.01
+                },
+                "solution": [
+                  "h = \\frac{1}{2} g t^2",
+                  "t^2 = \\frac{2h}{g} = \\frac{90}{10} = 9",
+                  "t = 3\\,\\mathrm{s}"
+                ],
+                "solutionScript": {
+                  "format": 1,
+                  "title": "Time to fall",
+                  "question": [
+                    {
+                      "text": "A stone is dropped from a bridge "
+                    },
+                    {
+                      "id": "q-h",
+                      "text": "$45\\,\\mathrm{m}$ above the water"
+                    },
+                    {
+                      "text": ". Take "
+                    },
+                    {
+                      "id": "q-g",
+                      "text": "$g = 10\\,\\mathrm{m/s^2}$"
+                    },
+                    {
+                      "text": " and ignore the air. "
+                    },
+                    {
+                      "id": "q-ask",
+                      "text": "How long does the stone take to reach the water?"
+                    }
+                  ],
+                  "givens": [
+                    {
+                      "id": "h",
+                      "symbol": "h",
+                      "value": 45,
+                      "unit": "m",
+                      "span": "q-h",
+                      "label": "height"
+                    },
+                    {
+                      "id": "g",
+                      "symbol": "g",
+                      "value": 10,
+                      "unit": "m/s^2",
+                      "span": "q-g",
+                      "label": "gravity"
+                    }
+                  ],
+                  "equations": [
+                    {
+                      "id": "fall",
+                      "states": [
+                        {
+                          "id": "rule",
+                          "latex": "\\term{h}{h} \\term{eq}{=} \\frac{1}{2}\\,\\term{g}{g}\\,\\term{t2}{t^2}"
+                        },
+                        {
+                          "id": "solved",
+                          "latex": "\\term{t2}{t^2} \\term{eq}{=} \\frac{2 \\term{h}{h}}{\\term{g}{g}}"
+                        },
+                        {
+                          "id": "numbers",
+                          "latex": "\\term{t2}{t^2} \\term{eq}{=} \\frac{2 \\cdot \\term{hv}{45\\,\\mathrm{m}}}{\\term{gv}{10\\,\\mathrm{m/s^2}}}"
+                        },
+                        {
+                          "id": "squares",
+                          "latex": "\\term{t2}{t^2} \\term{eq}{=} \\term{nine}{9\\,\\mathrm{s^2}}"
+                        },
+                        {
+                          "id": "root",
+                          "latex": "\\term{t}{t} \\term{eq}{=} \\term{res}{3\\,\\mathrm{s}}"
+                        }
+                      ]
+                    }
+                  ],
+                  "steps": [
+                    {
+                      "kind": "Extract",
+                      "given": "h",
+                      "duration": 3,
+                      "narration": "The stone falls 45 metres."
+                    },
+                    {
+                      "kind": "Extract",
+                      "given": "g",
+                      "duration": 3,
+                      "narration": "Gravity speeds it up by 10 metres per second, every second."
+                    },
+                    {
+                      "kind": "Relate",
+                      "equation": "fall",
+                      "state": "rule",
+                      "givens": [
+                        "h",
+                        "g"
+                      ],
+                      "duration": 4,
+                      "narration": "A stone dropped from rest falls a distance of one half g t squared."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "fall",
+                      "to": "solved",
+                      "duration": 4,
+                      "narration": "Solve for t squared: multiply both sides by 2 and divide by g."
+                    },
+                    {
+                      "kind": "Substitute",
+                      "equation": "fall",
+                      "to": "numbers",
+                      "pairs": [
+                        {
+                          "given": "h",
+                          "term": "hv"
+                        },
+                        {
+                          "given": "g",
+                          "term": "gv"
+                        }
+                      ],
+                      "duration": 3.5,
+                      "narration": "Put in 45 metres and 10 metres per second squared."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "fall",
+                      "to": "squares",
+                      "duration": 4,
+                      "narration": "Two times 45 is 90, and 90 divided by 10 is 9 square seconds."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "fall",
+                      "to": "root",
+                      "duration": 3.5,
+                      "narration": "The square root of 9 is 3, so t is 3 seconds."
+                    },
+                    {
+                      "kind": "Answer",
+                      "equation": "fall",
+                      "term": "res",
+                      "span": "q-ask",
+                      "text": "The stone takes 3 s to reach the water.",
+                      "duration": 3,
+                      "narration": "The stone takes three seconds."
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "MATH",
+              "question": "A ball is thrown straight up. At the very top of its flight, which statement is true?",
+              "hint": "Gravity keeps acting on the ball the whole time, also at the top.",
+              "explanation": "At the top the ball stops for an instant, so its velocity is zero. Gravity still pulls it with the acceleration g, pointing down.",
+              "payload": {
+                "statement": "A ball is thrown straight up. At the very top of its flight, which statement is true?",
+                "answer": {
+                  "kind": "choice",
+                  "choices": [
+                    "Its velocity is zero and its acceleration is zero.",
+                    "Its velocity is zero and its acceleration is $g$, pointing down.",
+                    "Its velocity points up and its acceleration is zero.",
+                    "Its velocity points down and its acceleration is $g$, pointing up."
+                  ],
+                  "correct": 1
+                },
+                "solution": [
+                  "v = 0,\\quad a = g \\text{ (down)}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "title": "Forces and energy",
+          "challenges": [
+            {
+              "type": "MATH",
+              "question": "A 2 kg cart is pushed by a net force of 6 N. What is its acceleration?",
+              "hint": "Newton's second law links force, mass and acceleration.",
+              "explanation": "F = m a, so a = F / m = 6 N / 2 kg = 3 m/s².",
+              "payload": {
+                "statement": "A $2\\,\\mathrm{kg}$ cart is pushed by a net force of $6\\,\\mathrm{N}$. What is its acceleration?",
+                "answer": {
+                  "kind": "numeric",
+                  "value": 3,
+                  "unit": "m/s^2",
+                  "tolerance": 0.01
+                },
+                "solution": [
+                  "F = ma",
+                  "a = \\frac{F}{m} = \\frac{6}{2} = 3\\,\\mathrm{m/s^2}"
+                ]
+              }
+            },
+            {
+              "type": "MATH",
+              "question": "A 0.5 kg ball moves at 4 m/s. What is its kinetic energy?",
+              "hint": "Kinetic energy is one half of the mass times the speed squared.",
+              "explanation": "E = 0.5 times 0.5 kg times (4 m/s)² = 0.5 times 0.5 times 16 = 4 joules.",
+              "payload": {
+                "statement": "A $0.5\\,\\mathrm{kg}$ ball moves at $4\\,\\mathrm{m/s}$. What is its kinetic energy?",
+                "answer": {
+                  "kind": "numeric",
+                  "value": 4,
+                  "unit": "J",
+                  "tolerance": 0.01
+                },
+                "solution": [
+                  "E_k = \\frac{1}{2} m v^2",
+                  "E_k = \\frac{1}{2} \\cdot 0.5 \\cdot 4^2 = 4\\,\\mathrm{J}"
+                ],
+                "solutionScript": {
+                  "format": 1,
+                  "title": "Kinetic energy of a ball",
+                  "question": [
+                    {
+                      "text": "A "
+                    },
+                    {
+                      "id": "q-m",
+                      "text": "$0.5\\,\\mathrm{kg}$"
+                    },
+                    {
+                      "text": " ball moves at "
+                    },
+                    {
+                      "id": "q-v",
+                      "text": "$4\\,\\mathrm{m/s}$"
+                    },
+                    {
+                      "text": ". "
+                    },
+                    {
+                      "id": "q-ask",
+                      "text": "What is its kinetic energy?"
+                    }
+                  ],
+                  "givens": [
+                    {
+                      "id": "m",
+                      "symbol": "m",
+                      "value": 0.5,
+                      "unit": "kg",
+                      "span": "q-m",
+                      "label": "mass"
+                    },
+                    {
+                      "id": "v",
+                      "symbol": "v",
+                      "value": 4,
+                      "unit": "m/s",
+                      "span": "q-v",
+                      "label": "speed"
+                    }
+                  ],
+                  "equations": [
+                    {
+                      "id": "energy",
+                      "states": [
+                        {
+                          "id": "rule",
+                          "latex": "\\term{E}{E_k} \\term{eq}{=} \\term{half}{\\frac{1}{2}}\\,\\term{m}{m}\\,\\term{v2}{v^2}"
+                        },
+                        {
+                          "id": "numbers",
+                          "latex": "\\term{E}{E_k} \\term{eq}{=} \\term{half}{\\frac{1}{2}}\\,\\term{mv}{0.5\\,\\mathrm{kg}}\\,\\term{vv}{(4\\,\\mathrm{m/s})^2}"
+                        },
+                        {
+                          "id": "squared",
+                          "latex": "\\term{E}{E_k} \\term{eq}{=} \\term{half}{\\frac{1}{2}}\\,\\term{mv}{0.5\\,\\mathrm{kg}}\\,\\term{v16}{16\\,\\mathrm{m^2/s^2}}"
+                        },
+                        {
+                          "id": "done",
+                          "latex": "\\term{E}{E_k} \\term{eq}{=} \\term{res}{4\\,\\mathrm{J}}"
+                        }
+                      ]
+                    }
+                  ],
+                  "steps": [
+                    {
+                      "kind": "Extract",
+                      "given": "m",
+                      "duration": 3,
+                      "narration": "The ball has a mass of half a kilogram."
+                    },
+                    {
+                      "kind": "Extract",
+                      "given": "v",
+                      "duration": 3,
+                      "narration": "It moves at 4 metres per second."
+                    },
+                    {
+                      "kind": "Relate",
+                      "equation": "energy",
+                      "state": "rule",
+                      "givens": [
+                        "m",
+                        "v"
+                      ],
+                      "duration": 4,
+                      "narration": "Kinetic energy is one half times the mass times the speed squared."
+                    },
+                    {
+                      "kind": "Substitute",
+                      "equation": "energy",
+                      "to": "numbers",
+                      "pairs": [
+                        {
+                          "given": "m",
+                          "term": "mv"
+                        },
+                        {
+                          "given": "v",
+                          "term": "vv"
+                        }
+                      ],
+                      "duration": 3.5,
+                      "narration": "Put in 0.5 kilograms and 4 metres per second."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "energy",
+                      "to": "squared",
+                      "duration": 3,
+                      "narration": "Four squared is sixteen."
+                    },
+                    {
+                      "kind": "Transform",
+                      "equation": "energy",
+                      "to": "done",
+                      "duration": 4.5,
+                      "narration": "Half of 0.5 is 0.25, and 0.25 times 16 is 4. Kilograms times metres squared per second squared make joules."
+                    },
+                    {
+                      "kind": "Answer",
+                      "equation": "energy",
+                      "term": "res",
+                      "span": "q-ask",
+                      "text": "The kinetic energy is 4 J.",
+                      "duration": 3,
+                      "narration": "The ball has four joules of kinetic energy."
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "MATH",
+              "question": "A heavy stone and a light stone are dropped together from the same height in a vacuum. Which one lands first? Explain using F = ma and the weight W = mg.",
+              "hint": "Write the acceleration as the force divided by the mass, and see what happens to the mass.",
+              "explanation": "The only force is the weight, so a = mg / m = g. The mass cancels, and both stones accelerate equally and land together.",
+              "payload": {
+                "statement": "A heavy stone and a light stone are dropped together from the same height in a vacuum. Which one lands first? Explain using $F = ma$ and the weight $W = mg$.",
+                "answer": {
+                  "kind": "freeform",
+                  "value": "A full answer says that both land at the same time, because the only force is the weight W = mg, so a = F/m = mg/m = g and the mass cancels."
+                },
+                "solution": [
+                  "F = mg",
+                  "a = \\frac{F}{m} = \\frac{mg}{m} = g",
+                  "\\text{Both stones land together.}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
