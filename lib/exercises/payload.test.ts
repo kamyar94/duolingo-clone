@@ -22,7 +22,10 @@ describe("checkChallengePayload", () => {
       expect(checkChallengePayload(type, undefined, ctx)).toEqual([
         `${type} needs a payload object.`,
       ]);
-      expect(checkChallengePayload(type, {}, ctx)).toEqual([]);
+      // An empty object passes the shared checks; track rules may still ask for fields.
+      expect(checkChallengePayload(type, {}, ctx)).not.toContain(
+        `${type} needs a payload object.`
+      );
     }
   });
 

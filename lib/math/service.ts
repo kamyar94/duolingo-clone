@@ -37,6 +37,7 @@ import type {
   GradeResult,
   MathPayload,
   RecognizedLine,
+  RecognizeResult,
   StepAnalysis,
   StoredStroke,
 } from "./types";
@@ -177,15 +178,6 @@ const ownAttempt = async (userId: string, attemptId: number) => {
 };
 
 // ---- Recognition ----
-
-export type RecognizeResult = {
-  attemptId: number;
-  lines: RecognizedLine[];
-  /** True when the same strokes were read before and the lines were reused (no AI call). */
-  reused: boolean;
-  provider: string | null;
-  model: string | null;
-};
 
 export const recognizeHandwriting = async (input: {
   userId: string;

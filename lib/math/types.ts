@@ -112,6 +112,15 @@ export const PAGE_WIDTH = 1000;
 
 export type RecognizedLine = { latex: string; confidence: number };
 
+export type RecognizeResult = {
+  attemptId: number;
+  lines: RecognizedLine[];
+  /** True when the same strokes were read before and the lines were reused (no AI call). */
+  reused: boolean;
+  provider: string | null;
+  model: string | null;
+};
+
 export const MISTAKE_TYPES = [
   "none",
   "sign error",

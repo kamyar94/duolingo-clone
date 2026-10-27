@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { EXERCISE_TYPES } from "@/lib/exercises/types";
 
 import { ExerciseHost } from "./exercise-host";
+import { PlaceholderExercise } from "./placeholder";
 import { exerciseRegistry, getExercise } from "./registry";
 import type { LessonChallenge } from "./types";
 
@@ -42,7 +43,7 @@ describe("exercise registry", () => {
   it("renders an exercise with its question and hint", () => {
     const html = renderToStaticMarkup(
       <ExerciseHost
-        entry={getExercise("MATH")!}
+        entry={{ component: PlaceholderExercise }}
         challenge={challenge({ hint: "Divide by 2." })}
         status="none"
         disabled={false}
