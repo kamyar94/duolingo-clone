@@ -24,13 +24,16 @@ what is different here.
   with range requests for audio.
 - **Build**: standalone Next.js output in a non-root Docker image (`Dockerfile`), security
   headers, no CORS, health check at `/api/health`.
-- **Coding lessons and math practice** are being built in phases after
-  `docs/DESIGN-coding-and-math.md`. The groundwork is in place. New challenge types render
-  through an exercise registry, each account keeps its own encrypted AI keys, and an egress
-  proxy is the app's only way out to the AI providers (see below). Math practice with a pen
-  works, with animated solutions that authors write in the app (see "Math practice" below).
-  Programs in languages without a browser runtime run in hardened code runner containers
-  (`runners/`).
+- **Coding lessons and math practice** follow `docs/DESIGN-coding-and-math.md`, whose
+  "Implementation status" section lists what is built and what is still open. Eight new
+  challenge types render through an exercise registry (`components/exercises`). Math problems
+  are worked by hand with a pen, checked automatically and explained by an AI model, and authors
+  write animated solutions for them in the app. Coding exercises run JavaScript, TypeScript,
+  Python, SQL and web pages in the browser and twelve more languages in hardened code runner
+  containers (`runners/`). Each account keeps its own encrypted AI keys, an egress proxy is the
+  app's only way out to the AI providers, and voice runs on a separate GPU computer. The new
+  pages are `/settings/ai`, `/playground` and `/pen-check`, and for admins `/math-review` and
+  `/math-author`. The sections below describe each part.
 
 ## Running it
 
@@ -51,6 +54,11 @@ The image expects a reachable Postgres and these environment variables:
 | `RUNNER_TOKEN` | Shared token of the code runners, at least 24 characters (secret) |
 | `RUNNER_URL_DOTNET`, `_JVM`, `_NATIVE`, `_GO`, `_RUST`, `_SCRIPT` | Address of each code runner, e.g. `http://runner-dotnet:8080` |
 | `RUNNER_RATE_PER_MINUTE`, `RUNNER_RATE_PER_DAY` | Server runs per account (default 20 and 600) |
+| `VOICE_URL`, `VOICE_TOKEN` | Address of the voice gateway and its bearer token (secret); without them voice stays off |
+| `VOICE_CA_FILE` | The gateway's root certificate, the only authority the app trusts for it |
+| `VOICE_DATA_DIR`, `VOICE_CACHE_MAX_MB` | Writable folder for narration audio and its size limit (default `.voice-data` and 512) |
+| `VOICE_DEFAULT_VOICE`, `VOICE_STT_LANGUAGE` | Voice for learners who chose none (default `af_heart`), fixed language of recordings (detected by default) |
+| `VOICE_TTS_MODEL`, `VOICE_STT_MODEL`, `VOICE_TIMEOUT_MS` | Model names on the gateway (default `kokoro` and `Systran/faster-whisper-small`), longest wait (default 60000) |
 
 Keep passwords and tokens in env files that are never committed; `.gitignore` and
 `.dockerignore` already exclude `.env*`. For `pnpm dev` outside Docker, copy `.env.example`.
@@ -260,6 +268,7 @@ commands, and only with the class and id names the player itself uses. The check
 scripts that write these commands or link commands directly, and LaTeX from learners and from
 AI replies is always rendered without them. Learners can open a solution once they have checked
 or completed the problem, and authors can open every solution.
+
 ## Coding lessons
 
 Coding exercises run the learner's code in one of two places. JavaScript, TypeScript, Python
@@ -415,10 +424,9 @@ The app reaches the gateway through the same egress proxy as the AI providers. T
 make the connection. `VOICE_URL` and `VOICE_TOKEN` go into the secrets file next to
 `LINGO_SECRET_KEY`. `VOICE_CA_FILE` names the gateway's root certificate, which is the only
 authority the app trusts for this connection. And the egress proxy allows the gateway as one
-address and one port in the commented block of `squid.conf`. Optional settings are
-`VOICE_STT_MODEL` and `VOICE_DEFAULT_VOICE`, and `VOICE_DATA_DIR` and `VOICE_CACHE_MAX_MB` for the
-audio folder. Without `VOICE_URL` and `VOICE_TOKEN` the app shows no voice controls beyond the
-browser's own voice.
+address and one port in the commented block of `squid.conf`. The other voice settings in the
+table under "Running it" are optional. Without `VOICE_URL` and `VOICE_TOKEN` the app shows no
+voice controls beyond the browser's own voice.
 
 Each account turns voice on, picks a voice and a speed on the settings page. The page also shows
 whether the gateway answers, plays a sample, and has a switch, kept on the device, that lets the
@@ -455,8 +463,9 @@ provides https.
 
 ## Tests
 
-`pnpm test` runs the unit tests with Vitest. The tests under `tests/db` also run migrations,
-course imports, the AI service and the versions and AI drafts of animated solutions against a real Postgres when `LINGO_TEST_PG_URL` names a
+`pnpm test` runs the unit tests with Vitest, and `pnpm exec tsc --noEmit` checks the types.
+The tests under `tests/db` also run migrations, course imports, the AI service and the versions
+and AI drafts of animated solutions against a real Postgres when `LINGO_TEST_PG_URL` names a
 server where the test user may create databases, for example
 `postgres://lingo:secret@127.0.0.1:5432/postgres`. They create their own databases and drop
 them afterwards.
@@ -474,6 +483,7 @@ limits, the cache, narration under the solution's access rule, regeneration only
 changes and the 503 when the gateway is away. It uses port 3112 unless `LINGO_E2E_VOICE_PORT`
 names another. The unit tests in `lib/voice` also run a throwaway HTTPS gateway to check that the
 certificate file is trusted and nothing else is, and they are skipped when `openssl` is missing.
+
 The runner service has its own Go tests in `runners/service`, run with `go test ./...` (for
 example inside the Go image). The smoke test of the runner containers is described in
 `deploy/README.md`.

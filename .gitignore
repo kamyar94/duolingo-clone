@@ -43,3 +43,6 @@ next-env.d.ts
 
 # browser runtimes of the coding lessons (scripts/build-runtimes.mjs)
 /public/runtimes/
+
+# narration audio cached by the voice relays outside Docker (VOICE_DATA_DIR)
+/.voice-data/

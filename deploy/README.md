@@ -40,13 +40,16 @@ volume `db`. It sits on the internal `backend` network, which only the app share
 **app** is the Lingo web app, built from `./app`. It runs as the unprivileged node user and
 reads `./media` and `./courses` without being able to change them. It applies the database
 migrations itself on every start, so an update needs no separate migration step, but a backup
-of the database before every update stays the rule. The app sits on three internal networks,
-one each for the tunnel, the database and the egress proxy, and none of them leads to the
-internet.
+of the database before every update stays the rule. The app sits on internal networks only, one
+each for the tunnel, the database and the egress proxy plus one per code runner, and none of them
+leads to the internet. Its one writable place is the `voice-data` volume, which keeps the
+narration audio that the voice server made.
 
 **egress** is a Squid proxy and the app's only way out. It accepts HTTPS tunnels to
 `api.openai.com`, `api.anthropic.com` and `generativelanguage.googleapis.com` on port 443 and
 refuses everything else, including other hosts, other ports, plain http and bare IP addresses.
+The one exception is the voice gateway, which a commented block in `squid.conf` allows as one
+address and one port once the voice stack runs.
 Because the app opens a tunnel and encrypts inside it, the proxy learns only which of the three
 hosts is contacted, never the keys or the content. The allowlist lives in `squid.conf` on the
 server, so nothing in the web interface can widen it. The proxy writes no cache and no files,
@@ -74,6 +77,11 @@ database is of little use for AI features without it.
 
 The third is a set of optional settings in `.env`. `AI_RATE_PER_MINUTE` and `AI_RATE_PER_DAY`
 limit the AI requests of each account, and `AI_REQUEST_TIMEOUT_MS` bounds a single request.
+
+Voice adds no service to this stack. Its containers run on the GPU workstation, described under
+"Voice" below, and the app reaches them through the egress proxy. On the app service, voice adds
+the `voice-data` volume for narration audio and a read-only `voice-ca` folder with the
+gateway's root certificate, and `ai.env` gains the gateway's address and token.
 
 Coding lessons in JavaScript, TypeScript, Python, SQL and HTML need nothing new in the stack.
 These exercises run in the learner's browser, and the app serves their runtimes (Pyodide,
@@ -113,7 +121,10 @@ An existing stack from before this change needs three additions. These are the n
 service with its two networks, the extra `egress` network and the `ai.env` file on the app
 service, and the new `SQUID_VERSION` line in `.env`. The code runners add the `x-runner`
 block, the six runner services and their networks, the runner networks, addresses and
-`runner.env` on the app service, and a `COMPOSE_PROFILES` line in `.env`.
+`runner.env` on the app service, and a `COMPOSE_PROFILES` line in `.env`. Voice adds the
+`voice-data` volume, the `voice-ca` mount and the `VOICE_CA_FILE` and `VOICE_DATA_DIR`
+settings on the app service, the voice lines in `ai.env`, and the voice block in `squid.conf`
+once the gateway runs.
 
 ## Checking the allowlist
 

@@ -1,8 +1,10 @@
 # Lingo design spec: coding lessons and math practice
 
-Draft 1, 27 October 2026. Nothing described here is built yet. Facts about third-party tools are
-checked against their own documentation and listed in section 10; anything not yet checked is
-marked TBA.
+Draft 2, 27 October 2026. Phases 1 to 6 are built and tested on a local stack, and phase 7 has
+begun with one example course per track. Nothing is deployed to the server yet. The section
+"Implementation status" after the purpose lists what was built, where it differs from this spec
+and what is still open. Facts about third-party tools are checked against their own
+documentation and listed in section 10; anything not yet checked is marked TBA.
 
 ## 1. Purpose
 
@@ -25,6 +27,119 @@ record in its own Postgres database. The hardening stays in place, so the app co
 general internet access and gains only the narrow, allowlisted routes described in section 6. The
 fork stays easy to merge with upstream, because new work lives in new files and new database
 migrations only add tables and columns.
+
+## Implementation status
+
+Phases 1 to 6 of section 8 are built on one branch, and the rest of this spec describes the
+design they follow. The work was checked with unit tests, database tests against a local
+Postgres, end-to-end tests over HTTP against the production build, a smoke test of the runner
+containers and text checks in a desktop browser. It has not yet run on the server, on a phone,
+on the tablet with the S Pen or with the Wacom tablet.
+
+### What is built
+
+The foundations add one database migration with the payload column, the new challenge types and
+the tables of sections 4.6 and 5.8, plus tables for playground programs, voice preferences and AI
+usage. New challenge types reach the lesson through an exercise registry, so hearts, points and
+progress work for them as for multiple-choice questions. The AI settings page keeps one encrypted
+key per provider, lets each account choose a provider and model per task and tests a key with a
+minimal request. Provider requests leave the app only through the egress proxy of section 6.2.
+
+Math practice follows sections 5.1 to 5.4 and 5.7. The ink canvas has the three layouts, palm
+rejection once a pen is seen, a stroke eraser that also answers to the eraser end of a pen,
+lasso, undo and redo, zoom and an endless page, and it keeps drafts on the server and in the
+browser. Recognition returns editable LaTeX lines. The Cortex Compute Engine checks numeric
+answers with units, expressions and choices and decides correctness, while the AI analysis
+explains the first wrong line. Analyses are stored by fingerprint and reused without a provider
+call, and admins can mark good ones as common mistakes. A pen check page shows what any pen,
+finger or mouse reports.
+
+Animated solutions follow sections 5.5 and 5.6. Scripts are versioned JSON with the eight step
+kinds, checked by a validator that follows every reference and refuses unsafe LaTeX commands.
+Terms are matched between states automatically, and the timeline gives the same frame for the
+same time whichever way the handle is dragged. The player draws equations with KaTeX, graphs with
+Mafs and figures as SVG, and it opens at the learner's wrong step. Authors write scripts in an
+author mode with a live preview, draft them with their own AI provider and save them as new
+versions. Course files may carry scripts as well.
+
+Voice follows sections 6.3 and 6.4. The workstation stack has Kokoro, speaches with a Whisper
+model and a Caddy gateway that requires a bearer token and passes only speech, transcription and
+two health checks. The app reaches it through the egress proxy and trusts only the gateway's own
+certificate authority. Hints, explanations and follow-up answers can be read aloud, narration
+plays in step with the solution player, and a hold-to-talk button fills the question field. Every
+clip is made once and kept in a cache folder, and the voice controls hide when the gateway cannot
+be reached.
+
+Coding in the browser follows sections 4.1 to 4.5 for JavaScript, TypeScript, Python, SQL, HTML
+and CSS. All seven exercise types work with CodeMirror 6 in the split and stacked layouts, with
+the symbol bar on touch devices and both tiers of completion. Checks cover input and output
+tests, function tests, SQL row tests and checks on a rendered page. A playground saves programs
+per account.
+
+Coding on the server follows section 4.4. C#, Java, Kotlin, C, C++, Go, Rust, Ruby, PHP, Perl,
+Lua and Bash run in six runner containers, one per language family, each built from the official
+image of its languages with a small runner service written in Go. The runners are ordinary
+unprivileged containers, so neither a virtual machine nor a privileged container is needed. A
+smoke test of 150 checks confirmed the time limits, the output cap, the process and memory
+limits, the missing network routes and the cleanup between jobs for every language.
+
+Phase 7 has started with three example courses, `courses/math-demo.json`,
+`courses/coding-demo.json` and `courses/server-languages-demo.json`, and with the course-file
+documentation in `SELF-HOSTED.md`.
+
+### Where the build differs from this spec
+
+The schema has a few additions that the spec did not name. Each AI key row lists the tasks routed
+to that provider, voice preferences have their own table, an attempt links to the analysis that
+explained it, and the recognised and corrected LaTeX are stored as lists of lines. The rendered
+picture of the handwriting is not stored, because the app container has no writable volume for
+it, so attempts keep the strokes and the picture can be drawn again from them. The fingerprint of
+an analysis also covers a digest of the question and its payload, so a course update retires old
+analyses, and it covers the learner's answer box, which is part of the judged work.
+
+The browser runners are stricter than section 4.4 planned. The sandboxed frame cannot load
+anything from the network at all, so the page hands it the runtime files it asks for, and Python
+runs in a classic worker that imports Pyodide from blob addresses. Hidden tests are hidden in the
+interface only, because checking runs in the browser and the page data holds them, which is the
+same trust model as multiple-choice answers. The app's pages now send a narrow content security
+policy for workers.
+
+The server runners differ in a few details. Each runner has its own internal network shared only
+with the app, rather than one network for all runners, so a program cannot reach the other
+runners either. Runners have no health check, because a check would start a process with the
+runner's token next to the learner's program, and they recycle themselves after 500 jobs or a day
+instead. A program can still reach the app's web page on its network, which gives it nothing a
+signed-in learner does not already have. Server languages support input and output tests only,
+and PHP, Perl and Lua were added to the list.
+
+Smaller differences complete the list. Learners can open an animated solution only after a graded
+attempt or a completed problem, and a save of a script refuses to overwrite a newer version unless
+the author insists. Voice has two health checks, one per container, so the microphone can hide on
+its own when transcription is away. The choice to let the browser's own voice read aloud is kept
+per device, because the voice settings table has no column for it.
+
+### Open items
+
+The devices of section 5.2 still need their test. The S Pen's pressure and side button in Chrome
+and Samsung Internet and the Wacom pen's pressure and eraser end in desktop browsers are read with
+the pen check page on the real devices, since no container or emulator can stand in for a pen.
+The same visit should try the math keyboard on a phone, the microphone and narration with sound,
+audio on iOS, and the coding layouts on a phone, in iOS Safari and in Firefox.
+
+All AI features were tested against a local mock of the providers. Recognition with images,
+grading, follow-up questions and drafting still need one pass with real keys for OpenAI,
+Anthropic and Google, and the request shape for Gemini is not yet confirmed against a real key.
+
+Some parts of the spec are not built yet. The size of a C# compiler in the browser was not
+measured, the optional language servers for server languages and the structured payload editor
+in the admin screens of section 4.6 do not exist, and the larger example sets of phase 7 across
+algebra, geometry, calculus, probability and physics are still to be written.
+
+Three points wait for a decision by the owner. Next.js 16.4.0 has published security advisories
+that 16.4.1 fixes, and the upgrade waits for approval. The image for C and C++ is 2.2 GB because
+the official GCC image is that large, and a Debian slim image with the compilers would be about
+0.5 GB. Mafs brings its own older copy of KaTeX into the solution player, which a package override
+could remove.
 
 ## 2. Decisions taken
 

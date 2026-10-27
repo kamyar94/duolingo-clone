@@ -9,3 +9,4 @@ deploy/*.env
 .worktrees
 public/runtimes
 runners
+.voice-data

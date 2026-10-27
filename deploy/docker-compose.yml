@@ -11,7 +11,8 @@
 # turn it on in squid.conf, the voice gateway on the workstation (deploy/voice) and nothing else.
 #
 #   tunnel  (tunnel + tunnel-out)       Cloudflare Tunnel connector, token from cloudflared.env
-#   app     (tunnel + backend + egress) Lingo web app (Next.js), built from ./app
+#   app     (tunnel + backend + egress) Lingo web app (Next.js), built from ./app, also on every
+#                                       runner network
 #   db      (backend)                   Postgres, data in the Docker volume "db"
 #   egress  (egress + egress-out)       Squid, allowlist in squid.conf
 #   runner-* (own network each)         code runners, one per language family (profile "runners")
