@@ -212,7 +212,7 @@
                     "visible": false
                   }
                 ],
-                "solution": "#include <stdio.h>\n\nint main(void) {\n    int a, b;\n    scanf(\"%d %d\", &a, &b);\n    printf(\"%d\n\", a + b);\n    return 0;\n}\n"
+                "solution": "#include <stdio.h>\n\nint main(void) {\n    int a, b;\n    scanf(\"%d %d\", &a, &b);\n    printf(\"%d\\n\", a + b);\n    return 0;\n}\n"
               }
             },
             {
@@ -353,7 +353,7 @@
                     "visible": false
                   }
                 ],
-                "solution": "<?php\n\n[$a, $b] = explode(\" \", trim(fgets(STDIN)));\necho (int)$a + (int)$b, \"\n\";\n"
+                "solution": "<?php\n\n[$a, $b] = explode(\" \", trim(fgets(STDIN)));\necho (int)$a + (int)$b, \"\\n\";\n"
               }
             },
             {
@@ -379,7 +379,7 @@
                     "visible": false
                   }
                 ],
-                "solution": "my ($a, $b) = split ' ', <STDIN>;\nprint $a + $b, \"\n\";\n"
+                "solution": "my ($a, $b) = split ' ', <STDIN>;\nprint $a + $b, \"\\n\";\n"
               }
             },
             {

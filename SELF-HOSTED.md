@@ -27,7 +27,8 @@ what is different here.
 - **Coding lessons and math practice** are being built in phases after
   `docs/DESIGN-coding-and-math.md`. The groundwork is in place. New challenge types render
   through an exercise registry, each account keeps its own encrypted AI keys, and an egress
-  proxy is the app's only way out to the AI providers (see below).
+  proxy is the app's only way out to the AI providers (see below). Programs in languages
+  without a browser runtime run in hardened code runner containers (`runners/`).
 
 ## Running it
 
@@ -45,6 +46,9 @@ The image expects a reachable Postgres and these environment variables:
 | `AI_PROXY_URL` | HTTP proxy for AI provider requests, the egress proxy in Docker |
 | `AI_RATE_PER_MINUTE`, `AI_RATE_PER_DAY` | AI requests per account (default 10 and 300) |
 | `AI_REQUEST_TIMEOUT_MS` | Longest wait for one AI request (default 120000) |
+| `RUNNER_TOKEN` | Shared token of the code runners, at least 24 characters (secret) |
+| `RUNNER_URL_DOTNET`, `_JVM`, `_NATIVE`, `_GO`, `_RUST`, `_SCRIPT` | Address of each code runner, e.g. `http://runner-dotnet:8080` |
+| `RUNNER_RATE_PER_MINUTE`, `RUNNER_RATE_PER_DAY` | Server runs per account (default 20 and 600) |
 
 Keep passwords and tokens in env files that are never committed; `.gitignore` and
 `.dockerignore` already exclude `.env*`. For `pnpm dev` outside Docker, copy `.env.example`.
@@ -125,14 +129,16 @@ as `pnpm exec tsx scripts/lingo.mjs <command>`.
 
 ## Coding lessons
 
-Coding exercises run the learner's code in the browser. JavaScript, TypeScript, Python
+Coding exercises run the learner's code in one of two places. JavaScript, TypeScript, Python
 (Pyodide), SQL (sql.js) and web pages run on the learner's own device, so they never touch the
-server. Other languages (C#, Java, Kotlin, C, C++, Go, Rust, Ruby and Bash) are highlighted in
-the editor and can be written and saved, and they say that they run on the server, which a later
-phase adds. `courses/coding-demo.json` is an example course with one exercise of each type.
+server. C#, Java, Kotlin, C, C++, Go, Rust, Ruby, PHP, Perl, Lua and Bash run in Lingo's code
+runners on the server, described at the end of this section. `courses/coding-demo.json` is an
+example course with one exercise of each type, and `courses/server-languages-demo.json` has a
+C# lesson with every type that applies plus one exercise in each other server language.
 
 Every coding payload names its `language` (`python`, `javascript`, `typescript`, `sql`,
-`csharp`, `java`, `kotlin`, `c`, `cpp`, `go`, `rust`, `ruby` or `bash`) and may set
+`csharp`, `java`, `kotlin`, `c`, `cpp`, `go`, `rust`, `ruby`, `php`, `perl`, `lua` or
+`bash`) and may set
 `timeLimitMs` (default 3000, at most 20000). SQL exercises add `setup`, the statements that
 create and fill the tables before the learner's code runs. The import refuses unknown fields,
 so a misspelt field name does not pass unnoticed. A `solution` field holds a reference answer
@@ -207,6 +213,37 @@ The playground at `/playground` opens the same editor for any language, with pro
 the account and opened, renamed, copied and deleted there. It keeps up to 200 programs per
 account, each up to 256 KB.
 
+### Languages on the server
+
+Programs in the server languages go from the browser to `POST /api/code/run`, which accepts
+them only from signed-in accounts. The route checks the request (a server language, a program
+of at most 64 KB, at most 20 inputs of at most 64 KB each, a time limit within the lesson
+limits), applies a rate limit per account and allows two runs per account at a time. It then
+sends the program with `RUNNER_TOKEN` to the runner of the language's family, found through
+`RUNNER_URL_<FAMILY>` (`lib/coding/server`). A Check sends all inputs of an exercise in one
+request, so the program compiles once and runs once per test. Server languages support the
+input and output tests, visible and hidden, but not function tests.
+
+The answer comes back as the same result a browser run gives, so the console, the line markers
+in the editor and the test report work as for Python. Compiler errors and runtime errors are
+read from the compiler's and the program's own output and point at their line in the learner's
+file. A runner that is not set up, not running, busy or restarting gives the result
+"unavailable", which the lesson treats as "cannot check now", so it never costs a heart.
+
+The runners live in `runners/`. A small Go service (`runners/service`) receives the program,
+compiles and runs it as a separate process in a fresh scratch folder, one job at a time with a
+short queue, stops every process the job started when the time limit passes or the output goes
+over 64 KB, and deletes everything the job wrote. Each language family has its own image, built
+from the official image of its languages (`runners/dotnet`, `jvm`, `native`, `go`, `rust` and
+`script`). The containers are unprivileged, without capabilities, read-only, limited in memory,
+CPU and processes, and each sits on its own internal network with the app.
+`deploy/README.md` explains the settings, the compose profiles that choose the runners and
+the smoke test in `runners/test` that checks them.
+
+For `pnpm dev` outside Docker, set `RUNNER_TOKEN` and the `RUNNER_URL_*` addresses of runners
+the dev server can reach. Without them, server languages say that they cannot run here, and
+everything else works as before.
+
 ## AI settings, keys and the egress proxy
 
 Math practice uses an AI provider chosen by each learner, with the learner's own key. The
@@ -237,6 +274,10 @@ course imports and the AI service against a real Postgres when `LINGO_TEST_PG_UR
 server where the test user may create databases, for example
 `postgres://lingo:secret@127.0.0.1:5432/postgres`. They create their own databases and drop
 them afterwards.
+
+The runner service has its own Go tests in `runners/service`, run with `go test ./...` (for
+example inside the Go image). The smoke test of the runner containers is described in
+`deploy/README.md`.
 
 ## Keeping up with upstream
 
