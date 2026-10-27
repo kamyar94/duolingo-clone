@@ -1,7 +1,7 @@
 # Lingo design spec: coding lessons and math practice
 
-Draft 2, 27 October 2026. Phases 1 to 6 are built and tested on a local stack, and phase 7 has
-begun with one example course per track. Nothing is deployed to the server yet. The section
+Draft 2, 27 October 2026. Phases 1 to 6 are built and tested on a local stack, and phase 7 adds
+example courses and course-file documentation. Nothing is deployed to the server yet. The section
 "Implementation status" after the purpose lists what was built, where it differs from this spec
 and what is still open. Facts about third-party tools are checked against their own
 documentation and listed in section 10; anything not yet checked is marked TBA.
@@ -83,9 +83,13 @@ unprivileged containers, so neither a virtual machine nor a privileged container
 smoke test of 150 checks confirmed the time limits, the output cap, the process and memory
 limits, the missing network routes and the cleanup between jobs for every language.
 
-Phase 7 has started with three example courses, `courses/math-demo.json`,
+Phase 7 started with three small example courses, `courses/math-demo.json`,
 `courses/coding-demo.json` and `courses/server-languages-demo.json`, and with the course-file
-documentation in `SELF-HOSTED.md`.
+documentation in `SELF-HOSTED.md`. It continues in `courses/examples` with a math course of five
+units (algebra, geometry, calculus, probability and statistics, and physics word problems) that
+has 27 problems and 15 animated solutions, courses for Python, JavaScript, SQL and web pages, and
+one short course for each of the twelve server languages. `docs/COURSE-FILES.md` describes the
+payloads, the answers of math problems and the solution scripts with small examples.
 
 ### Where the build differs from this spec
 
@@ -132,8 +136,9 @@ Anthropic and Google, and the request shape for Gemini is not yet confirmed agai
 
 Some parts of the spec are not built yet. The size of a C# compiler in the browser was not
 measured, the optional language servers for server languages and the structured payload editor
-in the admin screens of section 4.6 do not exist, and the larger example sets of phase 7 across
-algebra, geometry, calculus, probability and physics are still to be written.
+in the admin screens of section 4.6 do not exist. The example sets of phase 7 are written, but
+they were checked only with the local tools. No one has yet opened them on a phone, with a pen or
+against a real AI provider.
 
 Three points wait for a decision by the owner. Next.js 16.4.0 has published security advisories
 that 16.4.1 fixes, and the upgrade waits for approval. The image for C and C++ is 2.2 GB because

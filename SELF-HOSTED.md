@@ -137,6 +137,13 @@ refuse a payload that does not match. `update` replaces payloads in place like t
 Outside Docker the server tool needs tsx, because the payload checks are TypeScript, so run it
 as `pnpm exec tsx scripts/lingo.mjs <command>`.
 
+The complete reference for these payloads, for the answers of math problems and for animated
+solution scripts is `docs/COURSE-FILES.md`, which a new course can be written from. The example
+courses in `courses/examples` show every type at work. They hold a math course with five units
+and animated solutions, courses for Python, JavaScript, SQL and web pages, and one short course
+for each of the twelve server languages. They are not imported automatically. Add one with
+`docker compose exec app node scripts/lingo.mjs import courses/examples/python-basics.json`.
+
 ## Math practice
 
 A `MATH` challenge shows its statement with the math typeset by KaTeX, an optional figure, a
