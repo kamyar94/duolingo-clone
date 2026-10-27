@@ -29,7 +29,11 @@ const Editor = () => <p>editor</p>;
 describe("exercise registry", () => {
   it("has a component for every coding and math type", () => {
     for (const type of EXERCISE_TYPES) {
-      expect(exerciseRegistry[type]?.component, type).toBeTypeOf("function");
+      // A function component, or the object next/dynamic and React.lazy return.
+      expect(["function", "object"], type).toContain(
+        typeof exerciseRegistry[type]?.component
+      );
+      expect(exerciseRegistry[type]?.component, type).toBeTruthy();
       expect(getExercise(type)).not.toBeNull();
     }
   });

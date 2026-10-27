@@ -1,0 +1,98 @@
+# Local test of the code runners with the hardened settings of deploy/docker-compose.yml. Every
+# runner extends its service there, so the test uses exactly the production isolation; only the
+# build folder, the names and the token differ. The probe stands in for the app: it shares each
+# runner's internal network and runs smoke.mjs against all of them.
+#
+#   RUNNER_TOKEN=<random> docker compose -f runners/test/compose.yml -p <project> up -d --build
+#   RUNNER_TOKEN=<random> docker compose -f runners/test/compose.yml -p <project> run --rm probe
+#   docker compose -f runners/test/compose.yml -p <project> down
+#
+# Interpolating deploy/docker-compose.yml needs its version settings. They are not used here,
+# so LINGO_TEST_UNUSED stands in for them (see the env file next to this one).
+
+x-test: &test
+  environment:
+    RUNNER_TOKEN: ${RUNNER_TOKEN:?set RUNNER_TOKEN to a random value of at least 24 characters}
+
+services:
+  runner-dotnet:
+    <<: *test
+    extends: { file: ../../deploy/docker-compose.yml, service: runner-dotnet }
+    build: { context: .., dockerfile: dotnet/Dockerfile }
+    image: ${RUNNER_IMAGE_PREFIX:-lingo-test-runner}-dotnet:local
+    container_name: ${COMPOSE_PROJECT_NAME:-lingo-test-runners}-dotnet
+    profiles: !reset []
+  runner-jvm:
+    <<: *test
+    extends: { file: ../../deploy/docker-compose.yml, service: runner-jvm }
+    build: { context: .., dockerfile: jvm/Dockerfile }
+    image: ${RUNNER_IMAGE_PREFIX:-lingo-test-runner}-jvm:local
+    container_name: ${COMPOSE_PROJECT_NAME:-lingo-test-runners}-jvm
+    profiles: !reset []
+  runner-native:
+    <<: *test
+    extends: { file: ../../deploy/docker-compose.yml, service: runner-native }
+    build: { context: .., dockerfile: native/Dockerfile }
+    image: ${RUNNER_IMAGE_PREFIX:-lingo-test-runner}-native:local
+    container_name: ${COMPOSE_PROJECT_NAME:-lingo-test-runners}-native
+    profiles: !reset []
+  runner-go:
+    <<: *test
+    extends: { file: ../../deploy/docker-compose.yml, service: runner-go }
+    build: { context: .., dockerfile: go/Dockerfile }
+    image: ${RUNNER_IMAGE_PREFIX:-lingo-test-runner}-go:local
+    container_name: ${COMPOSE_PROJECT_NAME:-lingo-test-runners}-go
+    profiles: !reset []
+  runner-rust:
+    <<: *test
+    extends: { file: ../../deploy/docker-compose.yml, service: runner-rust }
+    build: { context: .., dockerfile: rust/Dockerfile }
+    image: ${RUNNER_IMAGE_PREFIX:-lingo-test-runner}-rust:local
+    container_name: ${COMPOSE_PROJECT_NAME:-lingo-test-runners}-rust
+    profiles: !reset []
+  runner-script:
+    <<: *test
+    extends: { file: ../../deploy/docker-compose.yml, service: runner-script }
+    build: { context: .., dockerfile: script/Dockerfile }
+    image: ${RUNNER_IMAGE_PREFIX:-lingo-test-runner}-script:local
+    container_name: ${COMPOSE_PROJECT_NAME:-lingo-test-runners}-script
+    profiles: !reset []
+
+  # The stand-in for the app. Started only by `run --rm probe`.
+  probe:
+    image: node:${PROBE_NODE_VERSION:-24.22.1-alpine3.24}
+    profiles: [probe]
+    read_only: true
+    user: "1000:1000"
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    working_dir: /test
+    command: ["node", "smoke.mjs"]
+    volumes:
+      - ./smoke.mjs:/test/smoke.mjs:ro
+    environment:
+      RUNNER_TOKEN: ${RUNNER_TOKEN:?set RUNNER_TOKEN}
+      SMOKE_ONLY: ${SMOKE_ONLY:-}
+      SMOKE_INTERNET_ADDRESS: ${SMOKE_INTERNET_ADDRESS:-}
+      SMOKE_PIDS_LIMIT: "128"
+      RUNNER_URL_DOTNET: http://runner-dotnet:8080
+      RUNNER_URL_JVM: http://runner-jvm:8080
+      RUNNER_URL_NATIVE: http://runner-native:8080
+      RUNNER_URL_GO: http://runner-go:8080
+      RUNNER_URL_RUST: http://runner-rust:8080
+      RUNNER_URL_SCRIPT: http://runner-script:8080
+    networks: [runner-dotnet, runner-jvm, runner-native, runner-go, runner-rust, runner-script]
+
+networks:
+  runner-dotnet:
+    internal: true
+  runner-jvm:
+    internal: true
+  runner-native:
+    internal: true
+  runner-go:
+    internal: true
+  runner-rust:
+    internal: true
+  runner-script:
+    internal: true

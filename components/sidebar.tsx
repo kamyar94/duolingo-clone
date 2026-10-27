@@ -41,6 +41,11 @@ export const Sidebar = async ({ className }: SidebarProps) => {
         <SidebarItem label="Quests" href="/quests" iconSrc="/quests.svg" />
         <SidebarItem label="Shop" href="/shop" iconSrc="/shop.svg" />
         <SidebarItem
+          label="Playground"
+          href="/playground"
+          iconSrc="/playground.svg"
+        />
+        <SidebarItem
           label="Settings"
           href="/settings/ai"
           iconSrc="/settings.svg"

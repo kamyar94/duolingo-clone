@@ -28,7 +28,9 @@ what is different here.
   `docs/DESIGN-coding-and-math.md`. The groundwork is in place. New challenge types render
   through an exercise registry, each account keeps its own encrypted AI keys, and an egress
   proxy is the app's only way out to the AI providers (see below). Math practice with a pen
-  works now, with animated solutions that authors write in the app (see "Math practice" below).
+  works, with animated solutions that authors write in the app (see "Math practice" below).
+  Programs in languages without a browser runtime run in hardened code runner containers
+  (`runners/`).
 
 ## Running it
 
@@ -46,6 +48,9 @@ The image expects a reachable Postgres and these environment variables:
 | `AI_PROXY_URL` | HTTP proxy for AI provider requests, the egress proxy in Docker |
 | `AI_RATE_PER_MINUTE`, `AI_RATE_PER_DAY` | AI requests per account (default 10 and 300) |
 | `AI_REQUEST_TIMEOUT_MS` | Longest wait for one AI request (default 120000) |
+| `RUNNER_TOKEN` | Shared token of the code runners, at least 24 characters (secret) |
+| `RUNNER_URL_DOTNET`, `_JVM`, `_NATIVE`, `_GO`, `_RUST`, `_SCRIPT` | Address of each code runner, e.g. `http://runner-dotnet:8080` |
+| `RUNNER_RATE_PER_MINUTE`, `RUNNER_RATE_PER_DAY` | Server runs per account (default 20 and 600) |
 
 Keep passwords and tokens in env files that are never committed; `.gitignore` and
 `.dockerignore` already exclude `.env*`. For `pnpm dev` outside Docker, copy `.env.example`.
@@ -255,6 +260,122 @@ commands, and only with the class and id names the player itself uses. The check
 scripts that write these commands or link commands directly, and LaTeX from learners and from
 AI replies is always rendered without them. Learners can open a solution once they have checked
 or completed the problem, and authors can open every solution.
+## Coding lessons
+
+Coding exercises run the learner's code in one of two places. JavaScript, TypeScript, Python
+(Pyodide), SQL (sql.js) and web pages run on the learner's own device, so they never touch the
+server. C#, Java, Kotlin, C, C++, Go, Rust, Ruby, PHP, Perl, Lua and Bash run in Lingo's code
+runners on the server, described at the end of this section. `courses/coding-demo.json` is an
+example course with one exercise of each type, and `courses/server-languages-demo.json` has a
+C# lesson with every type that applies plus one exercise in each other server language.
+
+Every coding payload names its `language` (`python`, `javascript`, `typescript`, `sql`,
+`csharp`, `java`, `kotlin`, `c`, `cpp`, `go`, `rust`, `ruby`, `php`, `perl`, `lua` or
+`bash`) and may set
+`timeLimitMs` (default 3000, at most 20000). SQL exercises add `setup`, the statements that
+create and fill the tables before the learner's code runs. The import refuses unknown fields,
+so a misspelt field name does not pass unnoticed. A `solution` field holds a reference answer
+for authors and is never sent to the browser.
+
+- `CODE_READ` has `code` and an optional `text` with the explanation. The learner runs and
+  changes the program, and Check simply moves on. `editable: false` keeps the program as it is.
+- `CODE_OUTPUT` has `code` and `expect`, the printed output. With `choices` (or the challenge's
+  `options`) the learner picks an answer, otherwise the learner types it. Run unlocks after the
+  answer is checked, since running would give it away.
+- `CODE_FILL` has a `template` with each blank written as `___`, `answers` with the accepted
+  text per blank and optional `distractors`. The learner taps chips or types. With `tests`
+  the completed program must pass them instead of matching the answers.
+- `CODE_ORDER` has the program's `lines` in the right order and optional `distractors`. In
+  Python the learner also sets the indentation (`indent: false` turns that off). With `tests`
+  the assembled program must pass them instead of matching the lines.
+- `CODE_WRITE` and `CODE_FIX` have `tests`, an optional `starter` (required for `CODE_FIX`,
+  where it is the program with the bug) and an optional `stdin` for Run.
+- `WEB_LIVE` has `html`, `css`, `js` and `checks`, and may limit the editable tabs with
+  `editable`.
+
+A test is visible unless it says `"visible": false`. Visible tests show the expected and the
+actual value when they fail, and hidden tests only show whether they passed. Hidden tests are
+not secret, because checking happens in the browser and the page data contains them.
+
+```json
+{ "stdin": "3\n4\n", "expect": "7", "match": "normalized" }
+{ "call": "area(2, 3)", "expect": "6", "visible": false }
+{ "query": "SELECT count(*) FROM items", "rows": [[2]] }
+{ "selector": "button.buy", "text": "Buy", "style": { "color": "white" } }
+```
+
+The first form feeds `stdin` to the program and compares what it prints with `expect`, either
+exactly (`exact`, line endings and one final newline aside), after normalising spaces
+(`normalized`, the default) or as a regular expression (`regex`). The second calls a function
+in JavaScript, TypeScript or Python and compares the value with `expect`, which is an
+expression in the same language, numbers within `tolerance`. For TypeScript exercises the call
+is written in plain JavaScript. SQL tests compare `rows` (in order unless `ordered` is false) or
+printed text with `expect`, taken from the learner's last result or from a `query` run after the
+learner's statements. Web checks, the fourth form, look at the rendered page through a
+selector, with an optional `count`, `text` (`textMatch` exact, contains or regex), `style`
+(computed values, so `white` matches `rgb(255, 255, 255)`) and `attr`.
+
+The runtimes are served by the app itself from `public/runtimes`, which
+`scripts/build-runtimes.mjs` fills before `pnpm dev`, before `pnpm build` and in the Dockerfile.
+It copies Pyodide, sql.js and the TypeScript compiler from `node_modules`, bundles the runner
+scripts of `lib/coding/workers` and downloads the Jedi and parso wheels for Python completion
+from PyPI with pinned hashes. Without network access the build continues and Python completion
+stays at keywords. The folder is about 30 MB and is not committed. Browsers keep the files and
+check them before each use, so the first Python exercise takes a few seconds and later ones load
+from the cache.
+
+Code runs in a hidden frame with `sandbox="allow-scripts"`, so it has its own opaque origin and
+no access to the app's cookies, storage or pages. The frame's content security policy has no
+network source at all. Its script is written into it under a nonce, the page hands it the
+runtime files it asks for, and each program runs in a web worker that is stopped when its time
+limit passes or when it prints more than 64 KB. Web exercises render in a second sandboxed
+frame with the same lack of network, and their JavaScript runs when the learner presses Run or
+Check, so a half-typed loop cannot freeze the page. The app's own pages add a content security
+policy with `worker-src 'self' blob:`, `object-src 'none'` and `base-uri 'self'`, and
+`X-Frame-Options` stays `DENY`, which frames written by the app itself are not subject to.
+
+The editor is CodeMirror 6. Every language completes keywords, snippets and words in the file.
+JavaScript and TypeScript also complete through the TypeScript language service in a worker,
+and Python through Jedi inside Pyodide, after a dot or on Ctrl+Space. On a desktop and a tablet
+in landscape the task, the editor and the output sit side by side with draggable dividers. On a
+phone or a tablet in portrait they stack, the output opens as a sheet from the bottom, and a bar
+of brackets, quotes, operators, tab and undo sits above the keyboard. Unfinished work is saved
+per challenge and comes back when the learner returns.
+
+The playground at `/playground` opens the same editor for any language, with programs saved to
+the account and opened, renamed, copied and deleted there. It keeps up to 200 programs per
+account, each up to 256 KB.
+
+### Languages on the server
+
+Programs in the server languages go from the browser to `POST /api/code/run`, which accepts
+them only from signed-in accounts. The route checks the request (a server language, a program
+of at most 64 KB, at most 20 inputs of at most 64 KB each, a time limit within the lesson
+limits), applies a rate limit per account and allows two runs per account at a time. It then
+sends the program with `RUNNER_TOKEN` to the runner of the language's family, found through
+`RUNNER_URL_<FAMILY>` (`lib/coding/server`). A Check sends all inputs of an exercise in one
+request, so the program compiles once and runs once per test. Server languages support the
+input and output tests, visible and hidden, but not function tests.
+
+The answer comes back as the same result a browser run gives, so the console, the line markers
+in the editor and the test report work as for Python. Compiler errors and runtime errors are
+read from the compiler's and the program's own output and point at their line in the learner's
+file. A runner that is not set up, not running, busy or restarting gives the result
+"unavailable", which the lesson treats as "cannot check now", so it never costs a heart.
+
+The runners live in `runners/`. A small Go service (`runners/service`) receives the program,
+compiles and runs it as a separate process in a fresh scratch folder, one job at a time with a
+short queue, stops every process the job started when the time limit passes or the output goes
+over 64 KB, and deletes everything the job wrote. Each language family has its own image, built
+from the official image of its languages (`runners/dotnet`, `jvm`, `native`, `go`, `rust` and
+`script`). The containers are unprivileged, without capabilities, read-only, limited in memory,
+CPU and processes, and each sits on its own internal network with the app.
+`deploy/README.md` explains the settings, the compose profiles that choose the runners and
+the smoke test in `runners/test` that checks them.
+
+For `pnpm dev` outside Docker, set `RUNNER_TOKEN` and the `RUNNER_URL_*` addresses of runners
+the dev server can reach. Without them, server languages say that they cannot run here, and
+everything else works as before.
 
 ## AI settings, keys and the egress proxy
 
@@ -353,6 +474,9 @@ limits, the cache, narration under the solution's access rule, regeneration only
 changes and the 503 when the gateway is away. It uses port 3112 unless `LINGO_E2E_VOICE_PORT`
 names another. The unit tests in `lib/voice` also run a throwaway HTTPS gateway to check that the
 certificate file is trusted and nothing else is, and they are skipped when `openssl` is missing.
+The runner service has its own Go tests in `runners/service`, run with `go test ./...` (for
+example inside the Go image). The smoke test of the runner containers is described in
+`deploy/README.md`.
 
 ## Keeping up with upstream
 

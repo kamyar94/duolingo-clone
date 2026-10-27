@@ -14,6 +14,7 @@
 #   app     (tunnel + backend + egress) Lingo web app (Next.js), built from ./app
 #   db      (backend)                   Postgres, data in the Docker volume "db"
 #   egress  (egress + egress-out)       Squid, allowlist in squid.conf
+#   runner-* (own network each)         code runners, one per language family (profile "runners")
 #
 # Versions are pinned in .env. No container gets a TZ setting on purpose: the database stores
 # UTC times.
@@ -31,6 +32,37 @@ x-hardening: &hardening
     options:
       max-size: "10m"
       max-file: "3"
+
+# The isolation of the code runners, shared by every runner service below. The runner service
+# is process 1 of its container. It has no health check on purpose, because a check would run
+# a second process with the container's environment next to the learner's program. Docker
+# restarts a runner when it ends, and a runner ends on its own when idle after
+# LINGO_RUNNER_MAX_JOBS jobs or LINGO_RUNNER_MAX_UPTIME_MIN minutes, so runners are recycled.
+x-runner: &runner
+  <<: *hardening
+  pull_policy: never
+  user: "10001:10001"
+  read_only: true
+  # The only writable place, for scratch folders and build output. It is emptied after every
+  # job. exec is needed to run compiled programs.
+  tmpfs:
+    - /tmp:size=256m,mode=1777,exec
+  shm_size: 16m
+  ipc: private
+  env_file:
+    - path: runner.env
+      required: false
+  # The runner holds no state, so stopping it at once loses nothing.
+  stop_signal: SIGKILL
+  ulimits:
+    core: 0
+    nofile:
+      soft: 4096
+      hard: 4096
+  mem_limit: 768m
+  memswap_limit: 768m
+  cpus: 1.0
+  pids_limit: 128
 
 services:
   # Accounts, courses and progress. Runs as the unprivileged postgres user (70) on a read-only
@@ -84,6 +116,9 @@ services:
       - .env
       - db.env
       - ai.env
+      # RUNNER_TOKEN, shared with the runners. Without it, server languages are unavailable.
+      - path: runner.env
+        required: false
     environment:
       - PGHOST=db
       - MEDIA_DIR=/media
@@ -93,8 +128,14 @@ services:
       # read from ./voice-ca/ca.pem (see voice/README.md); narration audio is kept in voice-data.
       - VOICE_CA_FILE=/voice-ca/ca.pem
       - VOICE_DATA_DIR=/voice-data
-      # PHASE 6 (code runners): the runner addresses go here, for example
-      # - RUNNER_URL_DOTNET=http://runner-dotnet:8080
+      # Code runners, one per language family. A runner that is not started makes its
+      # languages say that they are not available on this server.
+      - RUNNER_URL_DOTNET=http://runner-dotnet:8080
+      - RUNNER_URL_JVM=http://runner-jvm:8080
+      - RUNNER_URL_NATIVE=http://runner-native:8080
+      - RUNNER_URL_GO=http://runner-go:8080
+      - RUNNER_URL_RUST=http://runner-rust:8080
+      - RUNNER_URL_SCRIPT=http://runner-script:8080
     volumes:
       - ./media:/media:ro # your own pictures, audio and video for courses
       - ./courses:/courses:ro # course files to import
@@ -104,7 +145,12 @@ services:
       - tunnel
       - backend
       - egress
-      # PHASE 6 (code runners): - runners
+      - runner-dotnet
+      - runner-jvm
+      - runner-native
+      - runner-go
+      - runner-rust
+      - runner-script
     depends_on:
       db:
         condition: service_healthy
@@ -145,22 +191,85 @@ services:
     cpus: 0.5
     pids_limit: 100
 
-  # PHASE 6 (code runners): one runner per language family goes here, built from that
-  # language's official image with a small runner service. Planned settings: not privileged,
-  # no capabilities, a non-root user, a read-only root filesystem with a small tmpfs, limits on
-  # memory, processes and CPU, and only the internal "runners" network shared with the app
-  # (no route to the internet or to the other services). Sketch:
-  #
-  # runner-dotnet:
-  #   <<: *hardening
-  #   build: ./app/runners/dotnet
-  #   user: "1000:1000"
-  #   read_only: true
-  #   tmpfs: [/tmp:size=64m,mode=1777]
-  #   networks: [runners]
-  #   mem_limit: 512m
-  #   cpus: 1.0
-  #   pids_limit: 64
+  # Code runners (docs/DESIGN-coding-and-math.md, section 4.4). Each language family has its own
+  # image, built from that language's official image with the small runner service of
+  # app/runners/service inside. A runner compiles and runs one learner's program at a time as a
+  # separate process in a fresh scratch folder on its tmpfs, stops every process the program
+  # started when the time limit passes, caps the output and empties the scratch folder after
+  # each job. The settings in x-runner are the isolation. No runner is privileged or has any
+  # Linux capability, and none can gain privileges. Each runs as an unprivileged user on a
+  # read-only root filesystem, with limits on memory (no swap), CPU, processes and open files.
+  # Each sits alone with the app on its own internal network, so a program has no route to the
+  # internet, to the database or to the other runners, only to the app's web port.
+  # Runners start with the profile "runners" (or one family's own profile, for example
+  # COMPOSE_PROFILES=dotnet,jvm in .env) and read RUNNER_TOKEN from runner.env.
+  runner-dotnet: # C#
+    <<: *runner
+    build:
+      context: ./app/runners
+      dockerfile: dotnet/Dockerfile
+    image: lingo-runner-dotnet:local
+    container_name: lingo-runner-dotnet
+    profiles: [runners, dotnet]
+    networks: [runner-dotnet]
+
+  runner-jvm: # Java and Kotlin. The Kotlin compiler needs more memory than the others.
+    <<: *runner
+    build:
+      context: ./app/runners
+      dockerfile: jvm/Dockerfile
+    image: lingo-runner-jvm:local
+    container_name: lingo-runner-jvm
+    profiles: [runners, jvm]
+    networks: [runner-jvm]
+    mem_limit: 1280m
+    memswap_limit: 1280m
+
+  runner-native: # C and C++ with GCC
+    <<: *runner
+    build:
+      context: ./app/runners
+      dockerfile: native/Dockerfile
+    image: lingo-runner-native:local
+    container_name: lingo-runner-native
+    profiles: [runners, native]
+    networks: [runner-native]
+
+  runner-go: # Go. Each build gets a fresh copy of the image's standard library cache.
+    <<: *runner
+    build:
+      context: ./app/runners
+      dockerfile: go/Dockerfile
+    image: lingo-runner-go:local
+    container_name: lingo-runner-go
+    profiles: [runners, go]
+    networks: [runner-go]
+    tmpfs:
+      - /tmp:size=512m,mode=1777,exec
+    mem_limit: 1280m
+    memswap_limit: 1280m
+
+  runner-rust: # Rust (rustc, no crates)
+    <<: *runner
+    build:
+      context: ./app/runners
+      dockerfile: rust/Dockerfile
+    image: lingo-runner-rust:local
+    container_name: lingo-runner-rust
+    profiles: [runners, rust]
+    networks: [runner-rust]
+
+  runner-script: # Ruby, PHP, Perl, Lua and Bash
+    <<: *runner
+    build:
+      context: ./app/runners
+      dockerfile: script/Dockerfile
+    image: lingo-runner-script:local
+    container_name: lingo-runner-script
+    profiles: [runners, script]
+    networks: [runner-script]
+    mem_limit: 512m
+    memswap_limit: 512m
 
   # Cloudflare Tunnel connector. The token lives only in cloudflared.env, which no other
   # container reads. The image already runs as a non-root user.
@@ -203,6 +312,16 @@ networks:
   egress-out: {}
   # Outbound for the tunnel connector to reach Cloudflare.
   tunnel-out: {}
-  # PHASE 6 (code runners): app <-> runners, no internet.
-  # runners:
-  #   internal: true
+  # app <-> one code runner each. A runner shares its network with nothing else.
+  runner-dotnet:
+    internal: true
+  runner-jvm:
+    internal: true
+  runner-native:
+    internal: true
+  runner-go:
+    internal: true
+  runner-rust:
+    internal: true
+  runner-script:
+    internal: true

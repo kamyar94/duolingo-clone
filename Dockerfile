@@ -11,9 +11,11 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
 # ---- build: Next.js standalone server + the two server scripts bundled with their libraries ----
+# build-runtimes copies Pyodide, sql.js and TypeScript into public/runtimes for the coding lessons.
 FROM deps AS build
 COPY . .
-RUN pnpm exec next build --turbopack \
+RUN node scripts/build-runtimes.mjs \
+ && pnpm exec next build --turbopack \
  && pnpm exec esbuild scripts/start.mjs scripts/lingo.mjs --bundle --platform=node --format=esm \
       --target=node24 --outdir=dist --out-extension:.js=.mjs --external:pg-native \
       "--banner:js=import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);"

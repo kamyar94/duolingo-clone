@@ -46,7 +46,11 @@ describe("checkCourse with coding and math types", () => {
       {
         type: "CODE_WRITE",
         question: "Write area(w, h).",
-        payload: { language: "python", starter: "def area(w, h):\n    pass\n" },
+        payload: {
+          language: "python",
+          starter: "def area(w, h):\n    pass\n",
+          tests: [{ call: "area(2, 3)", expect: "6" }],
+        },
       },
       {
         type: "MATH",
@@ -56,7 +60,7 @@ describe("checkCourse with coding and math types", () => {
       {
         type: "CODE_OUTPUT",
         question: "What does it print?",
-        payload: { language: "js", code: "console.log(1 + 1)" },
+        payload: { language: "javascript", code: "console.log(1 + 1)" },
         options: [
           { text: "2", correct: true },
           { text: "11", correct: false },

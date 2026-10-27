@@ -40,3 +40,6 @@ next-env.d.ts
 # testing tools
 /ngrok
 /stripe
+
+# browser runtimes of the coding lessons (scripts/build-runtimes.mjs)
+/public/runtimes/
