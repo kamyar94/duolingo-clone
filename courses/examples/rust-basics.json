@@ -1,0 +1,137 @@
+{
+  "title": "Rust basics (example)",
+  "imageSrc": "/playground.svg",
+  "units": [
+    {
+      "title": "Rust",
+      "description": "First programs in Rust, run on the server",
+      "lessons": [
+        {
+          "title": "Output, loops and input",
+          "challenges": [
+            {
+              "type": "CODE_READ",
+              "question": "Your first Rust program",
+              "explanation": "The program prints two lines. Variables hold the language name and the year, and the last line calculates the next year.",
+              "payload": {
+                "language": "rust",
+                "text": "A Rust program starts in `fn main`. `println!` prints a line, and `{}` inside its text is replaced by the next value.\n\nPress Run, then change the language and run it again.",
+                "code": "fn main() {\n    let language = \"Rust\";\n    let year = 2026;\n    println!(\"Hello from {}!\", language);\n    println!(\"Next year is {}.\", year + 1);\n}\n"
+              }
+            },
+            {
+              "type": "CODE_OUTPUT",
+              "question": "What does this program print?",
+              "hint": "Whole-number division drops the fractional part, and % gives the remainder.",
+              "explanation": "17 divided by 5 is 3 with a remainder of 2, so the program prints 3 2.",
+              "payload": {
+                "language": "rust",
+                "code": "fn main() {\n    let a = 17;\n    let b = 5;\n    println!(\"{} {}\", a / b, a % b);\n}\n",
+                "expect": "3 2",
+                "choices": [
+                  "3 2",
+                  "3.4 2",
+                  "3 3",
+                  "4 2"
+                ]
+              }
+            },
+            {
+              "type": "CODE_FILL",
+              "question": "Print the squares of 1, 2 and 3, one per line.",
+              "hint": "The loop has to stop at 3, and each line prints the counter times itself.",
+              "explanation": "The counter runs from 1 to 3, and the counter times itself gives 1, 4 and 9.",
+              "payload": {
+                "language": "rust",
+                "template": "fn main() {\n    for i in 1..=___ {\n        println!(\"{}\", i * ___);\n    }\n}\n",
+                "answers": [
+                  "3",
+                  "i"
+                ],
+                "distractors": [
+                  "4",
+                  "2"
+                ]
+              }
+            },
+            {
+              "type": "CODE_ORDER",
+              "question": "Put the lines in order so the program prints 15.",
+              "hint": "Make the total first, then loop, and print at the end.",
+              "explanation": "The total starts at 0, the loop adds 1 + 2 + 3 + 4 + 5 to it, and the last line prints 15.",
+              "payload": {
+                "language": "rust",
+                "lines": [
+                  "fn main() {",
+                  "    let mut total = 0;",
+                  "    for i in 1..=5 {",
+                  "        total += i;",
+                  "    }",
+                  "    println!(\"{}\", total);",
+                  "}"
+                ]
+              }
+            },
+            {
+              "type": "CODE_WRITE",
+              "question": "Read a whole number and print its square.",
+              "hint": "read_line puts the typed line into a String. trim() removes the line break, and parse() turns it into a number.",
+              "explanation": "The program multiplies the number by itself and prints the product.",
+              "payload": {
+                "language": "rust",
+                "starter": "use std::io;\n\nfn main() {\n    let mut line = String::new();\n    io::stdin().read_line(&mut line).unwrap();\n    let n: i64 = line.trim().parse().unwrap();\n    // print n times n\n}\n",
+                "tests": [
+                  {
+                    "stdin": "3\n",
+                    "expect": "9"
+                  },
+                  {
+                    "stdin": "-4\n",
+                    "expect": "16"
+                  },
+                  {
+                    "stdin": "0\n",
+                    "expect": "0",
+                    "visible": false
+                  },
+                  {
+                    "stdin": "12\n",
+                    "expect": "144",
+                    "visible": false
+                  }
+                ],
+                "solution": "use std::io;\n\nfn main() {\n    let mut line = String::new();\n    io::stdin().read_line(&mut line).unwrap();\n    let n: i64 = line.trim().parse().unwrap();\n    println!(\"{}\", n * n);\n}\n"
+              }
+            },
+            {
+              "type": "CODE_FIX",
+              "question": "The program should count down from n to 1, but it stops one number too early. Fix it.",
+              "hint": "(2..=n) starts at 2. Where should the range start?",
+              "explanation": "The loop ended before reaching 1. Letting it run for 1 as well prints the whole countdown.",
+              "payload": {
+                "language": "rust",
+                "starter": "use std::io;\n\nfn main() {\n    let mut line = String::new();\n    io::stdin().read_line(&mut line).unwrap();\n    let n: i32 = line.trim().parse().unwrap();\n    for i in (2..=n).rev() {\n        println!(\"{}\", i);\n    }\n}\n",
+                "tests": [
+                  {
+                    "stdin": "3\n",
+                    "expect": "3\n2\n1"
+                  },
+                  {
+                    "stdin": "1\n",
+                    "expect": "1"
+                  },
+                  {
+                    "stdin": "5\n",
+                    "expect": "5\n4\n3\n2\n1",
+                    "visible": false
+                  }
+                ],
+                "solution": "use std::io;\n\nfn main() {\n    let mut line = String::new();\n    io::stdin().read_line(&mut line).unwrap();\n    let n: i32 = line.trim().parse().unwrap();\n    for i in (1..=n).rev() {\n        println!(\"{}\", i);\n    }\n}\n"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

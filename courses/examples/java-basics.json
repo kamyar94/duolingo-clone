@@ -1,0 +1,139 @@
+{
+  "title": "Java basics (example)",
+  "imageSrc": "/playground.svg",
+  "units": [
+    {
+      "title": "Java",
+      "description": "First programs in Java, run on the server",
+      "lessons": [
+        {
+          "title": "Output, loops and input",
+          "challenges": [
+            {
+              "type": "CODE_READ",
+              "question": "Your first Java program",
+              "explanation": "The program prints two lines. Variables hold the language name and the year, and the last line calculates the next year.",
+              "payload": {
+                "language": "java",
+                "text": "A Java program starts in `main`, inside a class. `System.out.println()` prints a line, and the plus sign joins text and numbers.\n\nPress Run, then change the language and run it again.",
+                "code": "public class Main {\n    public static void main(String[] args) {\n        String language = \"Java\";\n        int year = 2026;\n        System.out.println(\"Hello from \" + language + \"!\");\n        System.out.println(\"Next year is \" + (year + 1) + \".\");\n    }\n}\n"
+              }
+            },
+            {
+              "type": "CODE_OUTPUT",
+              "question": "What does this program print?",
+              "hint": "Whole-number division drops the fractional part, and % gives the remainder.",
+              "explanation": "17 divided by 5 is 3 with a remainder of 2, so the program prints 3 2.",
+              "payload": {
+                "language": "java",
+                "code": "public class Main {\n    public static void main(String[] args) {\n        int a = 17;\n        int b = 5;\n        System.out.println(a / b + \" \" + a % b);\n    }\n}\n",
+                "expect": "3 2",
+                "choices": [
+                  "3 2",
+                  "3.4 2",
+                  "3 3",
+                  "4 2"
+                ]
+              }
+            },
+            {
+              "type": "CODE_FILL",
+              "question": "Print the squares of 1, 2 and 3, one per line.",
+              "hint": "The loop has to stop at 3, and each line prints the counter times itself.",
+              "explanation": "The counter runs from 1 to 3, and the counter times itself gives 1, 4 and 9.",
+              "payload": {
+                "language": "java",
+                "template": "public class Main {\n    public static void main(String[] args) {\n        for (int i = 1; i <= ___; i++) {\n            System.out.println(i * ___);\n        }\n    }\n}\n",
+                "answers": [
+                  "3",
+                  "i"
+                ],
+                "distractors": [
+                  "4",
+                  "2"
+                ]
+              }
+            },
+            {
+              "type": "CODE_ORDER",
+              "question": "Put the lines in order so the program prints 15.",
+              "hint": "Make the total first, then loop, and print at the end.",
+              "explanation": "The total starts at 0, the loop adds 1 + 2 + 3 + 4 + 5 to it, and the last line prints 15.",
+              "payload": {
+                "language": "java",
+                "lines": [
+                  "public class Main {",
+                  "    public static void main(String[] args) {",
+                  "        int total = 0;",
+                  "        for (int i = 1; i <= 5; i++) {",
+                  "            total += i;",
+                  "        }",
+                  "        System.out.println(total);",
+                  "    }",
+                  "}"
+                ]
+              }
+            },
+            {
+              "type": "CODE_WRITE",
+              "question": "Read a whole number and print its square.",
+              "hint": "A Scanner reads from the keyboard. nextInt() gives the next whole number.",
+              "explanation": "The program multiplies the number by itself and prints the product.",
+              "payload": {
+                "language": "java",
+                "starter": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner in = new Scanner(System.in);\n        int n = in.nextInt();\n        // print n times n\n    }\n}\n",
+                "tests": [
+                  {
+                    "stdin": "3\n",
+                    "expect": "9"
+                  },
+                  {
+                    "stdin": "-4\n",
+                    "expect": "16"
+                  },
+                  {
+                    "stdin": "0\n",
+                    "expect": "0",
+                    "visible": false
+                  },
+                  {
+                    "stdin": "12\n",
+                    "expect": "144",
+                    "visible": false
+                  }
+                ],
+                "solution": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner in = new Scanner(System.in);\n        int n = in.nextInt();\n        System.out.println(n * n);\n    }\n}\n"
+              }
+            },
+            {
+              "type": "CODE_FIX",
+              "question": "The program should count down from n to 1, but it stops one number too early. Fix it.",
+              "hint": "Look at the condition i > 1. Does the loop still run when i is 1?",
+              "explanation": "The loop ended before reaching 1. Letting it run for 1 as well prints the whole countdown.",
+              "payload": {
+                "language": "java",
+                "starter": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner in = new Scanner(System.in);\n        int n = in.nextInt();\n        for (int i = n; i > 1; i--) {\n            System.out.println(i);\n        }\n    }\n}\n",
+                "tests": [
+                  {
+                    "stdin": "3\n",
+                    "expect": "3\n2\n1"
+                  },
+                  {
+                    "stdin": "1\n",
+                    "expect": "1"
+                  },
+                  {
+                    "stdin": "5\n",
+                    "expect": "5\n4\n3\n2\n1",
+                    "visible": false
+                  }
+                ],
+                "solution": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner in = new Scanner(System.in);\n        int n = in.nextInt();\n        for (int i = n; i >= 1; i--) {\n            System.out.println(i);\n        }\n    }\n}\n"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

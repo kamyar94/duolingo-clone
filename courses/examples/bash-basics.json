@@ -1,0 +1,135 @@
+{
+  "title": "Bash basics (example)",
+  "imageSrc": "/playground.svg",
+  "units": [
+    {
+      "title": "Bash",
+      "description": "First programs in Bash, run on the server",
+      "lessons": [
+        {
+          "title": "Output, loops and input",
+          "challenges": [
+            {
+              "type": "CODE_READ",
+              "question": "Your first Bash program",
+              "explanation": "The program prints two lines. Variables hold the language name and the year, and the last line calculates the next year.",
+              "payload": {
+                "language": "bash",
+                "text": "A Bash script is a list of commands. `echo` prints, `$name` inserts a variable, and `$((...))` calculates with whole numbers.\n\nPress Run, then change the language and run it again.",
+                "code": "language=\"Bash\"\nyear=2026\necho \"Hello from $language!\"\necho \"Next year is $((year + 1)).\"\n"
+              }
+            },
+            {
+              "type": "CODE_OUTPUT",
+              "question": "What does this program print?",
+              "hint": "Whole-number division drops the fractional part, and % gives the remainder.",
+              "explanation": "17 divided by 5 is 3 with a remainder of 2, so the program prints 3 2.",
+              "payload": {
+                "language": "bash",
+                "code": "a=17\nb=5\necho \"$((a / b)) $((a % b))\"\n",
+                "expect": "3 2",
+                "choices": [
+                  "3 2",
+                  "3.4 2",
+                  "3 3",
+                  "4 2"
+                ]
+              }
+            },
+            {
+              "type": "CODE_FILL",
+              "question": "Print the squares of 1, 2 and 3, one per line.",
+              "hint": "The loop has to stop at 3, and each line prints the counter times itself.",
+              "explanation": "The counter runs from 1 to 3, and the counter times itself gives 1, 4 and 9.",
+              "payload": {
+                "language": "bash",
+                "template": "for i in $(seq 1 ___); do\n  echo $((i * ___))\ndone\n",
+                "answers": [
+                  "3",
+                  "i"
+                ],
+                "distractors": [
+                  "4",
+                  "2"
+                ]
+              }
+            },
+            {
+              "type": "CODE_ORDER",
+              "question": "Put the lines in order so the program prints 15.",
+              "hint": "Make the total first, then loop, and print at the end.",
+              "explanation": "The total starts at 0, the loop adds 1 + 2 + 3 + 4 + 5 to it, and the last line prints 15.",
+              "payload": {
+                "language": "bash",
+                "lines": [
+                  "total=0",
+                  "for i in 1 2 3 4 5; do",
+                  "  total=$((total + i))",
+                  "done",
+                  "echo $total"
+                ]
+              }
+            },
+            {
+              "type": "CODE_WRITE",
+              "question": "Read a whole number and print its square.",
+              "hint": "read n reads a line into the variable n, and $((n * n)) calculates.",
+              "explanation": "The program multiplies the number by itself and prints the product.",
+              "payload": {
+                "language": "bash",
+                "starter": "read n\n# print n times n\n",
+                "tests": [
+                  {
+                    "stdin": "3\n",
+                    "expect": "9"
+                  },
+                  {
+                    "stdin": "-4\n",
+                    "expect": "16"
+                  },
+                  {
+                    "stdin": "0\n",
+                    "expect": "0",
+                    "visible": false
+                  },
+                  {
+                    "stdin": "12\n",
+                    "expect": "144",
+                    "visible": false
+                  }
+                ],
+                "solution": "read n\necho $((n * n))\n"
+              }
+            },
+            {
+              "type": "CODE_FIX",
+              "question": "The program should count down from n to 1, but it stops one number too early. Fix it.",
+              "hint": "Look at the condition i > 1. Does the loop still run when i is 1?",
+              "explanation": "The loop ended before reaching 1. Letting it run for 1 as well prints the whole countdown.",
+              "payload": {
+                "language": "bash",
+                "starter": "read n\nfor ((i = n; i > 1; i--)); do\n  echo $i\ndone\n",
+                "tests": [
+                  {
+                    "stdin": "3\n",
+                    "expect": "3\n2\n1"
+                  },
+                  {
+                    "stdin": "1\n",
+                    "expect": "1"
+                  },
+                  {
+                    "stdin": "5\n",
+                    "expect": "5\n4\n3\n2\n1",
+                    "visible": false
+                  }
+                ],
+                "solution": "read n\nfor ((i = n; i >= 1; i--)); do\n  echo $i\ndone\n"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

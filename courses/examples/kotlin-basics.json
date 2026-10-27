@@ -1,0 +1,137 @@
+{
+  "title": "Kotlin basics (example)",
+  "imageSrc": "/playground.svg",
+  "units": [
+    {
+      "title": "Kotlin",
+      "description": "First programs in Kotlin, run on the server",
+      "lessons": [
+        {
+          "title": "Output, loops and input",
+          "challenges": [
+            {
+              "type": "CODE_READ",
+              "question": "Your first Kotlin program",
+              "explanation": "The program prints two lines. Variables hold the language name and the year, and the last line calculates the next year.",
+              "payload": {
+                "language": "kotlin",
+                "text": "A Kotlin program starts in `main`. `println()` prints a line, and `$name` or `${expression}` inside a string fills in a value.\n\nPress Run, then change the language and run it again.",
+                "code": "fun main() {\n    val language = \"Kotlin\"\n    val year = 2026\n    println(\"Hello from $language!\")\n    println(\"Next year is ${year + 1}.\")\n}\n"
+              }
+            },
+            {
+              "type": "CODE_OUTPUT",
+              "question": "What does this program print?",
+              "hint": "Whole-number division drops the fractional part, and % gives the remainder.",
+              "explanation": "17 divided by 5 is 3 with a remainder of 2, so the program prints 3 2.",
+              "payload": {
+                "language": "kotlin",
+                "code": "fun main() {\n    val a = 17\n    val b = 5\n    println(\"${a / b} ${a % b}\")\n}\n",
+                "expect": "3 2",
+                "choices": [
+                  "3 2",
+                  "3.4 2",
+                  "3 3",
+                  "4 2"
+                ]
+              }
+            },
+            {
+              "type": "CODE_FILL",
+              "question": "Print the squares of 1, 2 and 3, one per line.",
+              "hint": "The loop has to stop at 3, and each line prints the counter times itself.",
+              "explanation": "The counter runs from 1 to 3, and the counter times itself gives 1, 4 and 9.",
+              "payload": {
+                "language": "kotlin",
+                "template": "fun main() {\n    for (i in 1..___) {\n        println(i * ___)\n    }\n}\n",
+                "answers": [
+                  "3",
+                  "i"
+                ],
+                "distractors": [
+                  "4",
+                  "2"
+                ]
+              }
+            },
+            {
+              "type": "CODE_ORDER",
+              "question": "Put the lines in order so the program prints 15.",
+              "hint": "Make the total first, then loop, and print at the end.",
+              "explanation": "The total starts at 0, the loop adds 1 + 2 + 3 + 4 + 5 to it, and the last line prints 15.",
+              "payload": {
+                "language": "kotlin",
+                "lines": [
+                  "fun main() {",
+                  "    var total = 0",
+                  "    for (i in 1..5) {",
+                  "        total += i",
+                  "    }",
+                  "    println(total)",
+                  "}"
+                ]
+              }
+            },
+            {
+              "type": "CODE_WRITE",
+              "question": "Read a whole number and print its square.",
+              "hint": "readln() reads a line of text, and toInt() turns it into a number.",
+              "explanation": "The program multiplies the number by itself and prints the product.",
+              "payload": {
+                "language": "kotlin",
+                "starter": "fun main() {\n    val n = readln().toInt()\n    // print n times n\n}\n",
+                "tests": [
+                  {
+                    "stdin": "3\n",
+                    "expect": "9"
+                  },
+                  {
+                    "stdin": "-4\n",
+                    "expect": "16"
+                  },
+                  {
+                    "stdin": "0\n",
+                    "expect": "0",
+                    "visible": false
+                  },
+                  {
+                    "stdin": "12\n",
+                    "expect": "144",
+                    "visible": false
+                  }
+                ],
+                "solution": "fun main() {\n    val n = readln().toInt()\n    println(n * n)\n}\n"
+              }
+            },
+            {
+              "type": "CODE_FIX",
+              "question": "The program should count down from n to 1, but it stops one number too early. Fix it.",
+              "hint": "n downTo 2 stops at 2. Where should the countdown end?",
+              "explanation": "The loop ended before reaching 1. Letting it run for 1 as well prints the whole countdown.",
+              "payload": {
+                "language": "kotlin",
+                "starter": "fun main() {\n    val n = readln().toInt()\n    for (i in n downTo 2) {\n        println(i)\n    }\n}\n",
+                "tests": [
+                  {
+                    "stdin": "3\n",
+                    "expect": "3\n2\n1"
+                  },
+                  {
+                    "stdin": "1\n",
+                    "expect": "1"
+                  },
+                  {
+                    "stdin": "5\n",
+                    "expect": "5\n4\n3\n2\n1",
+                    "visible": false
+                  }
+                ],
+                "solution": "fun main() {\n    val n = readln().toInt()\n    for (i in n downTo 1) {\n        println(i)\n    }\n}\n"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
