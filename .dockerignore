@@ -7,3 +7,4 @@ dist
 !courses/*.md
 deploy/*.env
 .worktrees
+public/runtimes
