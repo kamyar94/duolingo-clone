@@ -489,6 +489,7 @@ export const MathExercise = ({
           {result && (
             <GradePanel
               key={result.attemptId}
+              challengeId={challenge.id}
               result={result}
               lines={gradedLines}
               stale={stale}

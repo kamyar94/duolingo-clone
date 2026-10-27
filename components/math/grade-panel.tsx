@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 
 import { askFollowUp, markCommonMistake, MathApiError } from "./api";
 import { MathFormula, MathText } from "./math-text";
+import { SolutionButton } from "./solution/solution-button";
 
 const providerName = (provider: string | null) =>
   provider && isAiProvider(provider) ? AI_PROVIDER_NAMES[provider] : provider ?? "";
@@ -52,6 +53,7 @@ const SourceNote = ({ result }: { result: GradeResult }) => {
 };
 
 type GradePanelProps = {
+  challengeId: number;
   result: GradeResult;
   lines: string[];
   /** True once the learner retries: the panel shows the last check, dimmed. */
@@ -59,7 +61,7 @@ type GradePanelProps = {
   onResult: (result: GradeResult) => void;
 };
 
-export const GradePanel = ({ result, lines, stale, onResult }: GradePanelProps) => {
+export const GradePanel = ({ challengeId, result, lines, stale, onResult }: GradePanelProps) => {
   const { analysis, check } = result;
   const [question, setQuestion] = useState("");
   const [conversation, setConversation] = useState<ConversationTurn[]>([]);
@@ -183,6 +185,8 @@ export const GradePanel = ({ result, lines, stale, onResult }: GradePanelProps) 
           </span>
         </p>
       )}
+
+      <SolutionButton challengeId={challengeId} analysis={analysis} lines={lines} />
 
       {result.canPromote && (
         <button
