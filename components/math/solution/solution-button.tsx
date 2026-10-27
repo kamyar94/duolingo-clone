@@ -32,7 +32,7 @@ export const SolutionButton = ({ challengeId, analysis, lines }: SolutionButtonP
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [loaded, setLoaded] = useState<{ script: SolutionScript; start: PlayerStart } | null>(null);
+  const [loaded, setLoaded] = useState<{ script: SolutionScript; version: number; start: PlayerStart } | null>(null);
 
   const openPlayer = async () => {
     if (loaded) return setOpen(true);
@@ -50,7 +50,7 @@ export const SolutionButton = ({ challengeId, analysis, lines }: SolutionButtonP
               lineNumber: wrong,
             }
           : { step: 0 };
-      setLoaded({ script: solution.script, start });
+      setLoaded({ script: solution.script, version: solution.version, start });
       setOpen(true);
     } catch (caught) {
       setError(caught instanceof SolutionApiError ? caught.message : "The solution could not be opened.");
@@ -77,7 +77,13 @@ export const SolutionButton = ({ challengeId, analysis, lines }: SolutionButtonP
           <DialogDescription className="sr-only">
             An animated solution of the problem, step by step.
           </DialogDescription>
-          {loaded && <SolutionPlayer script={loaded.script} start={loaded.start} />}
+          {loaded && (
+            <SolutionPlayer
+              script={loaded.script}
+              start={loaded.start}
+              narration={{ kind: "saved", challengeId, version: loaded.version }}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </>

@@ -8,8 +8,10 @@ import "katex/dist/katex.min.css";
 
 import { useMemo, useRef, type KeyboardEvent, type PointerEvent } from "react";
 
-import { Pause, Play, SkipBack, SkipForward } from "lucide-react";
+import { Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
 
+import { useNarration, type NarrationSource } from "@/components/voice/narration";
+import { VoiceNote } from "@/components/voice/voice-note";
 import { compileTimeline, frameAt, lineShownAt } from "@/lib/math/solution/timeline";
 import type { SolutionScript } from "@/lib/math/solution/types";
 import { cn } from "@/lib/utils";
@@ -31,6 +33,12 @@ type SolutionPlayerProps = {
   script: SolutionScript;
   start?: PlayerStart | null;
   className?: string;
+  /**
+   * Where the narration audio comes from. Left out, the narration shows as subtitles only.
+   * Audio plays when the account has voice turned on and the voice server (or, if the device
+   * allows it, the browser's own voice) can read it.
+   */
+  narration?: NarrationSource | null;
 };
 
 const clock = (seconds: number) => {
@@ -38,13 +46,23 @@ const clock = (seconds: number) => {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 };
 
-export const SolutionPlayer = ({ script, start, className }: SolutionPlayerProps) => {
+export const SolutionPlayer = ({ script, start, className, narration }: SolutionPlayerProps) => {
   const timeline = useMemo(() => compileTimeline(script), [script]);
   const starts = useMemo(() => timeline.steps.map((step) => step.start), [timeline]);
   const startStep = Math.min(Math.max(start?.step ?? 0, 0), Math.max(0, timeline.steps.length - 1));
   const playback = usePlayback(timeline.total, starts, starts[startStep] ?? 0);
   const { time, playing, speed } = playback;
   const frame = useMemo(() => frameAt(timeline, time), [timeline, time]);
+  const voice = useNarration({
+    source: narration,
+    timeline,
+    step: frame.step,
+    time,
+    playing,
+    speed,
+    seekEpoch: playback.seekEpoch,
+    holdRef: playback.holdRef,
+  });
   const trackRef = useRef<HTMLDivElement>(null);
   const dragging = useRef<{ resume: boolean } | null>(null);
 
@@ -61,7 +79,10 @@ export const SolutionPlayer = ({ script, start, className }: SolutionPlayerProps
   const onKeyDown = (event: KeyboardEvent) => {
     if (event.target instanceof HTMLSelectElement) return;
     const keys: Record<string, () => void> = {
-      " ": playback.toggle,
+      " ": () => {
+        voice.unlock();
+        playback.toggle();
+      },
       ArrowRight: playback.nextStep,
       ArrowLeft: playback.previousStep,
       Home: () => playback.seek(0),
@@ -101,9 +122,23 @@ export const SolutionPlayer = ({ script, start, className }: SolutionPlayerProps
 
       <Stage timeline={timeline} frame={frame} />
 
-      <p aria-live="polite" className="min-h-[2.75rem] rounded-xl bg-neutral-800 px-4 py-2 text-center text-sm text-white lg:text-base">
-        {frame.narration ?? "\u00a0"}
-      </p>
+      <div className="relative min-h-[2.75rem] rounded-xl bg-neutral-800 px-4 py-2 text-center text-sm text-white lg:text-base">
+        <p aria-live="polite" className={voice.available && voice.hasStepNarration ? "px-8" : undefined}>
+          {frame.narration ?? "\u00a0"}
+        </p>
+        {voice.available && voice.hasStepNarration && (
+          <button
+            type="button"
+            onClick={voice.hearStep}
+            aria-label="Hear this step"
+            title="Hear this step"
+            className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-white/80 hover:bg-white/15"
+          >
+            <Volume2 className={cn("h-4 w-4", voice.phase === "loading" && "animate-pulse")} />
+          </button>
+        )}
+      </div>
+      {voice.away && <VoiceNote className="justify-end" />}
 
       <div className="flex items-center gap-2">
         <button
@@ -116,7 +151,10 @@ export const SolutionPlayer = ({ script, start, className }: SolutionPlayerProps
         </button>
         <button
           type="button"
-          onClick={playback.toggle}
+          onClick={() => {
+            voice.unlock();
+            playback.toggle();
+          }}
           aria-label={playing ? "Pause" : "Play"}
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sky-500 text-white hover:bg-sky-600"
         >
@@ -187,6 +225,18 @@ export const SolutionPlayer = ({ script, start, className }: SolutionPlayerProps
         <span className="hidden w-[5.5rem] shrink-0 text-right text-xs tabular-nums text-neutral-500 sm:inline">
           {clock(time)} / {clock(timeline.total)}
         </span>
+        {voice.available && (
+          <button
+            type="button"
+            onClick={() => voice.setOn(!voice.on)}
+            aria-pressed={voice.on}
+            aria-label={voice.on ? "Turn the narration voice off" : "Turn the narration voice on"}
+            title={voice.on ? "Narration voice on" : "Narration voice off"}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-neutral-600 hover:bg-slate-100"
+          >
+            {voice.on ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+          </button>
+        )}
         <label className="shrink-0">
           <span className="sr-only">Speed</span>
           <select

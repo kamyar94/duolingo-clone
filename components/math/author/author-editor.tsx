@@ -286,7 +286,12 @@ export const AuthorEditor = ({ problem, initial, versions: initialVersions }: Au
           <div className="rounded-xl border-2 border-slate-200 bg-white p-3">
             <h3 className="mb-2 text-sm font-bold text-neutral-700">Preview</h3>
             {lastValid ? (
-              <SolutionPlayer key={preview.key} script={lastValid} start={{ step: preview.step }} />
+              <SolutionPlayer
+                key={preview.key}
+                script={lastValid}
+                start={{ step: preview.step }}
+                narration={{ kind: "preview" }}
+              />
             ) : (
               <p className="py-8 text-center text-sm text-neutral-400">The preview starts once the script has no problems.</p>
             )}

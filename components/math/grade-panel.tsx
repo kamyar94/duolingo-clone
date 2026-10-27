@@ -20,6 +20,10 @@ import { AI_PROVIDER_NAMES, isAiProvider } from "@/lib/ai/types";
 import type { ConversationTurn, GradeResult } from "@/lib/math/types";
 import { cn } from "@/lib/utils";
 
+import { MicButton } from "@/components/voice/mic-button";
+import { PlayButton } from "@/components/voice/play-button";
+import { VoiceNote } from "@/components/voice/voice-note";
+
 import { askFollowUp, markCommonMistake, MathApiError } from "./api";
 import { MathFormula, MathText } from "./math-text";
 import { SolutionButton } from "./solution/solution-button";
@@ -149,7 +153,10 @@ export const GradePanel = ({ challengeId, result, lines, stale, onResult }: Grad
               )}
             </p>
           )}
-          <MathText text={analysis.explanation} />
+          <div className="flex items-start gap-1">
+            <MathText text={analysis.explanation} className="flex-1" />
+            <PlayButton text={analysis.explanation} what="the explanation" />
+          </div>
           {analysis.correctedLine && (
             <p>
               <span className="font-bold">It should read:</span>{" "}
@@ -212,7 +219,14 @@ export const GradePanel = ({ challengeId, result, lines, stale, onResult }: Grad
                 turn.role === "user" ? "ml-8 bg-sky-100 text-sky-900" : "mr-8 bg-white text-neutral-700"
               )}
             >
-              {turn.role === "user" ? turn.text : <MathText text={turn.text} />}
+              {turn.role === "user" ? (
+                turn.text
+              ) : (
+                <div className="flex items-start gap-1">
+                  <MathText text={turn.text} className="flex-1" />
+                  <PlayButton text={turn.text} what="the answer" note={false} />
+                </div>
+              )}
             </div>
           ))}
           <form
@@ -241,6 +255,12 @@ export const GradePanel = ({ challengeId, result, lines, stale, onResult }: Grad
                 className="w-full resize-none rounded-lg border-2 border-slate-200 bg-white px-3 py-2 text-sm focus:border-sky-400 focus:outline-none"
               />
             </label>
+            <MicButton
+              disabled={asking}
+              onTranscript={(spoken) =>
+                setQuestion((current) => (current.trim() ? `${current.trim()} ${spoken}` : spoken).slice(0, 1000))
+              }
+            />
             <button
               type="submit"
               disabled={asking || !question.trim()}
@@ -251,6 +271,7 @@ export const GradePanel = ({ challengeId, result, lines, stale, onResult }: Grad
             </button>
           </form>
           {askError && <p className="text-xs text-rose-600">{askError}</p>}
+          <VoiceNote />
         </div>
       )}
     </section>
