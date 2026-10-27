@@ -121,7 +121,9 @@ export const InkToolbar = ({
       role="toolbar"
       aria-label="Writing tools"
       className={cn(
-        "flex items-center gap-1 overflow-x-auto rounded-xl border-2 border-slate-200 bg-white p-1 md:flex-wrap md:overflow-visible",
+        // One row that scrolls sideways when narrow, so the canvas never jumps when tools
+        // appear (pen colours, the delete button of a selection).
+        "flex items-center gap-1 overflow-x-auto rounded-xl border-2 border-slate-200 bg-white p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         className
       )}
     >

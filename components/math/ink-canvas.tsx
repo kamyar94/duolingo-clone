@@ -104,6 +104,15 @@ type Gesture =
       world: { x: number; y: number };
     };
 
+/** Pointer capture keeps a stroke going outside the canvas; a pointer that already ended throws. */
+const capture = (target: Element, pointerId: number) => {
+  try {
+    target.setPointerCapture(pointerId);
+  } catch {
+    // The stroke still works inside the canvas.
+  }
+};
+
 const boundsCache = new WeakMap<StoredStroke, Bounds>();
 const cachedBounds = (stroke: StoredStroke) => {
   let b = boundsCache.get(stroke);
@@ -653,7 +662,7 @@ export const InkCanvas = ({
         const g = gesture.current;
         if (g && (g.kind === "pinch" || g.pointerType === "touch")) cancelGesture();
         else if (g) return; // a second pen contact while one is writing
-        target.setPointerCapture(e.pointerId);
+        capture(target, e.pointerId);
         startTool(e, isErasingPen(e));
         e.preventDefault();
         return;
@@ -663,7 +672,7 @@ export const InkCanvas = ({
         if (penDown.current) return; // palm while the pen writes
         const { sx, sy } = local(e);
         touches.current.set(e.pointerId, { x: sx, y: sy });
-        target.setPointerCapture(e.pointerId);
+        capture(target, e.pointerId);
         if (touches.current.size === 2) {
           const g = gesture.current;
           // The second finger turns a one-finger stroke into pan and zoom.
@@ -679,7 +688,7 @@ export const InkCanvas = ({
 
       // Mouse: left button uses the tool, middle button pans.
       if (gesture.current) return;
-      target.setPointerCapture(e.pointerId);
+      capture(target, e.pointerId);
       if (e.button === 1) {
         const { sx, sy } = local(e);
         gesture.current = { kind: "pan", id: e.pointerId, pointerType: "mouse", sx, sy };

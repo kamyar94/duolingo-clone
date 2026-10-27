@@ -111,7 +111,8 @@ export const AnswerBox = ({ spec, answer, onChange, lastLine, readOnly }: Answer
           label="Your final answer"
           value={answer.latex}
           readOnly={readOnly}
-          placeholder={freeform ? "Optional" : spec.unit ? `for example 10\\,\\mathrm{${spec.unit}}` : ""}
+          // MathLive reads the placeholder as LaTeX, so words go in \text.
+          placeholder={freeform ? "\\text{optional}" : "\\text{your answer}"}
           onChange={(latex) => onChange({ ...answer, latex })}
         />
       ) : (

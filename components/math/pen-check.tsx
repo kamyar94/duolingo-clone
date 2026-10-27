@@ -204,7 +204,11 @@ export const PenCheck = () => {
     };
 
     const onDown = (event: PointerEvent) => {
-      canvas.setPointerCapture(event.pointerId);
+      try {
+        canvas.setPointerCapture(event.pointerId);
+      } catch {
+        // An ended pointer cannot be captured; the readings still arrive.
+      }
       last.current.delete(event.pointerId);
       record(event);
       event.preventDefault();
