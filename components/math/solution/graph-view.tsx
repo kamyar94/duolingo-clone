@@ -123,6 +123,9 @@ export const GraphView = ({ graph, parts, onPick }: GraphViewProps) => {
         zoom={false}
         viewBox={{ x: graph.view.x, y: graph.view.y, padding: 0 }}
         preserveAspectRatio={false}
+        // Draw at once with a provisional width instead of waiting for the first resize
+        // observation, so a graph never shows as an empty box (Mafs 0.21 still reads this).
+        ssr
         onClick={onPick ? (point) => onPick([point[0], point[1]]) : undefined}
       >
         <Coordinates.Cartesian subdivisions={false} />

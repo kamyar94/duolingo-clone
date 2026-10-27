@@ -70,10 +70,20 @@ export const QuestionEditor = ({
   const takeSelection = (asGiven: boolean) => {
     if (!selected) return;
     edit((draft) => {
-      const taken = elementIds(draft);
-      const quantity = parseQuantity(selected.text);
+      // The selection grows to whole formulas; the quantity is read from the grown text.
+      const probe = splitSpan(draft.question, selected.index, selected.start, selected.end, elementIds(draft));
+      if (!probe) return;
+      const text = probe.spans.find((span) => span.id === probe.id)?.text ?? selected.text;
+      const quantity = parseQuantity(text);
       const symbol = suggestSymbol(quantity?.unit);
-      const split = splitSpan(draft.question, selected.index, selected.start, selected.end, taken, asGiven ? `q-${symbol}` : "q-ask");
+      const split = splitSpan(
+        draft.question,
+        selected.index,
+        selected.start,
+        selected.end,
+        elementIds(draft),
+        asGiven ? `q-${symbol}` : "q-ask"
+      );
       if (!split) return;
       draft.question = split.spans;
       if (!asGiven) return;

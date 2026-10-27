@@ -33,6 +33,37 @@ const USERNAME = "e2etester";
 const PASSWORD = crypto.randomBytes(12).toString("base64url");
 const SECRET = crypto.randomBytes(32).toString("base64");
 const SOLUTION_MARK = "REFERENCE-ONLY-7f3a";
+const SCRIPT_MARK = "SCRIPT-ONLY-5c1e";
+
+// An animated solution in the course file: stored as version 1, never sent with the lesson.
+const SCRIPT = {
+  format: 1,
+  question: [{ text: "A cyclist rides " }, { id: "q-d", text: "120 m" }, { text: " at 12 m/s. How long does the ride take?" }],
+  givens: [{ id: "d", symbol: "d", value: 120, unit: "m", span: "q-d" }],
+  equations: [{ id: "eq", states: [{ id: "s1", latex: "\\term{t}{t} = \\frac{\\term{d}{d}}{v}" }] }],
+  steps: [
+    { kind: "Extract", given: "d", duration: 2, narration: SCRIPT_MARK },
+    { kind: "Relate", equation: "eq", givens: ["d"], duration: 2 },
+    { kind: "Answer", equation: "eq", term: "t", duration: 2 },
+  ],
+};
+
+// What the provider mock returns for "Draft with AI" (the flat draft format).
+const draftStep = { narration: "", state: "", givens: [], parts: [], pairs: [], links: [], term: "", text: "", span: "" };
+const DRAFT = {
+  title: "Drafted",
+  question: [{ id: "", text: "How long does the ride take?" }],
+  givens: [],
+  equations: [{ id: "eq", states: [{ id: "s1", latex: "t = \\frac{d}{v}" }, { id: "s2", latex: "t = 10\\,\\mathrm{s}" }] }],
+  graphs: [],
+  figures: [],
+  tables: [],
+  notes: [],
+  steps: [
+    { ...draftStep, kind: "Relate", duration: 3, target: "eq", state: "s1" },
+    { ...draftStep, kind: "Transform", duration: 3, target: "eq", state: "s2" },
+  ],
+};
 
 // A 1x1 white PNG stands in for the rendered handwriting.
 const PNG =
@@ -63,6 +94,7 @@ const course = {
                 statement: "A cyclist rides $120\\,\\mathrm{m}$ at $12\\,\\mathrm{m/s}$. How long does the ride take?",
                 answer: { kind: "numeric", value: 10, unit: "s", tolerance: 0.01 },
                 solution: ["t = \\frac{d}{v}", `t = \\frac{120}{12} = 10\\,\\mathrm{s} % ${SOLUTION_MARK}`],
+                solutionScript: SCRIPT,
               },
             },
           ],
@@ -97,6 +129,7 @@ describe.skipIf(!enabled)("math practice over HTTP", () => {
   let cookie = "";
   let challengeId = 0;
   const calls: Calls = { recognition: 0, grading: 0, followUp: 0 };
+  let drafts = 0;
   const log: string[] = [];
 
   const post = (route: string, body: unknown, headers: Record<string, string> = {}) =>
@@ -143,6 +176,10 @@ describe.skipIf(!enabled)("math practice over HTTP", () => {
       const reply = (text: string) => ({
         json: { type: "message", model: "claude-sonnet-5-5", content: [{ type: "text", text }], stop_reason: "end_turn", usage },
       });
+      if (schema.includes('"steps"')) {
+        drafts += 1;
+        return reply(JSON.stringify(DRAFT));
+      }
       if (schema.includes('"lines"')) {
         calls.recognition += 1;
         return reply(JSON.stringify({ lines: RECOGNIZED }));
@@ -222,6 +259,7 @@ describe.skipIf(!enabled)("math practice over HTTP", () => {
     const html = await fetch(`${base}/lesson`, { headers: { cookie } }).then((r) => r.text());
     expect(html).toContain("A cyclist rides");
     expect(html).not.toContain(SOLUTION_MARK);
+    expect(html).not.toContain(SCRIPT_MARK);
     expect(html).not.toMatch(/\\"tolerance\\"|"tolerance"/);
   });
 
@@ -352,5 +390,49 @@ describe.skipIf(!enabled)("math practice over HTTP", () => {
     expect(unreadable.status).toBe(422);
     const notPng = await post("/api/math/recognize", { challengeId, image: Buffer.from("GIF89a").toString("base64"), strokes });
     expect(notPng.status).toBe(400);
+  });
+
+  it("serves the animated solution, saves new versions and keeps the earlier ones", async () => {
+    const first = await fetch(`${base}/api/math/solutions/${challengeId}`, { headers: { cookie } });
+    const body = await first.json();
+    expect(first.status, JSON.stringify(body)).toBe(200);
+    expect(body.version).toBe(1);
+    expect(body.script.steps[0].narration).toBe(SCRIPT_MARK);
+    expect(body.versions.map((v: { version: number }) => v.version)).toEqual([1]);
+
+    const script = { ...body.script, title: "Edited" };
+    const saved = await post(`/api/math/solutions/${challengeId}`, { script, baseVersion: 1 });
+    const savedBody = await saved.json();
+    expect(saved.status, JSON.stringify(savedBody)).toBe(200);
+    expect(savedBody.version).toBe(2);
+    expect(savedBody.versions.map((v: { version: number; author: string }) => [v.version, v.author])).toEqual([
+      [2, USERNAME],
+      [1, null],
+    ]);
+    const old = await (await fetch(`${base}/api/math/solutions/${challengeId}?version=1`, { headers: { cookie } })).json();
+    expect(old.script.title).toBeUndefined();
+
+    const stale = await post(`/api/math/solutions/${challengeId}`, { script, baseVersion: 1 });
+    expect(stale.status).toBe(409);
+    const broken = await post(`/api/math/solutions/${challengeId}`, { script: { ...script, steps: [] } });
+    expect(broken.status).toBe(422);
+    expect((await broken.json()).problems).toEqual(["steps: needs at least one step."]);
+    const foreign = await post(`/api/math/solutions/${challengeId}`, { script }, { origin: "https://example.com" });
+    expect(foreign.status).toBe(403);
+    const signedOut = await fetch(`${base}/api/math/solutions/${challengeId}`);
+    expect(signedOut.status).toBe(401);
+  });
+
+  it("drafts a script with the author's provider without saving it", async () => {
+    const response = await post(`/api/math/solutions/${challengeId}/draft`, {});
+    const body = await response.json();
+    expect(response.status, JSON.stringify(body)).toBe(200);
+    expect(drafts).toBe(1);
+    expect(body.provider).toBe("anthropic");
+    expect(body.script.steps.map((step: { kind: string }) => step.kind)).toEqual(["Relate", "Transform"]);
+    // The untagged states came back tagged.
+    expect(body.script.equations[0].states[1].latex).toContain("\\term{t}{t}");
+    const versions = (await pool.query("select count(*)::int as n from math_solutions")).rows[0].n;
+    expect(versions).toBe(2);
   });
 });

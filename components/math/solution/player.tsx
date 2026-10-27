@@ -142,7 +142,11 @@ export const SolutionPlayer = ({ script, start, className }: SolutionPlayerProps
           aria-valuetext={`${clock(time)} of ${clock(timeline.total)}, step ${frame.step + 1} of ${timeline.steps.length}`}
           className="relative h-8 flex-1 cursor-pointer touch-none select-none"
           onPointerDown={(event) => {
-            event.currentTarget.setPointerCapture?.(event.pointerId);
+            try {
+              event.currentTarget.setPointerCapture(event.pointerId);
+            } catch {
+              // Pointers that are no longer active cannot be captured; dragging still works inside.
+            }
             dragging.current = { resume: playing };
             playback.pause();
             seekToPointer(event);

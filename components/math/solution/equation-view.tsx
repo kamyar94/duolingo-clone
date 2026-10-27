@@ -118,14 +118,15 @@ export const EquationView = ({ equation, frame, opacity, terms, slot, layers }: 
       const carriedB = ancestorTerm(elementB, toLayer, toIds);
       if (carriedA && carriedB) continue;
       const same = bodies[transition.from]?.[a] === bodies[transition.to]?.[b];
-      const sx = ra.w ? rb.w / ra.w : 1;
-      const sy = ra.h ? rb.h / ra.h : 1;
+      // One scale from the heights: a term's box can include the spacing KaTeX puts before the
+      // next operator, so widths would squeeze the glyphs.
+      const k = ra.h && rb.h ? rb.h / ra.h : 1;
       if (!carriedA && !usedA.has(a)) {
         usedA.add(a);
         setStyle(
           elementA,
           "visible",
-          `translate(${(rb.x - ra.x) * p}px, ${(rb.y - ra.y) * p}px) scale(${lerp(1, sx, p)}, ${lerp(1, sy, p)})`,
+          `translate(${(rb.x - ra.x) * p}px, ${(rb.y - ra.y) * p}px) scale(${lerp(1, k, p)})`,
           same ? "1" : String(1 - p)
         );
         if (same || carriedB) continue;
@@ -134,7 +135,7 @@ export const EquationView = ({ equation, frame, opacity, terms, slot, layers }: 
       setStyle(
         elementB,
         "visible",
-        `translate(${(ra.x - rb.x) * (1 - p)}px, ${(ra.y - rb.y) * (1 - p)}px) scale(${lerp(1 / sx, 1, p)}, ${lerp(1 / sy, 1, p)})`,
+        `translate(${(ra.x - rb.x) * (1 - p)}px, ${(ra.y - rb.y) * (1 - p)}px) scale(${lerp(1 / k, 1, p)})`,
         String(p)
       );
     }
