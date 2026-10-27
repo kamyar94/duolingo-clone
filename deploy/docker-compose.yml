@@ -1,0 +1,197 @@
+# Lingo, hardened for a home server. Template: copy this folder next to a clone of the app in
+# ./app, fill in the env files from the *.example templates, and start with
+#   docker compose up -d --build
+# deploy/README.md explains each service and what changed for coding lessons and math practice.
+#
+# Nothing here publishes a port. The only way in is a Cloudflare Tunnel: Cloudflare's edge
+# terminates HTTPS for your address (for example learn.example.com) and the tunnel container
+# forwards the traffic to app:3000 over a private network. The database sits on a second
+# private network that only the app reaches. The app has no route to the internet; its only
+# way out is the egress proxy, which allows HTTPS to the three AI provider APIs and nothing else.
+#
+#   tunnel  (tunnel + tunnel-out)       Cloudflare Tunnel connector, token from cloudflared.env
+#   app     (tunnel + backend + egress) Lingo web app (Next.js), built from ./app
+#   db      (backend)                   Postgres, data in the Docker volume "db"
+#   egress  (egress + egress-out)       Squid, allowlist in squid.conf
+#
+# Versions are pinned in .env. No container gets a TZ setting on purpose: the database stores
+# UTC times.
+
+name: lingo
+
+x-hardening: &hardening
+  restart: unless-stopped
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  # Accounts, courses and progress. Runs as the unprivileged postgres user (70) on a read-only
+  # root filesystem; the data lives in a Docker volume.
+  db:
+    <<: *hardening
+    image: postgres:${POSTGRES_VERSION:?set POSTGRES_VERSION in .env}
+    container_name: lingo-db
+    user: "70:70"
+    read_only: true
+    tmpfs:
+      - /var/run/postgresql:size=1m,mode=1777
+      - /tmp:size=64m,mode=1777
+    env_file: db.env
+    volumes:
+      - db:/var/lib/postgresql # THE DATA. Back it up before every update.
+      - ./backups:/backups
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -q -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    shm_size: 128m
+    mem_limit: 512m
+    cpus: 1.0
+    pids_limit: 200
+
+  # The web app, built from ./app. Runs as the unprivileged node user on a read-only root
+  # filesystem; it only reads ./media and ./courses. ai.env holds LINGO_SECRET_KEY, which
+  # encrypts the learners' AI keys; no other container reads it.
+  app:
+    <<: *hardening
+    build:
+      context: ./app
+      args:
+        NODE_VERSION: ${NODE_VERSION:?set NODE_VERSION in .env}
+    image: lingo-app:local
+    pull_policy: never
+    container_name: lingo-app
+    user: "1000:1000"
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+      - /app/.next/cache:size=64m,mode=1777
+    env_file:
+      - .env
+      - db.env
+      - ai.env
+    environment:
+      - PGHOST=db
+      - MEDIA_DIR=/media
+      # AI provider requests leave only through the egress proxy.
+      - AI_PROXY_URL=http://egress:3128
+      # PHASE 6 (code runners): the runner addresses go here, for example
+      # - RUNNER_URL_DOTNET=http://runner-dotnet:8080
+    volumes:
+      - ./media:/media:ro # your own pictures, audio and video for courses
+      - ./courses:/courses:ro # course files to import
+    networks:
+      - tunnel
+      - backend
+      - egress
+      # PHASE 6 (code runners): - runners
+    depends_on:
+      db:
+        condition: service_healthy
+      egress:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/health || exit 1"]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    mem_limit: 768m
+    cpus: 2.0
+    pids_limit: 200
+
+  # Egress proxy for the AI providers. Squid accepts HTTPS tunnels to api.openai.com,
+  # api.anthropic.com and generativelanguage.googleapis.com only (squid.conf), so the app's
+  # requests stay encrypted end to end and the proxy sees only the host. It is the only
+  # service besides the tunnel with a route to the internet. The image runs Squid as its own
+  # unprivileged user; no cache and no logs are written to disk.
+  egress:
+    <<: *hardening
+    image: ubuntu/squid:${SQUID_VERSION:?set SQUID_VERSION in .env}
+    container_name: lingo-egress
+    entrypoint: ["/usr/sbin/squid-gnutls", "-f", "/etc/squid/squid.conf", "-NYC"]
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+      - /run:size=1m,mode=1777
+      - /var/log/squid:size=1m,mode=1777
+      - /var/spool/squid:size=1m,mode=1777
+    volumes:
+      - ./squid.conf:/etc/squid/squid.conf:ro
+    networks:
+      - egress
+      - egress-out
+    mem_limit: 256m
+    cpus: 0.5
+    pids_limit: 100
+
+  # PHASE 6 (code runners): one runner per language family goes here, built from that
+  # language's official image with a small runner service. Planned settings: not privileged,
+  # no capabilities, a non-root user, a read-only root filesystem with a small tmpfs, limits on
+  # memory, processes and CPU, and only the internal "runners" network shared with the app
+  # (no route to the internet or to the other services). Sketch:
+  #
+  # runner-dotnet:
+  #   <<: *hardening
+  #   build: ./app/runners/dotnet
+  #   user: "1000:1000"
+  #   read_only: true
+  #   tmpfs: [/tmp:size=64m,mode=1777]
+  #   networks: [runners]
+  #   mem_limit: 512m
+  #   cpus: 1.0
+  #   pids_limit: 64
+
+  # Cloudflare Tunnel connector. The token lives only in cloudflared.env, which no other
+  # container reads. The image already runs as a non-root user.
+  tunnel:
+    <<: *hardening
+    image: cloudflare/cloudflared:${CLOUDFLARED_VERSION:?set CLOUDFLARED_VERSION in .env}
+    container_name: lingo-tunnel
+    command: ["tunnel", "--no-autoupdate", "run"]
+    env_file: cloudflared.env
+    read_only: true
+    depends_on:
+      app:
+        condition: service_healthy
+    networks:
+      - tunnel
+      - tunnel-out
+    mem_limit: 256m
+    cpus: 1.0
+    pids_limit: 100
+
+volumes:
+  db: {}
+
+# All networks except tunnel-out and egress-out are internal, so they have no route to the
+# internet. If Docker reports that it has no free address pools, give each network an explicit
+# subnet under ipam.config.
+networks:
+  # tunnel <-> app.
+  tunnel:
+    internal: true
+  # app <-> db.
+  backend:
+    internal: true
+  # app <-> egress proxy.
+  egress:
+    internal: true
+  # Outbound for the egress proxy only.
+  egress-out: {}
+  # Outbound for the tunnel connector to reach Cloudflare.
+  tunnel-out: {}
+  # PHASE 6 (code runners): app <-> runners, no internet.
+  # runners:
+  #   internal: true

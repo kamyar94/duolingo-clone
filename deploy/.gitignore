@@ -1,0 +1,6 @@
+# Filled-in settings and secrets of a running stack. Only the *.example templates belong here.
+*.env
+!*.env.example
+.env
+backups/
+media/

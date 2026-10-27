@@ -24,6 +24,10 @@ what is different here.
   with range requests for audio.
 - **Build**: standalone Next.js output in a non-root Docker image (`Dockerfile`), security
   headers, no CORS, health check at `/api/health`.
+- **Coding lessons and math practice** are being built in phases after
+  `docs/DESIGN-coding-and-math.md`. The groundwork is in place. New challenge types render
+  through an exercise registry, each account keeps its own encrypted AI keys, and an egress
+  proxy is the app's only way out to the AI providers (see below).
 
 ## Running it
 
@@ -37,6 +41,10 @@ The image expects a reachable Postgres and these environment variables:
 | `SESSION_DAYS` | How long a sign-in lasts (default 30) |
 | `MAX_LOGIN_ATTEMPTS`, `LOGIN_LOCK_MINUTES` | Account lock after wrong passwords (default 5 and 15) |
 | `MEDIA_DIR` | Folder served under `/media`, mounted read-only (default `/media`) |
+| `LINGO_SECRET_KEY` | Base64 of 32 random bytes that encrypts the learners' AI keys (secret) |
+| `AI_PROXY_URL` | HTTP proxy for AI provider requests, the egress proxy in Docker |
+| `AI_RATE_PER_MINUTE`, `AI_RATE_PER_DAY` | AI requests per account (default 10 and 300) |
+| `AI_REQUEST_TIMEOUT_MS` | Longest wait for one AI request (default 120000) |
 
 Keep passwords and tokens in env files that are never committed; `.gitignore` and
 `.dockerignore` already exclude `.env*`. For `pnpm dev` outside Docker, copy `.env.example`.
@@ -105,6 +113,46 @@ exactly one correct. The order in the file is the order in the app.
   texts, pictures, sounds, right answers, hints and explanations in place, so progress stays;
   the units, lessons, challenges and options must match in number and order, otherwise nothing
   changes.
+
+Coding and math challenges use the types `CODE_READ`, `CODE_OUTPUT`, `CODE_FILL`,
+`CODE_ORDER`, `CODE_WRITE`, `CODE_FIX`, `WEB_LIVE` and `MATH`. Each of them carries a
+`payload` object with what the exercise needs, such as the language, starter code and tests of a
+coding task or the answer of a math problem, and may leave out `options`. The payload format
+of each type is described with the feature that uses it, and `check`, `import` and `update`
+refuse a payload that does not match. `update` replaces payloads in place like the other texts.
+Outside Docker the server tool needs tsx, because the payload checks are TypeScript, so run it
+as `pnpm exec tsx scripts/lingo.mjs <command>`.
+
+## AI settings, keys and the egress proxy
+
+Math practice uses an AI provider chosen by each learner, with the learner's own key. The
+page `/settings/ai`, linked from the sidebar, has one key field each for OpenAI, Anthropic and
+Google, a test button that sends a minimal request, a choice of provider and model for
+recognition, grading and drafting, and the voice preferences for a later phase. Model names
+are free text with documented defaults in `lib/ai/config.ts`, because providers retire models
+over time.
+
+Keys are encrypted with AES-256-GCM under `LINGO_SECRET_KEY` before they reach the database,
+and each one is bound to its account and provider. The browser never receives a saved key
+again, only its last four characters, and nothing logs keys or request bodies. Every request
+records its token counts in `ai_usage`, which the settings page sums up for the last 30 days.
+Requests are limited per account by `AI_RATE_PER_MINUTE` and `AI_RATE_PER_DAY`. Losing
+`LINGO_SECRET_KEY` makes the saved keys unreadable, so keep a copy of it with the backups.
+
+The app container still has no route to the internet. Provider requests go through an egress
+proxy, a Squid container that accepts HTTPS tunnels to `api.openai.com`, `api.anthropic.com`
+and `generativelanguage.googleapis.com` and refuses every other destination. The app reaches it
+through `AI_PROXY_URL`, and the provider adapters in `lib/ai` send requests through undici's
+ProxyAgent, since Node's own fetch ignores proxy variables. `deploy/` has the compose file,
+the proxy allowlist, templates for every settings file and a README that explains each service.
+
+## Tests
+
+`pnpm test` runs the unit tests with Vitest. The tests under `tests/db` also run migrations,
+course imports and the AI service against a real Postgres when `LINGO_TEST_PG_URL` names a
+server where the test user may create databases, for example
+`postgres://lingo:secret@127.0.0.1:5432/postgres`. They create their own databases and drop
+them afterwards.
 
 ## Keeping up with upstream
 

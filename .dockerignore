@@ -5,3 +5,5 @@ dist
 .env*
 *.md
 !courses/*.md
+deploy/*.env
+.worktrees
