@@ -22,6 +22,7 @@ export const SignInForm = () => {
         name="username"
         autoComplete="username"
         autoCapitalize="none"
+        defaultValue={state.values?.username}
         required
       />
       <AuthField

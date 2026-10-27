@@ -24,7 +24,7 @@ export const SignUpForm = ({ code, resetUsername }: SignUpFormProps) => {
       <AuthField
         label="Invite or reset code"
         name="code"
-        defaultValue={code}
+        defaultValue={state.values?.code ?? code}
         autoComplete="off"
         autoCapitalize="characters"
         placeholder="XXXX-XXXX-XXXX-XXXX"
@@ -50,6 +50,7 @@ export const SignUpForm = ({ code, resetUsername }: SignUpFormProps) => {
             label="Your name (shown on the leaderboard)"
             name="displayName"
             autoComplete="nickname"
+            defaultValue={state.values?.displayName}
             maxLength={40}
             required
           />
@@ -58,6 +59,7 @@ export const SignUpForm = ({ code, resetUsername }: SignUpFormProps) => {
             name="username"
             autoComplete="username"
             autoCapitalize="none"
+            defaultValue={state.values?.username}
             pattern="[a-zA-Z0-9._\-]{3,32}"
             title="3 to 32 letters, numbers, dot, dash or underscore"
             required

@@ -21,7 +21,8 @@ import {
   verifyPassword,
 } from "@/lib/auth";
 
-export type AuthState = { error?: string };
+// The typed-in fields come back with an error, because React empties a form after each submit.
+export type AuthState = { error?: string; values?: Record<string, string> };
 
 const USERNAME = /^[a-z0-9._-]{3,32}$/;
 const MIN_PASSWORD = 10;
@@ -36,11 +37,12 @@ export const signIn = async (
   _state: AuthState,
   formData: FormData
 ): Promise<AuthState> => {
-  const ip = await getClientIp();
-  if (isIpBlocked(ip)) return { error: TOO_MANY };
-
   const username = field(formData, "username").toLowerCase();
   const password = String(formData.get("password") ?? "");
+  const fail = (error: string): AuthState => ({ error, values: { username } });
+
+  const ip = await getClientIp();
+  if (isIpBlocked(ip)) return fail(TOO_MANY);
 
   const user = await db.query.users.findFirst({
     where: eq(users.username, username),
@@ -49,13 +51,13 @@ export const signIn = async (
   if (!user || user.disabled) {
     await burnPasswordCheck(password);
     recordIpFailure(ip);
-    return { error: "Wrong username or password." };
+    return fail("Wrong username or password.");
   }
 
   if (user.lockedUntil && user.lockedUntil > new Date())
-    return {
-      error: `This account is locked after too many wrong passwords. Try again after ${loginPolicy.LOGIN_LOCK_MINUTES} minutes.`,
-    };
+    return fail(
+      `This account is locked after too many wrong passwords. Try again after ${loginPolicy.LOGIN_LOCK_MINUTES} minutes.`
+    );
 
   if (!(await verifyPassword(password, user.passwordHash))) {
     recordIpFailure(ip);
@@ -70,7 +72,7 @@ export const signIn = async (
           : null,
       })
       .where(eq(users.id, user.id));
-    return { error: "Wrong username or password." };
+    return fail("Wrong username or password.");
   }
 
   await db
@@ -88,18 +90,23 @@ export const signUp = async (
   _state: AuthState,
   formData: FormData
 ): Promise<AuthState> => {
-  const ip = await getClientIp();
-  if (isIpBlocked(ip)) return { error: TOO_MANY };
-
-  const code = normalizeCode(field(formData, "code"));
+  const typedCode = field(formData, "code");
+  const code = normalizeCode(typedCode);
   const displayName = field(formData, "displayName");
   const username = field(formData, "username").toLowerCase();
   const password = String(formData.get("password") ?? "");
   const confirm = String(formData.get("confirm") ?? "");
+  const fail = (error: string): AuthState => ({
+    error,
+    values: { code: typedCode, displayName, username },
+  });
+
+  const ip = await getClientIp();
+  if (isIpBlocked(ip)) return fail(TOO_MANY);
 
   if (password.length < MIN_PASSWORD || password.length > MAX_PASSWORD)
-    return { error: `Use a password of at least ${MIN_PASSWORD} characters.` };
-  if (password !== confirm) return { error: "The two passwords differ." };
+    return fail(`Use a password of at least ${MIN_PASSWORD} characters.`);
+  if (password !== confirm) return fail("The two passwords differ.");
 
   const invite = await db.query.invites.findFirst({
     where: and(
@@ -111,7 +118,7 @@ export const signUp = async (
 
   if (!invite) {
     recordIpFailure(ip);
-    return { error: "This code is not valid, has expired, or was already used." };
+    return fail("This code is not valid, has expired, or was already used.");
   }
 
   // A reset code: the existing account gets the new password, every old sign-in ends.
@@ -132,24 +139,23 @@ export const signUp = async (
       await tx.delete(sessions).where(eq(sessions.userId, userId));
       return true;
     });
-    if (!done) return { error: "This code was already used." };
+    if (!done) return fail("This code was already used.");
 
     await startSession(userId);
     redirect("/learn");
   }
 
   if (!displayName || displayName.length > 40)
-    return { error: "Enter your name (up to 40 characters)." };
+    return fail("Enter your name (up to 40 characters).");
   if (!USERNAME.test(username))
-    return {
-      error:
-        "Usernames are 3 to 32 characters: lowercase letters, numbers, dot, dash or underscore.",
-    };
+    return fail(
+      "Usernames are 3 to 32 characters: lowercase letters, numbers, dot, dash or underscore."
+    );
 
   const taken = await db.query.users.findFirst({
     where: eq(users.username, username),
   });
-  if (taken) return { error: "That username is taken. Pick another one." };
+  if (taken) return fail("That username is taken. Pick another one.");
 
   const userId = crypto.randomUUID();
   const passwordHash = await hashPassword(password);
@@ -170,7 +176,7 @@ export const signUp = async (
     });
     return true;
   });
-  if (!done) return { error: "This code was already used." };
+  if (!done) return fail("This code was already used.");
 
   await startSession(userId);
   redirect("/courses");
