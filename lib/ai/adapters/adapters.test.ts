@@ -1,6 +1,7 @@
 // Each adapter against a local server that answers in that provider's response format,
 // reached through the AI_*_BASE_URL overrides, with the egress proxy path through a local
 // forward proxy (AI_PROXY_URL).
+/* eslint-disable @typescript-eslint/no-explicit-any -- request bodies are checked field by field */
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 
 import {
