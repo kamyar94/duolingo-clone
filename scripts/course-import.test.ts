@@ -51,7 +51,7 @@ describe("checkCourse with coding and math types", () => {
       {
         type: "MATH",
         question: "Solve 2x = 6.",
-        payload: { answer: { value: 3 } },
+        payload: { answer: { kind: "numeric", value: 3 } },
       },
       {
         type: "CODE_OUTPUT",

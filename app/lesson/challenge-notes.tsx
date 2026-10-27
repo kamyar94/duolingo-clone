@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Lightbulb } from "lucide-react";
 
+import { PlayButton } from "@/components/voice/play-button";
 import { cn } from "@/lib/utils";
 
 type ChallengeHintProps = {
@@ -19,7 +20,8 @@ export const ChallengeHint = ({ hint, answered }: ChallengeHintProps) => {
     return (
       <div className="mb-6 flex items-start gap-x-3 rounded-xl border-2 border-amber-200 bg-amber-50 px-4 py-3 text-sm text-neutral-700 lg:text-base">
         <Lightbulb className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
-        <p>{hint}</p>
+        <p className="flex-1">{hint}</p>
+        <PlayButton text={hint} what="the hint" />
       </div>
     );
 
@@ -67,11 +69,12 @@ export const ChallengeExplanation = ({
     >
       <p
         className={cn(
-          "mb-1 font-bold",
+          "mb-1 flex items-center gap-x-1 font-bold",
           status === "correct" ? "text-green-600" : "text-rose-600"
         )}
       >
         Explanation
+        <PlayButton text={explanation} what="the explanation" />
       </p>
       <p>{explanation}</p>
     </div>

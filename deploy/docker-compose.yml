@@ -7,7 +7,8 @@
 # terminates HTTPS for your address (for example learn.example.com) and the tunnel container
 # forwards the traffic to app:3000 over a private network. The database sits on a second
 # private network that only the app reaches. The app has no route to the internet; its only
-# way out is the egress proxy, which allows HTTPS to the three AI provider APIs and nothing else.
+# way out is the egress proxy, which allows HTTPS to the three AI provider APIs and, once you
+# turn it on in squid.conf, the voice gateway on the workstation (deploy/voice) and nothing else.
 #
 #   tunnel  (tunnel + tunnel-out)       Cloudflare Tunnel connector, token from cloudflared.env
 #   app     (tunnel + backend + egress) Lingo web app (Next.js), built from ./app
@@ -62,7 +63,9 @@ services:
 
   # The web app, built from ./app. Runs as the unprivileged node user on a read-only root
   # filesystem; it only reads ./media and ./courses. ai.env holds LINGO_SECRET_KEY, which
-  # encrypts the learners' AI keys; no other container reads it.
+  # encrypts the learners' AI keys, and the voice token; no other container reads it. The one
+  # writable place is the voice-data volume, where the narration audio made by the voice server
+  # is kept (separate from ./media, which stays read-only).
   app:
     <<: *hardening
     build:
@@ -86,11 +89,17 @@ services:
       - MEDIA_DIR=/media
       # AI provider requests leave only through the egress proxy.
       - AI_PROXY_URL=http://egress:3128
+      # Voice: VOICE_URL and VOICE_TOKEN come from ai.env. The gateway's root certificate is
+      # read from ./voice-ca/ca.pem (see voice/README.md); narration audio is kept in voice-data.
+      - VOICE_CA_FILE=/voice-ca/ca.pem
+      - VOICE_DATA_DIR=/voice-data
       # PHASE 6 (code runners): the runner addresses go here, for example
       # - RUNNER_URL_DOTNET=http://runner-dotnet:8080
     volumes:
       - ./media:/media:ro # your own pictures, audio and video for courses
       - ./courses:/courses:ro # course files to import
+      - ./voice-ca:/voice-ca:ro # ca.pem, the voice gateway's root certificate (no secrets)
+      - voice-data:/voice-data # narration audio made by the voice server; can be deleted safely
     networks:
       - tunnel
       - backend
@@ -174,6 +183,8 @@ services:
 
 volumes:
   db: {}
+  # Cached narration audio. Losing it only means the clips are made again on their next play.
+  voice-data: {}
 
 # All networks except tunnel-out and egress-out are internal, so they have no route to the
 # internet. If Docker reports that it has no free address pools, give each network an explicit

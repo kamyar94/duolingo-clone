@@ -1,0 +1,49 @@
+/* Styles of the solution player that Tailwind classes cannot reach: KaTeX output and Mafs. */
+
+/* Terms are inline blocks so they can be moved with transforms. */
+.stage :global(.lt-term) {
+  display: inline-block;
+  transform-origin: 0 0;
+}
+
+.stage :global(.katex-display) {
+  margin: 0;
+}
+
+/* Equation states share one grid cell, so the tallest sets the height. */
+.slot {
+  display: grid;
+  justify-items: center;
+  align-items: center;
+}
+
+.slot > * {
+  grid-area: 1 / 1;
+  width: max-content;
+  max-width: none;
+}
+
+.movers {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Mafs on the light lesson page: no black background, and a phone can scroll over a graph. */
+.graph :global(.MafsView) {
+  --mafs-bg: transparent;
+  --mafs-fg: #3c3c3c;
+  --mafs-line-color: #d4d4d4;
+  --grid-line-subdivision-color: #f1f1f1;
+  --mafs-origin-color: #6b7280;
+  touch-action: pan-y;
+}
+
+.graph :global(.MafsView text) {
+  font-size: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage * {
+    transition: none !important;
+  }
+}

@@ -15,7 +15,11 @@ lingo/                     this folder, copied
   cloudflared.env          from cloudflared.env.example (secret)
   app/                     git clone of the repository
   media/  courses/  backups/
+  voice-ca/                ca.pem, the voice gateway's root certificate (optional, see below)
 ```
+
+The `voice` folder of the repository is the voice stack for the GPU workstation. It runs on that
+computer, not on the server, so it does not need to be copied there.
 
 The three secret files are read only by the containers that need them. Lock them so that only
 the account running Docker can read them, and keep them out of the `app` folder, which is a
@@ -112,13 +116,32 @@ The first command prints `200 401`, the second `403 000`, and the third fails be
 internal network has no route out. The test key button on the AI settings page runs the same
 path from inside the app.
 
+## Voice
+
+Voice runs on a separate stack for the GPU workstation, in the `voice` folder next to this
+file, with its own README. It has a Kokoro container for speech, a speaches container with a
+Whisper model for transcription and a Caddy gateway in front of both. The gateway serves HTTPS
+with its own certificate authority, requires a long random token on every request and passes
+only the speech and transcription requests and two health checks.
+
+On the Lingo server, three things connect to it. `VOICE_URL` and `VOICE_TOKEN` go into `ai.env`,
+the token being the one place it lives on this side. The gateway's root certificate goes into a
+`voice-ca` folder next to the compose file as `ca.pem` (create the folder first, because Docker
+makes an empty one owned by root otherwise), which the app trusts for this connection and
+nothing else. And `squid.conf` gets the gateway as one address and one port, in the commented
+block that is already there, so the egress proxy stays the app's only way out. The app also
+writes the narration audio that the voice server makes into the `voice-data` volume, which is
+separate from the read-only `./media` folder and can be deleted without losing anything but a
+little time, since the clips are made again on their next play.
+
+The workstation is a laptop that is sometimes asleep. The app checks the gateway before it shows
+voice controls and hides them with a short note when it cannot reach it, so nothing else in the
+stack depends on it.
+
 ## Later phases
 
-Two parts of the design arrive later, and the compose file and `squid.conf` mark the places
-where they go with `PHASE 4` and `PHASE 6` comments.
-
-Voice (phase 4) runs on a separate voice gateway. The egress proxy will allow that gateway as
-one address and one port, and its token will live in `ai.env`.
+Code runners are the part of the design that arrives later, and the compose file marks the
+place where they go with `PHASE 6` comments.
 
 Code runners (phase 6) run learners' programs for languages that cannot run in the browser.
 Each language family gets its own unprivileged runner container on an internal `runners`

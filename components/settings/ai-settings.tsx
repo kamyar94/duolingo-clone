@@ -13,6 +13,13 @@ import {
   testAiKey,
 } from "@/actions/ai-settings";
 import { Button } from "@/components/ui/button";
+import {
+  BrowserFallbackToggle,
+  VoiceNames,
+  VoiceSampleButton,
+  VoiceStatusLine,
+} from "@/components/voice/voice-settings";
+import { refreshVoice } from "@/components/voice/voice-store";
 import type {
   ProviderSettingsView,
   UsageRow,
@@ -271,8 +278,10 @@ const VoicePreferences = ({ voice }: { voice: VoiceSettings }) => {
   const save = () =>
     startTransition(async () => {
       const result = await saveVoicePreferences({ enabled, voice: name, speed });
-      if (result.ok) toast.success("Voice preferences saved.");
-      else toast.error(result.error);
+      if (result.ok) {
+        toast.success("Voice preferences saved.");
+        void refreshVoice(true);
+      } else toast.error(result.error);
     });
 
   return (
@@ -299,8 +308,10 @@ const VoicePreferences = ({ voice }: { voice: VoiceSettings }) => {
           onChange={(event) => setName(event.target.value)}
           placeholder="Default voice"
           spellCheck={false}
+          list="lingo-voice-names"
           className={inputClass}
         />
+        <VoiceNames id="lingo-voice-names" />
       </label>
       <label className="flex flex-col gap-1 text-sm font-bold text-neutral-700">
         Speed: {speed.toFixed(2)}x
@@ -314,10 +325,13 @@ const VoicePreferences = ({ voice }: { voice: VoiceSettings }) => {
           className="accent-green-500"
         />
       </label>
-      <div>
+      <BrowserFallbackToggle />
+      <VoiceStatusLine />
+      <div className="flex flex-wrap gap-2">
         <Button type="submit" variant="secondary" disabled={pending}>
           Save voice preferences
         </Button>
+        <VoiceSampleButton voice={name} speed={speed} />
       </div>
     </form>
   );

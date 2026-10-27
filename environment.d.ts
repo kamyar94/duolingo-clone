@@ -33,6 +33,19 @@ declare global {
       AI_OPENAI_BASE_URL?: string;
       AI_ANTHROPIC_BASE_URL?: string;
       AI_GOOGLE_BASE_URL?: string;
+
+      // voice through the workstation (lib/voice): gateway address, bearer token, the gateway's
+      // root certificate, models, the default voice, the folder for cached narration audio
+      VOICE_URL?: string;
+      VOICE_TOKEN?: string;
+      VOICE_CA_FILE?: string;
+      VOICE_TTS_MODEL?: string;
+      VOICE_STT_MODEL?: string;
+      VOICE_STT_LANGUAGE?: string;
+      VOICE_DEFAULT_VOICE?: string;
+      VOICE_DATA_DIR?: string;
+      VOICE_CACHE_MAX_MB?: string;
+      VOICE_TIMEOUT_MS?: string;
     }
   }
 }

@@ -1,0 +1,108 @@
+# Gateway of the Lingo voice stack (Caddy). Everything that reaches Kokoro or speaches goes
+# through here. The rules, in the order they apply to a request:
+#   1. No valid bearer token gives 401, whatever the path is. That includes the health checks.
+#   2. POST /v1/audio/speech goes to Kokoro (text to speech), with a small body limit.
+#   3. POST /v1/audio/transcriptions goes to speaches (speech to text), with an audio limit.
+#   4. GET /health asks Kokoro and GET /health/transcription asks speaches.
+#   5. Everything else gives 404, so model lists, voice lists and docs pages are not reachable.
+# The token never reaches the services behind the gateway, and it is not written to the logs
+# (Caddy hides the Authorization header unless log_credentials is turned on).
+#
+# VOICE_HOST is the address the Lingo server uses to reach this gateway (an IP address or a
+# name). The internal certificate covers exactly that address.
+
+{
+	admin off
+	# Caddy cannot install its root certificate from inside a container; the Lingo server is
+	# given the root certificate as a file instead (see README.md).
+	skip_install_trust
+	auto_https disable_redirects
+	default_sni {$VOICE_HOST}
+	servers {
+		# HTTP/1.1 and HTTP/2 over TCP only; the stack publishes no UDP port.
+		protocols h1 h2
+		timeouts {
+			read_header 10s
+			idle 60s
+		}
+	}
+}
+
+https://{$VOICE_HOST}:8443 {
+	tls internal
+
+	log {
+		output stdout
+		format console
+		level INFO
+	}
+
+	header {
+		-Server
+		Cache-Control "no-store"
+		X-Content-Type-Options "nosniff"
+	}
+
+	@unauthorized not header Authorization "Bearer {$VOICE_TOKEN}"
+	handle @unauthorized {
+		header WWW-Authenticate "Bearer"
+		respond "Unauthorized." 401
+	}
+
+	@speech {
+		method POST
+		path /v1/audio/speech
+	}
+	handle @speech {
+		request_body {
+			max_size 32KB
+		}
+		reverse_proxy kokoro:8880 {
+			header_up -Authorization
+			transport http {
+				response_header_timeout 60s
+			}
+		}
+	}
+
+	@transcribe {
+		method POST
+		path /v1/audio/transcriptions
+	}
+	handle @transcribe {
+		request_body {
+			max_size 12MB
+		}
+		reverse_proxy speaches:8000 {
+			header_up -Authorization
+			transport http {
+				response_header_timeout 120s
+			}
+		}
+	}
+
+	@health {
+		method GET
+		path /health
+	}
+	handle @health {
+		reverse_proxy kokoro:8880 {
+			header_up -Authorization
+		}
+	}
+
+	@health_stt {
+		method GET
+		path /health/transcription
+	}
+	handle @health_stt {
+		rewrite * /health
+		reverse_proxy speaches:8000 {
+			header_up -Authorization
+		}
+	}
+
+	handle {
+		respond "Not found." 404
+	}
+}
