@@ -73,6 +73,10 @@ export const challenges = pgTable("challenges", {
     .notNull(),
   type: challengesEnum("type").notNull(),
   question: text("question").notNull(),
+  // Optional, from course files or the admin screens: a hint the learner can open before
+  // answering and an explanation shown once the answer is checked.
+  hint: text("hint"),
+  explanation: text("explanation"),
   order: integer("order").notNull(),
 });
 

@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
 
 import pg from "pg";
 
-import { checkCourse, importCourse } from "./course-import.mjs";
+import { checkCourse, importCourse, updateCourse } from "./course-import.mjs";
 
 const HELP = `Lingo server tool
 
@@ -20,7 +20,9 @@ const HELP = `Lingo server tool
   disable USERNAME | enable USERNAME          block or allow an account (ends its sign-ins)
   invites                                     list codes that are still unused
   check FILE.json                             check a course file without importing it
-  import FILE.json [FILE.json ...]            add courses from files (format: courses\README.md)`;
+  import FILE.json [FILE.json ...]            add courses from files (format: courses\README.md)
+  update FILE.json [FILE.json ...]            apply changed texts to the course with the same title
+                                              (same units, lessons and questions; progress stays)`;
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -136,7 +138,8 @@ try {
       break;
     }
     case "check":
-    case "import": {
+    case "import":
+    case "update": {
       if (!positional.length) fail("Give one or more course files.");
       for (const file of positional) {
         const course = JSON.parse(readFileSync(file, "utf8"));
@@ -144,9 +147,12 @@ try {
           const errors = checkCourse(course);
           console.log(errors.length ? `${file}: ${errors.length} problem(s)\n  ${errors.join("\n  ")}` : `${file}: OK`);
           if (errors.length) process.exitCode = 1;
-        } else {
+        } else if (command === "import") {
           const r = await importCourse(pool, course);
           console.log(`${file}: added "${course.title}" (${r.units} units, ${r.lessons} lessons, ${r.challenges} challenges).`);
+        } else {
+          const r = await updateCourse(pool, course);
+          console.log(`${file}: updated "${course.title}" (${r.units} units, ${r.lessons} lessons, ${r.challenges} challenges).`);
         }
       }
       break;

@@ -30,6 +30,8 @@ export const checkCourse = (course) => {
         const C = `challenge ${c + 1}`;
         if (!TYPES.has(ch.type)) errors.push(where(U, L, C, 'type must be "SELECT" or "ASSIST".'));
         if (typeof ch.question !== "string" || !ch.question.trim()) errors.push(where(U, L, C, "question missing."));
+        for (const key of ["hint", "explanation"])
+          if (ch[key] != null && typeof ch[key] !== "string") errors.push(where(U, L, C, `${key} must be text.`));
         const options = Array.isArray(ch.options) ? ch.options : [];
         if (options.length < 2) errors.push(where(U, L, C, "needs at least two options."));
         if (options.filter((o) => o.correct === true).length !== 1)
@@ -48,6 +50,7 @@ export const checkCourse = (course) => {
 };
 
 const one = async (client, text, values) => (await client.query(text, values)).rows[0];
+const note = (value) => (typeof value === "string" && value.trim() ? value.trim() : null);
 
 // Adds the whole course in one transaction: either all of it lands or none of it does.
 export const importCourse = async (pool, course) => {
@@ -85,14 +88,80 @@ export const importCourse = async (pool, course) => {
         for (const [c, ch] of lesson.challenges.entries()) {
           const { id: challengeId } = await one(
             client,
-            'insert into challenges (lesson_id, type, question, "order") values ($1, $2, $3, $4) returning id',
-            [lessonId, ch.type, ch.question, c + 1]
+            'insert into challenges (lesson_id, type, question, hint, explanation, "order") values ($1, $2, $3, $4, $5, $6) returning id',
+            [lessonId, ch.type, ch.question, note(ch.hint), note(ch.explanation), c + 1]
           );
           counts.challenges++;
           for (const o of ch.options) {
             await client.query(
               "insert into challenge_options (challenge_id, text, correct, image_src, audio_src) values ($1, $2, $3, $4, $5)",
               [challengeId, o.text, o.correct === true, o.imageSrc ?? null, o.audioSrc ?? null]
+            );
+          }
+        }
+      }
+    }
+    await client.query("commit");
+    return { courseId, ...counts };
+  } catch (error) {
+    await client.query("rollback");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+// Applies a changed file to the course with the same title, in place, so everyone's progress
+// stays: titles, descriptions, questions, answers, pictures, sounds, hints and explanations are
+// replaced. Units, lessons, challenges and options must match the database in number and order;
+// otherwise nothing changes.
+export const updateCourse = async (pool, course) => {
+  const errors = checkCourse(course);
+  if (errors.length) throw new Error(`The course file has problems:\n  ${errors.join("\n  ")}`);
+
+  const client = await pool.connect();
+  const counts = { units: 0, lessons: 0, challenges: 0 };
+  const ids = async (text, id) => (await client.query(text, [id])).rows.map((r) => r.id);
+  const sameCount = (what, inDb, inFile) => {
+    if (inDb.length !== inFile.length)
+      throw new Error(`${what}: ${inDb.length} in the app, ${inFile.length} in the file. Only texts can be updated.`);
+  };
+  try {
+    await client.query("begin");
+    const found = await client.query("select id from courses where lower(title) = lower($1)", [course.title.trim()]);
+    if (!found.rowCount) throw new Error(`There is no course named "${course.title}" yet. Add it with import.`);
+    const courseId = found.rows[0].id;
+    await client.query("update courses set image_src = $2 where id = $1", [courseId, course.imageSrc]);
+
+    const unitIds = await ids('select id from units where course_id = $1 order by "order", id', courseId);
+    sameCount("Units", unitIds, course.units);
+    for (const [u, unit] of course.units.entries()) {
+      const U = `Unit ${u + 1}`;
+      await client.query("update units set title = $2, description = $3 where id = $1", [unitIds[u], unit.title, unit.description]);
+      counts.units++;
+
+      const lessonIds = await ids('select id from lessons where unit_id = $1 order by "order", id', unitIds[u]);
+      sameCount(`${U} lessons`, lessonIds, unit.lessons);
+      for (const [l, lesson] of unit.lessons.entries()) {
+        const L = `${U} > lesson ${l + 1}`;
+        await client.query("update lessons set title = $2 where id = $1", [lessonIds[l], lesson.title]);
+        counts.lessons++;
+
+        const challengeIds = await ids('select id from challenges where lesson_id = $1 order by "order", id', lessonIds[l]);
+        sameCount(`${L} challenges`, challengeIds, lesson.challenges);
+        for (const [c, ch] of lesson.challenges.entries()) {
+          await client.query(
+            "update challenges set type = $2, question = $3, hint = $4, explanation = $5 where id = $1",
+            [challengeIds[c], ch.type, ch.question, note(ch.hint), note(ch.explanation)]
+          );
+          counts.challenges++;
+
+          const optionIds = await ids("select id from challenge_options where challenge_id = $1 order by id", challengeIds[c]);
+          sameCount(`${L} > challenge ${c + 1} options`, optionIds, ch.options);
+          for (const [o, option] of ch.options.entries()) {
+            await client.query(
+              "update challenge_options set text = $2, correct = $3, image_src = $4, audio_src = $5 where id = $1",
+              [optionIds[o], option.text, option.correct === true, option.imageSrc ?? null, option.audioSrc ?? null]
             );
           }
         }

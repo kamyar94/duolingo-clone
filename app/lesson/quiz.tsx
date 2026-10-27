@@ -16,6 +16,7 @@ import { useHeartsModal } from "@/store/use-hearts-modal";
 import { usePracticeModal } from "@/store/use-practice-modal";
 
 import { Challenge } from "./challenge";
+import { ChallengeExplanation, ChallengeHint } from "./challenge-notes";
 import { Footer } from "./footer";
 import { Header } from "./header";
 import { QuestionBubble } from "./question-bubble";
@@ -203,7 +204,7 @@ export const Quiz = ({
 
   const title =
     challenge.type === "ASSIST"
-      ? "Select the correct meaning"
+      ? "Choose the correct answer"
       : challenge.question;
 
   return (
@@ -228,6 +229,14 @@ export const Quiz = ({
                 <QuestionBubble question={challenge.question} />
               )}
 
+              {challenge.hint && (
+                <ChallengeHint
+                  key={challenge.id}
+                  hint={challenge.hint}
+                  answered={status !== "none"}
+                />
+              )}
+
               <Challenge
                 options={options}
                 onSelect={onSelect}
@@ -236,6 +245,13 @@ export const Quiz = ({
                 disabled={pending}
                 type={challenge.type}
               />
+
+              {status !== "none" && challenge.explanation && (
+                <ChallengeExplanation
+                  explanation={challenge.explanation}
+                  status={status}
+                />
+              )}
             </div>
           </div>
         </div>
