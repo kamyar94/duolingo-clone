@@ -1,6 +1,10 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import { checkChallengePayload, toClientPayload } from "@/lib/exercises/payload";
+import { checkCourse } from "@/scripts/course-import.mjs";
 import type { ChallengeType } from "@/lib/exercises/types";
 
 const check = (
@@ -196,5 +200,10 @@ describe("coding payloads", () => {
     expect(toClientPayload("WEB_LIVE", { checks: [], solution: { html: "x" } })).toEqual({
       checks: [],
     });
+  });
+
+  it("accepts the example coding course", () => {
+    const file = path.resolve(__dirname, "../../courses/coding-demo.json");
+    expect(checkCourse(JSON.parse(readFileSync(file, "utf8")))).toEqual([]);
   });
 });

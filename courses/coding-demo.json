@@ -1,0 +1,196 @@
+{
+  "title": "Coding demo (example)",
+  "imageSrc": "/playground.svg",
+  "units": [
+    {
+      "title": "Python",
+      "description": "First programs in Python",
+      "lessons": [
+        {
+          "title": "Printing and loops",
+          "challenges": [
+            {
+              "type": "CODE_READ",
+              "question": "Your first Python program",
+              "explanation": "print() writes a line to the console. An f-string fills in the values between braces.",
+              "payload": {
+                "language": "python",
+                "text": "`print()` shows text in the console. A string that starts with `f` can hold values in braces.\n\nPress Run, then change the name and run it again.",
+                "code": "name = \"Ada\"\nprint(f\"Hello, {name}!\")\n"
+              }
+            },
+            {
+              "type": "CODE_OUTPUT",
+              "question": "What does this program print?",
+              "hint": "y is twice x.",
+              "explanation": "x is 3 and y is 6, so x + y is 9.",
+              "payload": {
+                "language": "python",
+                "code": "x = 3\ny = x * 2\nprint(x + y)\n",
+                "expect": "9",
+                "choices": ["9", "6", "32", "x + y"]
+              }
+            },
+            {
+              "type": "CODE_FILL",
+              "question": "Print the numbers 0, 1 and 2.",
+              "hint": "range(n) counts from 0 up to n - 1.",
+              "explanation": "range(3) gives 0, 1 and 2, and print(i) prints each of them.",
+              "payload": {
+                "language": "python",
+                "template": "for i in range(___):\n    print(___)\n",
+                "answers": ["3", "i"],
+                "distractors": ["2", "x"],
+                "tests": [{ "expect": "0\n1\n2" }]
+              }
+            },
+            {
+              "type": "CODE_ORDER",
+              "question": "Put the lines in order so the program prints 8.",
+              "hint": "A function is defined before it is called, and its body is indented.",
+              "explanation": "The body of double is indented under def; the call comes last.",
+              "payload": {
+                "language": "python",
+                "lines": [
+                  "def double(x):",
+                  "    result = x * 2",
+                  "    return result",
+                  "print(double(4))"
+                ],
+                "tests": [{ "expect": "8" }]
+              }
+            },
+            {
+              "type": "CODE_WRITE",
+              "question": "Write a function area(w, h) that returns the area of a rectangle.",
+              "hint": "Multiply the two sides.",
+              "explanation": "The area of a rectangle is width times height, so the function returns w * h.",
+              "payload": {
+                "language": "python",
+                "starter": "def area(w, h):\n    pass\n",
+                "tests": [
+                  { "call": "area(2, 3)", "expect": "6", "visible": true },
+                  { "call": "area(0.5, 4)", "expect": "2.0", "visible": false }
+                ],
+                "timeLimitMs": 3000,
+                "solution": "def area(w, h):\n    return w * h\n"
+              }
+            },
+            {
+              "type": "CODE_FIX",
+              "question": "The program should greet the person whose name it reads. Fix it.",
+              "hint": "Look at what is printed: the variable, or the word name?",
+              "explanation": "The f-string needs braces around name to insert its value.",
+              "payload": {
+                "language": "python",
+                "starter": "name = input()\nprint(f\"Hello, name!\")\n",
+                "tests": [
+                  { "stdin": "Ada\n", "expect": "Hello, Ada!" },
+                  { "stdin": "Grace\n", "expect": "Hello, Grace!", "visible": false }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "JavaScript",
+      "description": "Functions in JavaScript and TypeScript",
+      "lessons": [
+        {
+          "title": "Functions",
+          "challenges": [
+            {
+              "type": "CODE_READ",
+              "question": "Functions in JavaScript",
+              "payload": {
+                "language": "javascript",
+                "text": "An arrow function takes parameters and returns a value. `console.log` prints it.",
+                "code": "const square = (n) => n * n;\n\nfor (let i = 1; i <= 3; i++) {\n  console.log(i, square(i));\n}\n"
+              }
+            },
+            {
+              "type": "CODE_OUTPUT",
+              "question": "What does this program print? Type the output.",
+              "explanation": "The + operator joins a string and a number into a string: \"2\" + 2 is \"22\".",
+              "payload": {
+                "language": "javascript",
+                "code": "console.log(\"2\" + 2);\n",
+                "expect": "22"
+              }
+            },
+            {
+              "type": "CODE_WRITE",
+              "question": "Write a function isEven(n) that returns true for even numbers.",
+              "hint": "The remainder of an even number divided by 2 is 0.",
+              "explanation": "n % 2 === 0 is true exactly when n is even.",
+              "payload": {
+                "language": "javascript",
+                "starter": "function isEven(n) {\n  // your code\n}\n",
+                "tests": [
+                  { "call": "isEven(4)", "expect": "true" },
+                  { "call": "isEven(7)", "expect": "false" },
+                  { "call": "[0, 1, 2].map(isEven)", "expect": "[true, false, true]", "visible": false }
+                ]
+              }
+            },
+            {
+              "type": "CODE_WRITE",
+              "question": "Write a TypeScript function initials(name: string): string.",
+              "hint": "Split the name at spaces and take the first letter of each part.",
+              "explanation": "split(\" \") gives the parts, map takes each first letter, join puts them together.",
+              "payload": {
+                "language": "typescript",
+                "starter": "function initials(name: string): string {\n  return \"\";\n}\n",
+                "tests": [
+                  { "call": "initials(\"Ada Lovelace\")", "expect": "\"AL\"" },
+                  { "call": "initials(\"Grace Brewster Hopper\")", "expect": "\"GBH\"", "visible": false }
+                ]
+              }
+            },
+            {
+              "type": "WEB_LIVE",
+              "question": "Make the button say Buy and turn its text white on a green background.",
+              "hint": "Change the button's text in the HTML, then set color and background-color in the CSS.",
+              "explanation": "The checks read the button's text and its computed colours on the rendered page.",
+              "payload": {
+                "html": "<h1>Shop</h1>\n<button class=\"buy\">Click</button>\n",
+                "css": ".buy {\n  padding: 8px 16px;\n}\n",
+                "js": "",
+                "checks": [
+                  { "name": "The button says Buy", "selector": "button.buy", "text": "Buy" },
+                  { "name": "White text", "selector": "button.buy", "style": { "color": "white" } },
+                  { "name": "Green background", "selector": "button.buy", "style": { "background-color": "green" }, "visible": false }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "SQL",
+      "description": "Asking a database questions",
+      "lessons": [
+        {
+          "title": "Queries",
+          "challenges": [
+            {
+              "type": "CODE_WRITE",
+              "question": "List the names of the people older than 40, oldest first.",
+              "hint": "Use WHERE for the age and ORDER BY ... DESC for the order.",
+              "explanation": "SELECT name FROM people WHERE age > 40 ORDER BY age DESC;",
+              "payload": {
+                "language": "sql",
+                "setup": "CREATE TABLE people (name TEXT, age INTEGER);\nINSERT INTO people VALUES ('Ada', 36), ('Alan', 41), ('Grace', 85);",
+                "starter": "SELECT name FROM people;\n",
+                "tests": [{ "name": "Names, oldest first", "rows": [["Grace"], ["Alan"]] }]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
