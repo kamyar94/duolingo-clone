@@ -2,8 +2,8 @@
 // stand-in for the voice gateway. Checks sign-in and origin rules, the text and audio limits,
 // the cache (a text is spoken once), narration for solution steps under the same access rule as
 // the solution, regeneration only when the narration text changes, and a clean 503 when the
-// gateway is away. The live check against the real Kokoro and Whisper containers is described in
-// .build-notes/voice.md.
+// gateway is away. The check by hand against the real voice gateway is in deploy/voice/README.md,
+// section "Checking it by hand".
 //
 // Needs a build (pnpm build) and a Postgres server; skipped unless LINGO_E2E=1 and
 // LINGO_TEST_PG_URL are set. LINGO_E2E_VOICE_PORT picks the port of the app (default 3112).

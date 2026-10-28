@@ -140,11 +140,10 @@ in the admin screens of section 4.6 do not exist. The example sets of phase 7 ar
 they were checked only with the local tools. No one has yet opened them on a phone, with a pen or
 against a real AI provider.
 
-Three points wait for a decision by the owner. Next.js 16.4.0 has published security advisories
-that 16.4.1 fixes, and the upgrade waits for approval. The image for C and C++ is 2.2 GB because
-the official GCC image is that large, and a Debian slim image with the compilers would be about
-0.5 GB. Mafs brings its own older copy of KaTeX into the solution player, which a package override
-could remove.
+Next.js is on 16.4.1, which fixes the security advisories published for 16.4.0. Two points wait
+for a decision by the owner. The image for C and C++ is 2.2 GB because the official GCC image is
+that large, and a Debian slim image with the compilers would be about 0.5 GB. Mafs brings its own
+older copy of KaTeX into the solution player, which a package override could remove.
 
 ## 2. Decisions taken
 
@@ -663,4 +662,4 @@ Checked on 27 October 2026 against each project's own pages.
 | Images in OpenAI requests | https://developers.openai.com/api/docs/guides/images-vision |
 | Kokoro-FastAPI speech endpoint | https://github.com/remsky/Kokoro-FastAPI |
 | speaches transcription endpoint | https://speaches.ai/usage/speech-to-text/ |
-| Squid allowlist by destination domain | https://fabianlee.org/2017/02/23/squid-controlling-network-access-using-squid-and-whitelisted-domains/ |
+| Squid allowlist by destination domain | https://www.squid-cache.org/Doc/config/acl/ |

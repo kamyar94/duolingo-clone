@@ -20,8 +20,8 @@ describe("server run requests", () => {
   });
 
   it("turns stdin into the single input and keeps a batch of inputs", () => {
-    const plain = parseServerRun({ language: "c", code: "", stdin: "Ada\n" });
-    expect(plain.ok && plain.run.inputs).toEqual(["Ada\n"]);
+    const plain = parseServerRun({ language: "c", code: "", stdin: "Oak\n" });
+    expect(plain.ok && plain.run.inputs).toEqual(["Oak\n"]);
     const batch = parseServerRun({ language: "java", code: "", inputs: ["1\n", "2\n"] });
     expect(batch.ok && batch.run).toMatchObject({ inputs: ["1\n", "2\n"], batch: true });
   });

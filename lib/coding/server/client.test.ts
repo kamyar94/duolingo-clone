@@ -127,7 +127,7 @@ describe("runOnServer", () => {
 
   it("sends the program, the inputs and the token to the family's runner", async () => {
     const fetch = vi.fn(async () => answer({ language: "csharp", compile: step(), runs: [step({ stdout: "hi\n" })], queueMs: 3 }));
-    const result = await runOnServer(run({ inputs: ["Ada\n"], timeLimitMs: 2000 }), { env, fetch });
+    const result = await runOnServer(run({ inputs: ["Oak\n"], timeLimitMs: 2000 }), { env, fetch });
     expect(result).toMatchObject({ status: "ok", stdout: "hi\n" });
     const [url, init] = fetch.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toBe("http://runner-dotnet:8080/run");
@@ -135,7 +135,7 @@ describe("runOnServer", () => {
     expect(JSON.parse(init.body as string)).toEqual({
       language: "csharp",
       files: [{ name: "Program.cs", content: 'Console.WriteLine("hi");' }],
-      runs: [{ stdin: "Ada\n" }],
+      runs: [{ stdin: "Oak\n" }],
       timeLimitMs: 2000,
     });
   });

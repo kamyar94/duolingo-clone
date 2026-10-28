@@ -174,16 +174,17 @@ volumes:
   gateway-data: {}
 
 # Docker may report that it has no free address pools. The subnets are therefore explicit and
-# set in .env; pick ranges that nothing else on the machine uses.
+# set in .env; pick ranges that nothing else on the machine uses. The defaults are ranges
+# reserved for documentation (RFC 5737), which no real network hands out.
 networks:
   # kokoro <-> speaches <-> gateway, no route to the internet.
   speech:
     internal: true
     ipam:
       config:
-        - subnet: ${VOICE_SPEECH_SUBNET:-10.77.60.0/24}
+        - subnet: ${VOICE_SPEECH_SUBNET:-198.51.100.0/24}
   # The gateway's published port, and the setup job's way to the model download.
   front:
     ipam:
       config:
-        - subnet: ${VOICE_FRONT_SUBNET:-10.77.61.0/24}
+        - subnet: ${VOICE_FRONT_SUBNET:-203.0.113.0/24}

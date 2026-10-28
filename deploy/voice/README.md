@@ -59,9 +59,10 @@ PowerShell one way to make it is
 $b = New-Object byte[] 32; [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b); ($b | ForEach-Object { $_.ToString('x2') }) -join ''
 ```
 
-and in a Linux shell it is `openssl rand -hex 32`. Choose the two subnets so that nothing else on
-the computer uses them. `docker network ls` and `docker network inspect` show the ranges that
-are taken.
+and in a Linux shell it is `openssl rand -hex 32`. The two subnets in the example are ranges reserved
+for documentation, which no real network hands out. Change them only if something on the
+computer already uses them; `docker network ls` and `docker network inspect` show the ranges
+that are taken.
 
 Then install the Whisper model once. The model is a download of a few hundred megabytes, and it
 is kept in the `whisper-models` volume, so this step is not repeated after updates.

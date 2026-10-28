@@ -15,7 +15,7 @@
               "explanation": "SELECT names the columns you want, and FROM names the table they come from.",
               "payload": {
                 "language": "sql",
-                "setup": "CREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, age INTEGER);\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 3), (2, 'Rex', 'dog', 5), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 2), (5, 'Coco', 'bird', 4);",
+                "setup": "CREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, age INTEGER);\nINSERT INTO pets VALUES (1, 'Pebble', 'cat', 3), (2, 'Rocket', 'dog', 5), (3, 'Maple', 'cat', 1), (4, 'Biscuit', 'dog', 2), (5, 'Clover', 'bird', 4);",
                 "text": "A `SELECT` statement asks the database for columns of a table. The table `pets` has the columns `id`, `name`, `kind` and `age`.\n\nPress Run, then change the columns and run it again.",
                 "code": "SELECT name, kind FROM pets;\n"
               }
@@ -24,17 +24,17 @@
               "type": "CODE_OUTPUT",
               "question": "What does this query return?",
               "hint": "Keep the pets younger than 4, then sort them by age with the oldest first.",
-              "explanation": "Milo (3), Buddy (2) and Luna (1) are younger than 4, and DESC puts the oldest first. The first line of the result holds the column names.",
+              "explanation": "Pebble (3), Biscuit (2) and Maple (1) are younger than 4, and DESC puts the oldest first. The first line of the result holds the column names.",
               "payload": {
                 "language": "sql",
-                "setup": "CREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, age INTEGER);\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 3), (2, 'Rex', 'dog', 5), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 2), (5, 'Coco', 'bird', 4);",
+                "setup": "CREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, age INTEGER);\nINSERT INTO pets VALUES (1, 'Pebble', 'cat', 3), (2, 'Rocket', 'dog', 5), (3, 'Maple', 'cat', 1), (4, 'Biscuit', 'dog', 2), (5, 'Clover', 'bird', 4);",
                 "code": "SELECT name, age FROM pets WHERE age < 4 ORDER BY age DESC;\n",
-                "expect": "name | age\nMilo | 3\nBuddy | 2\nLuna | 1",
+                "expect": "name | age\nPebble | 3\nBiscuit | 2\nMaple | 1",
                 "choices": [
-                  "name | age\nMilo | 3\nBuddy | 2\nLuna | 1",
-                  "name | age\nLuna | 1\nBuddy | 2\nMilo | 3",
-                  "name | age\nMilo | 3\nBuddy | 2",
-                  "name | age\nRex | 5\nCoco | 4\nMilo | 3"
+                  "name | age\nPebble | 3\nBiscuit | 2\nMaple | 1",
+                  "name | age\nMaple | 1\nBiscuit | 2\nPebble | 3",
+                  "name | age\nPebble | 3\nBiscuit | 2",
+                  "name | age\nRocket | 5\nClover | 4\nPebble | 3"
                 ]
               }
             },
@@ -42,10 +42,10 @@
               "type": "CODE_FILL",
               "question": "List the names of the pets older than 3, oldest first.",
               "hint": "Which sign keeps the larger ages, and which keyword reverses the order?",
-              "explanation": "age > 3 keeps Rex (5) and Coco (4), and DESC puts the largest age first.",
+              "explanation": "age > 3 keeps Rocket (5) and Clover (4), and DESC puts the largest age first.",
               "payload": {
                 "language": "sql",
-                "setup": "CREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, age INTEGER);\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 3), (2, 'Rex', 'dog', 5), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 2), (5, 'Coco', 'bird', 4);",
+                "setup": "CREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, age INTEGER);\nINSERT INTO pets VALUES (1, 'Pebble', 'cat', 3), (2, 'Rocket', 'dog', 5), (3, 'Maple', 'cat', 1), (4, 'Biscuit', 'dog', 2), (5, 'Clover', 'bird', 4);",
                 "template": "SELECT name\nFROM pets\nWHERE age ___ 3\nORDER BY age ___;\n",
                 "answers": [
                   ">",
@@ -59,10 +59,10 @@
                   {
                     "rows": [
                       [
-                        "Rex"
+                        "Rocket"
                       ],
                       [
-                        "Coco"
+                        "Clover"
                       ]
                     ]
                   }
@@ -76,7 +76,7 @@
               "explanation": "SELECT and FROM come first, WHERE filters the rows, and ORDER BY sorts what is left.",
               "payload": {
                 "language": "sql",
-                "setup": "CREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, age INTEGER);\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 3), (2, 'Rex', 'dog', 5), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 2), (5, 'Coco', 'bird', 4);",
+                "setup": "CREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, age INTEGER);\nINSERT INTO pets VALUES (1, 'Pebble', 'cat', 3), (2, 'Rocket', 'dog', 5), (3, 'Maple', 'cat', 1), (4, 'Biscuit', 'dog', 2), (5, 'Clover', 'bird', 4);",
                 "lines": [
                   "SELECT name",
                   "FROM pets",
@@ -90,10 +90,10 @@
                   {
                     "rows": [
                       [
-                        "Rex"
+                        "Rocket"
                       ],
                       [
-                        "Buddy"
+                        "Biscuit"
                       ]
                     ]
                   }
@@ -107,17 +107,17 @@
               "explanation": "WHERE keeps only the cats, and ORDER BY age sorts them from the youngest to the oldest.",
               "payload": {
                 "language": "sql",
-                "setup": "CREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, age INTEGER);\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 3), (2, 'Rex', 'dog', 5), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 2), (5, 'Coco', 'bird', 4);",
+                "setup": "CREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, age INTEGER);\nINSERT INTO pets VALUES (1, 'Pebble', 'cat', 3), (2, 'Rocket', 'dog', 5), (3, 'Maple', 'cat', 1), (4, 'Biscuit', 'dog', 2), (5, 'Clover', 'bird', 4);",
                 "starter": "SELECT name FROM pets;\n",
                 "tests": [
                   {
                     "name": "Cats, youngest first",
                     "rows": [
                       [
-                        "Luna"
+                        "Maple"
                       ],
                       [
-                        "Milo"
+                        "Pebble"
                       ]
                     ]
                   },
@@ -142,7 +142,7 @@
               "explanation": "GROUP BY name makes a group for every name. GROUP BY kind makes one group per kind of pet.",
               "payload": {
                 "language": "sql",
-                "setup": "CREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, age INTEGER);\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 3), (2, 'Rex', 'dog', 5), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 2), (5, 'Coco', 'bird', 4);",
+                "setup": "CREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, age INTEGER);\nINSERT INTO pets VALUES (1, 'Pebble', 'cat', 3), (2, 'Rocket', 'dog', 5), (3, 'Maple', 'cat', 1), (4, 'Biscuit', 'dog', 2), (5, 'Clover', 'bird', 4);",
                 "starter": "SELECT kind, COUNT(*) FROM pets GROUP BY name;\n",
                 "tests": [
                   {
@@ -188,7 +188,7 @@
               "explanation": "JOIN lines up the rows of two tables where the ON condition is true.",
               "payload": {
                 "language": "sql",
-                "setup": "CREATE TABLE homes (id INTEGER PRIMARY KEY, street TEXT);\nCREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, home_id INTEGER);\nINSERT INTO homes VALUES (1, 'Oak Street'), (2, 'Pine Street'), (3, 'Elm Street');\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 1), (2, 'Rex', 'dog', 2), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 3), (5, 'Coco', 'bird', 2);",
+                "setup": "CREATE TABLE homes (id INTEGER PRIMARY KEY, street TEXT);\nCREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, home_id INTEGER);\nINSERT INTO homes VALUES (1, 'Oak Street'), (2, 'Pine Street'), (3, 'Elm Street');\nINSERT INTO pets VALUES (1, 'Pebble', 'cat', 1), (2, 'Rocket', 'dog', 2), (3, 'Maple', 'cat', 1), (4, 'Biscuit', 'dog', 3), (5, 'Clover', 'bird', 2);",
                 "text": "Each pet row holds the `id` of its home in `home_id`. `JOIN ... ON` pairs every pet with the home row that has that id.\n\nTry swapping the order of the two columns.",
                 "code": "SELECT homes.street AS street, pets.name AS pet\nFROM pets\nJOIN homes ON pets.home_id = homes.id\nORDER BY homes.street, pets.name;\n"
               }
@@ -197,10 +197,10 @@
               "type": "CODE_OUTPUT",
               "question": "What does this query return?",
               "hint": "Count the pets of each street. ORDER BY pets DESC puts the largest count first, and ties are sorted by street.",
-              "explanation": "Oak Street has Milo and Luna, Pine Street has Rex and Coco, and Elm Street has Buddy. Oak and Pine tie with 2 pets, so the street names break the tie.",
+              "explanation": "Oak Street has Pebble and Maple, Pine Street has Rocket and Clover, and Elm Street has Biscuit. Oak and Pine tie with 2 pets, so the street names break the tie.",
               "payload": {
                 "language": "sql",
-                "setup": "CREATE TABLE homes (id INTEGER PRIMARY KEY, street TEXT);\nCREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, home_id INTEGER);\nINSERT INTO homes VALUES (1, 'Oak Street'), (2, 'Pine Street'), (3, 'Elm Street');\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 1), (2, 'Rex', 'dog', 2), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 3), (5, 'Coco', 'bird', 2);",
+                "setup": "CREATE TABLE homes (id INTEGER PRIMARY KEY, street TEXT);\nCREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, home_id INTEGER);\nINSERT INTO homes VALUES (1, 'Oak Street'), (2, 'Pine Street'), (3, 'Elm Street');\nINSERT INTO pets VALUES (1, 'Pebble', 'cat', 1), (2, 'Rocket', 'dog', 2), (3, 'Maple', 'cat', 1), (4, 'Biscuit', 'dog', 3), (5, 'Clover', 'bird', 2);",
                 "code": "SELECT homes.street, COUNT(*) AS pets\nFROM homes\nJOIN pets ON pets.home_id = homes.id\nGROUP BY homes.street\nORDER BY pets DESC, homes.street;\n",
                 "expect": "street | pets\nOak Street | 2\nPine Street | 2\nElm Street | 1",
                 "choices": [
@@ -215,10 +215,10 @@
               "type": "CODE_FILL",
               "question": "List each dog together with the street where it lives.",
               "hint": "The keyword that pairs rows of two tables, and the column of homes that holds the number to compare.",
-              "explanation": "JOIN homes ON pets.home_id = homes.id pairs each pet with its home. Buddy lives on Elm Street and Rex on Pine Street.",
+              "explanation": "JOIN homes ON pets.home_id = homes.id pairs each pet with its home. Biscuit lives on Elm Street and Rocket on Pine Street.",
               "payload": {
                 "language": "sql",
-                "setup": "CREATE TABLE homes (id INTEGER PRIMARY KEY, street TEXT);\nCREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, home_id INTEGER);\nINSERT INTO homes VALUES (1, 'Oak Street'), (2, 'Pine Street'), (3, 'Elm Street');\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 1), (2, 'Rex', 'dog', 2), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 3), (5, 'Coco', 'bird', 2);",
+                "setup": "CREATE TABLE homes (id INTEGER PRIMARY KEY, street TEXT);\nCREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, home_id INTEGER);\nINSERT INTO homes VALUES (1, 'Oak Street'), (2, 'Pine Street'), (3, 'Elm Street');\nINSERT INTO pets VALUES (1, 'Pebble', 'cat', 1), (2, 'Rocket', 'dog', 2), (3, 'Maple', 'cat', 1), (4, 'Biscuit', 'dog', 3), (5, 'Clover', 'bird', 2);",
                 "template": "SELECT homes.street, pets.name\nFROM pets\n___ homes ON pets.home_id = homes.___\nWHERE pets.kind = 'dog'\nORDER BY homes.street;\n",
                 "answers": [
                   "JOIN",
@@ -233,11 +233,11 @@
                     "rows": [
                       [
                         "Elm Street",
-                        "Buddy"
+                        "Biscuit"
                       ],
                       [
                         "Pine Street",
-                        "Rex"
+                        "Rocket"
                       ]
                     ]
                   }
@@ -251,7 +251,7 @@
               "explanation": "The join pairs pets with homes, WHERE keeps the cats, and GROUP BY lists each street once.",
               "payload": {
                 "language": "sql",
-                "setup": "CREATE TABLE homes (id INTEGER PRIMARY KEY, street TEXT);\nCREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, home_id INTEGER);\nINSERT INTO homes VALUES (1, 'Oak Street'), (2, 'Pine Street'), (3, 'Elm Street');\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 1), (2, 'Rex', 'dog', 2), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 3), (5, 'Coco', 'bird', 2);",
+                "setup": "CREATE TABLE homes (id INTEGER PRIMARY KEY, street TEXT);\nCREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, home_id INTEGER);\nINSERT INTO homes VALUES (1, 'Oak Street'), (2, 'Pine Street'), (3, 'Elm Street');\nINSERT INTO pets VALUES (1, 'Pebble', 'cat', 1), (2, 'Rocket', 'dog', 2), (3, 'Maple', 'cat', 1), (4, 'Biscuit', 'dog', 3), (5, 'Clover', 'bird', 2);",
                 "lines": [
                   "SELECT homes.street",
                   "FROM homes",
@@ -277,7 +277,7 @@
               "explanation": "WHERE filters rows before grouping. HAVING filters the groups after COUNT(*) has been computed.",
               "payload": {
                 "language": "sql",
-                "setup": "CREATE TABLE homes (id INTEGER PRIMARY KEY, street TEXT);\nCREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, home_id INTEGER);\nINSERT INTO homes VALUES (1, 'Oak Street'), (2, 'Pine Street'), (3, 'Elm Street');\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 1), (2, 'Rex', 'dog', 2), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 3), (5, 'Coco', 'bird', 2);",
+                "setup": "CREATE TABLE homes (id INTEGER PRIMARY KEY, street TEXT);\nCREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, home_id INTEGER);\nINSERT INTO homes VALUES (1, 'Oak Street'), (2, 'Pine Street'), (3, 'Elm Street');\nINSERT INTO pets VALUES (1, 'Pebble', 'cat', 1), (2, 'Rocket', 'dog', 2), (3, 'Maple', 'cat', 1), (4, 'Biscuit', 'dog', 3), (5, 'Clover', 'bird', 2);",
                 "starter": "SELECT homes.street, COUNT(*)\nFROM homes\nJOIN pets ON pets.home_id = homes.id\n-- add what is missing\n",
                 "tests": [
                   {
@@ -315,7 +315,7 @@
               "explanation": "pets.id numbers the pets, not the homes. The home of a pet is found through pets.home_id.",
               "payload": {
                 "language": "sql",
-                "setup": "CREATE TABLE homes (id INTEGER PRIMARY KEY, street TEXT);\nCREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, home_id INTEGER);\nINSERT INTO homes VALUES (1, 'Oak Street'), (2, 'Pine Street'), (3, 'Elm Street');\nINSERT INTO pets VALUES (1, 'Milo', 'cat', 1), (2, 'Rex', 'dog', 2), (3, 'Luna', 'cat', 1), (4, 'Buddy', 'dog', 3), (5, 'Coco', 'bird', 2);",
+                "setup": "CREATE TABLE homes (id INTEGER PRIMARY KEY, street TEXT);\nCREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, kind TEXT, home_id INTEGER);\nINSERT INTO homes VALUES (1, 'Oak Street'), (2, 'Pine Street'), (3, 'Elm Street');\nINSERT INTO pets VALUES (1, 'Pebble', 'cat', 1), (2, 'Rocket', 'dog', 2), (3, 'Maple', 'cat', 1), (4, 'Biscuit', 'dog', 3), (5, 'Clover', 'bird', 2);",
                 "starter": "SELECT homes.street\nFROM homes\nJOIN pets ON pets.id = homes.id\nWHERE pets.kind = 'dog';\n",
                 "tests": [
                   {

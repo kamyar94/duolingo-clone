@@ -389,22 +389,22 @@ const out = (r) => (r.body.runs?.[0]?.stdout ?? "") + (r.body.runs?.[0]?.stderr 
 const compileText = (r) => (r.body.compile?.stdout ?? "") + (r.body.compile?.stderr ?? "");
 
 const helloWorks = async (url, language) => {
-  const r = await run(url, language, P[language].hello, { inputs: ["Ada\n"] });
-  return r.status === 200 && r.body.runs?.[0]?.stdout === "Hello, Ada!\n";
+  const r = await run(url, language, P[language].hello, { inputs: ["Oak\n"] });
+  return r.status === 200 && r.body.runs?.[0]?.stdout === "Hello, Oak!\n";
 };
 
 const testLanguage = async (family, language, url, otherHosts) => {
   const prog = P[language];
 
   // hello world, twice in one request (one compile, two runs with their own input)
-  let r = await run(url, language, prog.hello, { inputs: ["Ada\n", "Grace\n"] });
+  let r = await run(url, language, prog.hello, { inputs: ["Oak\n", "Pine\n"] });
   check(
     language,
     "hello world with input",
     r.status === 200 &&
       r.body.runs?.length === 2 &&
-      r.body.runs[0].stdout === "Hello, Ada!\n" &&
-      r.body.runs[1].stdout === "Hello, Grace!\n" &&
+      r.body.runs[0].stdout === "Hello, Oak!\n" &&
+      r.body.runs[1].stdout === "Hello, Pine!\n" &&
       r.body.runs.every((x) => x.exitCode === 0),
     `${r.ms} ms, compile ${r.body.compile?.durationMs ?? "-"} ms, run ${r.body.runs?.[0]?.durationMs} ms ${r.status !== 200 ? short(JSON.stringify(r.body)) : ""}`
   );

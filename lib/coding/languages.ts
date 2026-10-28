@@ -62,7 +62,7 @@ export const STARTERS: Partial<Record<CodeLanguage, string>> = {
   typescript:
     'function greet(name: string): string {\n  return `Hello, ${name}!`;\n}\n\nconsole.log(greet("world"));\n',
   python: 'name = "world"\nprint(f"Hello, {name}!")\n',
-  sql: "CREATE TABLE pets (name TEXT, kind TEXT);\nINSERT INTO pets VALUES ('Rex', 'dog'), ('Tom', 'cat');\n\nSELECT name, kind FROM pets ORDER BY name;\n",
+  sql: "CREATE TABLE pets (name TEXT, kind TEXT);\nINSERT INTO pets VALUES ('Rocket', 'dog'), ('Pebble', 'cat');\n\nSELECT name, kind FROM pets ORDER BY name;\n",
   csharp:
     'using System;\n\nclass Program\n{\n    static void Main()\n    {\n        Console.WriteLine("Hello, world!");\n    }\n}\n',
   java: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, world!");\n    }\n}\n',
