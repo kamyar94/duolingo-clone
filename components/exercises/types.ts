@@ -48,6 +48,11 @@ export type ExerciseProps = {
   setCheck: (check: ExerciseCheck | null) => void;
   /** Reports a result without the Check button (own submit flow). Ignored unless status is "none". */
   reportResult: (result: ExerciseResult) => void;
+  /**
+   * Sets the lesson back to "none" after a wrong answer. Call it when the learner changes the
+   * work, so the footer offers Check for the new answer instead of Retry for the old one.
+   */
+  retry: () => void;
 };
 
 export type ExerciseEntry = {

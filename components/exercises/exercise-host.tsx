@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useState, type KeyboardEvent } from "react";
 
 import {
   ChallengeExplanation,
@@ -24,6 +24,7 @@ type ExerciseHostProps = {
   disabled: boolean;
   setCheck: (check: ExerciseCheck | null) => void;
   onResult: (result: ExerciseResult) => void;
+  onRetry: () => void;
 };
 
 // Enter checks the answer anywhere in a lesson (footer shortcut). Inside an editor, a text
@@ -46,6 +47,7 @@ export const ExerciseHost = ({
   disabled,
   setCheck,
   onResult,
+  onRetry,
 }: ExerciseHostProps) => {
   const Exercise = entry.component;
   const wide = entry.layout === "wide";
@@ -61,9 +63,19 @@ export const ExerciseHost = ({
     [status, disabled, onResult]
   );
 
+  const retry = useCallback(() => {
+    if (status === "wrong" && !disabled) onRetry();
+  }, [status, disabled, onRetry]);
+
+  // Once shown, the explanation stays while the learner changes the answer after a retry.
+  const [shown, setShown] = useState<"correct" | "wrong" | null>(null);
+  if (status !== "none" && shown !== status) setShown(status);
+
+  // The lesson column scrolls on its own, so the footer stays in view above an on-screen
+  // keyboard.
   return (
-    <div className="flex-1" onKeyDown={keepTypingKeys}>
-      <div className="flex h-full items-center justify-center">
+    <div className="min-h-0 flex-1 overflow-y-auto" onKeyDown={keepTypingKeys}>
+      <div className="flex min-h-full items-center justify-center">
         <div
           className={cn(
             "flex w-full flex-col gap-y-8 px-6",
@@ -90,12 +102,13 @@ export const ExerciseHost = ({
               practice={challenge.completed}
               setCheck={setCheck}
               reportResult={reportResult}
+              retry={retry}
             />
 
-            {status !== "none" && challenge.explanation && (
+            {shown && challenge.explanation && (
               <ChallengeExplanation
                 explanation={challenge.explanation}
-                status={status}
+                status={shown}
               />
             )}
           </div>

@@ -97,6 +97,12 @@ export const Quiz = ({
     setActiveIndex((current) => current + 1);
   };
 
+  // An exercise whose work changes after a wrong answer is checked again, not retried blank.
+  const onRetry = useCallback(() => {
+    setStatus((current) => (current === "wrong" ? "none" : current));
+    setSelectedOption(undefined);
+  }, []);
+
   const onSelect = (id: number) => {
     if (status !== "none") return;
 
@@ -248,6 +254,7 @@ export const Quiz = ({
           disabled={pending || checking}
           setCheck={setCheck}
           onResult={(result) => applyResult(result.correct)}
+          onRetry={onRetry}
         />
 
         <Footer
@@ -275,8 +282,8 @@ export const Quiz = ({
         hasActiveSubscription={!!userSubscription?.isActive}
       />
 
-      <div className="flex-1">
-        <div className="flex h-full items-center justify-center">
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="flex min-h-full items-center justify-center">
           <div className="flex w-full flex-col gap-y-12 px-6 lg:min-h-[350px] lg:w-[600px] lg:px-0">
             <h1 className="text-center text-lg font-bold text-neutral-700 lg:text-start lg:text-3xl">
               {title}

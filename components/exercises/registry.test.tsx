@@ -53,6 +53,7 @@ describe("exercise registry", () => {
         disabled={false}
         setCheck={vi.fn()}
         onResult={vi.fn()}
+        onRetry={vi.fn()}
       />
     );
     expect(html).toContain("Solve 2x = 6.");
@@ -69,6 +70,7 @@ describe("exercise registry", () => {
         disabled={false}
         setCheck={vi.fn()}
         onResult={vi.fn()}
+        onRetry={vi.fn()}
       />
     );
     expect(html).toContain("w * h");
@@ -83,6 +85,7 @@ describe("exercise registry", () => {
         disabled={false}
         setCheck={vi.fn()}
         onResult={vi.fn()}
+        onRetry={vi.fn()}
       />
     );
     expect(html).not.toContain("<h1");

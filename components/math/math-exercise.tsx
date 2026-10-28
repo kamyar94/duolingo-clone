@@ -75,6 +75,7 @@ export const MathExercise = ({
   disabled,
   setCheck,
   reportResult,
+  retry,
 }: ExerciseProps) => {
   const payload = useMemo(() => readPayload(challenge.payload), [challenge.payload]);
   const statement = payload.statement ?? challenge.question;
@@ -129,12 +130,21 @@ export const MathExercise = ({
     return answer.latex.trim() ? { kind: "latex", latex: answer.latex } : null;
   }, [kind, answer, lastLine]);
 
-  // Retry after a wrong answer: back to the canvas with everything kept.
+  // Retry after a wrong answer: back to the canvas with everything kept. Changing the work
+  // after a wrong answer retries by itself and keeps the stage, so the next Check grades the
+  // new answer.
+  const work = useMemo(() => ({ strokes: doc.strokes, answer, lines }), [doc.strokes, answer, lines]);
+  const [wrongWork, setWrongWork] = useState<typeof work | null>(null);
   const [seenStatus, setSeenStatus] = useState(status);
   if (seenStatus !== status) {
     setSeenStatus(status);
-    if (status === "none") setStage("write");
+    // Unchanged work means the footer's Retry; changed work means a retry by editing.
+    if (status === "none" && work === wrongWork) setStage("write");
+    setWrongWork(status === "wrong" ? work : null);
   }
+  useEffect(() => {
+    if (status === "wrong" && wrongWork && work !== wrongWork) retry();
+  }, [retry, status, work, wrongWork]);
 
   const describe = (error: unknown): Problem => {
     if (error instanceof MathApiError)

@@ -76,7 +76,7 @@ export const ChallengeExplanation = ({
         Explanation
         <PlayButton text={explanation} what="the explanation" />
       </p>
-      <p>{explanation}</p>
+      <p className="whitespace-pre-line">{explanation}</p>
     </div>
   );
 };

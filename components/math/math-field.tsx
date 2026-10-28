@@ -17,12 +17,76 @@ const writeValue = (field: MathfieldLike, value: string) => {
   if (field.value !== value) field.value = value;
 };
 
+type CloseWatcherLike = { destroy: () => void; onclose: (() => void) | null };
+type CloseWatcherConstructor = new () => CloseWatcherLike;
+
+/** Marks the history entry that stands for an open keyboard. */
+const KEYBOARD_ENTRY = "lingoMathKeyboard";
+
+// MathLive's keyboard is part of the page, not the phone's own keyboard, so the phone's Back
+// button would leave the lesson while it is open. A close watcher makes Back close it first;
+// browsers without one get a history entry for the open keyboard instead. Opening the
+// keyboard also scrolls the field into view above it.
+const watchKeyboard = () => {
+  const keyboard = window.mathVirtualKeyboard;
+  const Watcher = (window as unknown as { CloseWatcher?: CloseWatcherConstructor }).CloseWatcher;
+  let watcher: CloseWatcherLike | null = null;
+  let entry = false;
+  let leaving = false;
+
+  const close = () => {
+    keyboard.hide();
+    (document.activeElement as HTMLElement | null)?.blur?.();
+  };
+
+  keyboard.addEventListener("virtual-keyboard-toggle", () => {
+    if (keyboard.visible) {
+      requestAnimationFrame(() =>
+        (document.activeElement as HTMLElement | null)?.scrollIntoView?.({ block: "nearest" })
+      );
+      if (Watcher) {
+        if (watcher) return;
+        watcher = new Watcher();
+        watcher.onclose = () => {
+          watcher = null;
+          close();
+        };
+      } else if (!entry) {
+        window.history.pushState({ ...window.history.state, [KEYBOARD_ENTRY]: true }, "");
+        entry = true;
+      }
+      return;
+    }
+    watcher?.destroy();
+    watcher = null;
+    if (!entry) return;
+    entry = false;
+    // Only take back the entry while it is still the current one (not after a navigation).
+    if (window.history.state?.[KEYBOARD_ENTRY]) {
+      leaving = true;
+      window.history.back();
+    }
+  });
+
+  if (!Watcher)
+    window.addEventListener("popstate", () => {
+      if (leaving) {
+        leaving = false;
+        return;
+      }
+      if (!entry) return;
+      entry = false;
+      close();
+    });
+};
+
 let loading: Promise<void> | null = null;
 
 const loadMathLive = () =>
   (loading ??= import("mathlive").then(({ MathfieldElement }) => {
     MathfieldElement.fontsDirectory = null;
     MathfieldElement.soundsDirectory = null;
+    watchKeyboard();
   }));
 
 type MathFieldProps = {
