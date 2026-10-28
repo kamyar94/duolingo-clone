@@ -9,7 +9,7 @@
 // Layouts: on a phone in portrait the statement folds into a bar and the tools sit under the
 // canvas; on a tablet in landscape and on a desktop the statement and the canvas sit side by
 // side; on a tablet in portrait they stack. On a desktop every tool has a key.
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import Link from "next/link";
 import { ChevronDown, ChevronUp, LoaderCircle, PenLine, ScanText } from "lucide-react";
@@ -145,6 +145,50 @@ export const MathExercise = ({
   useEffect(() => {
     if (status === "wrong" && wrongWork && work !== wrongWork) retry();
   }, [retry, status, work, wrongWork]);
+
+  // Typing on a phone: the math keyboard is open for a field of this problem. The tools fold
+  // away and the canvas shrinks, so the top of the writing and the answer box fit together
+  // above the keyboard.
+  const workRef = useRef<HTMLElement>(null);
+  const canvasBoxRef = useRef<HTMLDivElement>(null);
+  const answerRef = useRef<HTMLDivElement>(null);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  useEffect(() => {
+    const root = document.documentElement;
+    const update = () => {
+      const open = root.dataset.mathKeyboard === "open";
+      const inside = !!workRef.current?.contains(document.activeElement);
+      setKeyboardHeight(
+        open && inside ? parseFloat(root.style.getPropertyValue("--math-keyboard")) || 1 : 0
+      );
+    };
+    const observer = new MutationObserver(update);
+    observer.observe(root, { attributes: true, attributeFilter: ["data-math-keyboard", "style"] });
+    document.addEventListener("focusin", update);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("focusin", update);
+    };
+  }, []);
+  const typing = keyboardHeight > 0;
+
+  useLayoutEffect(() => {
+    const work = workRef.current;
+    const box = canvasBoxRef.current;
+    const answerBox = answerRef.current;
+    if (!work || !box || !answerBox) return;
+    work.style.removeProperty("--typing-canvas");
+    if (!typing) return;
+    let scroller = work.parentElement;
+    while (scroller && !/(auto|scroll)/.test(getComputedStyle(scroller).overflowY))
+      scroller = scroller.parentElement;
+    if (!scroller) return;
+    const canvas = box.getBoundingClientRect();
+    const below = answerBox.getBoundingClientRect().bottom - canvas.bottom;
+    const height = Math.max(120, Math.min(canvas.height, scroller.clientHeight - below - 16));
+    work.style.setProperty("--typing-canvas", `${Math.floor(height)}px`);
+    scroller.scrollBy({ top: box.getBoundingClientRect().top - scroller.getBoundingClientRect().top - 8 });
+  }, [typing, keyboardHeight]);
 
   const describe = (error: unknown): Problem => {
     if (error instanceof MathApiError)
@@ -360,9 +404,9 @@ export const MathExercise = ({
       </section>
 
       {/* Work: canvas and tools, the answer, the read lines and the result. */}
-      <section aria-label="Your work" className="flex min-w-0 flex-1 flex-col gap-3">
+      <section ref={workRef} aria-label="Your work" className="flex min-w-0 flex-1 flex-col gap-3">
         <InkToolbar
-          className="order-2 md:order-1"
+          className={cn("order-2 md:order-1", typing && "hidden")}
           tool={tool}
           onTool={setTool}
           color={color}
@@ -383,19 +427,29 @@ export const MathExercise = ({
           onTouchMode={setTouchMode}
           disabled={locked}
         />
-        <InkCanvas
-          ref={canvas}
-          className="order-1 h-[52dvh] min-h-[280px] md:order-2 md:h-[58vh] md:landscape:h-[calc(100dvh-300px)] lg:h-[min(64vh,760px)]"
-          doc={doc}
-          tool={tool}
-          color={color}
-          width={width}
-          touchMode={touchMode}
-          readOnly={locked}
-          onPenSeen={() => setPenSeen(true)}
-          onSelectionChange={setSelectionCount}
-        />
-        <div className="order-3 -mt-2 flex justify-between gap-2 text-xs text-neutral-400">
+        <div ref={canvasBoxRef} className="order-1 md:order-2">
+          <InkCanvas
+            ref={canvas}
+            className={cn(
+              "h-[52dvh] min-h-[280px] md:h-[58vh] md:landscape:h-[calc(100dvh-300px)] lg:h-[min(64vh,760px)]",
+              typing && "!h-[var(--typing-canvas,52dvh)] !min-h-0"
+            )}
+            doc={doc}
+            tool={tool}
+            color={color}
+            width={width}
+            touchMode={touchMode}
+            readOnly={locked}
+            onPenSeen={() => setPenSeen(true)}
+            onSelectionChange={setSelectionCount}
+          />
+        </div>
+        <div
+          className={cn(
+            "order-3 -mt-2 justify-between gap-2 text-xs text-neutral-400",
+            typing ? "hidden" : "flex"
+          )}
+        >
           <Link href="/pen-check" target="_blank" className="hover:text-sky-500 hover:underline">
             Pen check
           </Link>
@@ -442,13 +496,15 @@ export const MathExercise = ({
             </section>
           )}
 
-          <AnswerBox
-            spec={payload.answer}
-            answer={answer}
-            onChange={setAnswer}
-            lastLine={lastLine}
-            readOnly={locked}
-          />
+          <div ref={answerRef}>
+            <AnswerBox
+              spec={payload.answer}
+              answer={answer}
+              onChange={setAnswer}
+              lastLine={lastLine}
+              readOnly={locked}
+            />
+          </div>
 
           {problem && (
             <div className="space-y-2 rounded-xl border-2 border-amber-200 bg-amber-50 px-4 py-3 text-sm text-neutral-700">

@@ -211,9 +211,10 @@ which keeps a resting palm off the page. The page `/pen-check` shows live what a
 or a mouse reports (pressure, tilt, buttons and samples per second), and the readings can be
 copied as text. It is the quickest way to see whether a new device reports pressure.
 
-On a phone the answer box opens MathLive's math keyboard. The lesson column scrolls above it,
-so Check stays in view, and the phone's Back button closes the keyboard instead of leaving the
-lesson. Changing the answer, the writing or a read line after a wrong check turns Retry back
+On a phone the answer box opens MathLive's math keyboard. The lesson ends at the top of the
+keyboard, so Check stays in view, and while it is open the drawing tools fold away and the
+canvas shrinks, so the top of the writing and the answer box show together above it. The
+phone's Back button closes the keyboard instead of leaving the lesson. Changing the answer, the writing or a read line after a wrong check turns Retry back
 into Check, and the explanation stays on screen while the answer is fixed.
 
 ### Animated solutions

@@ -26,7 +26,8 @@ const KEYBOARD_ENTRY = "lingoMathKeyboard";
 // MathLive's keyboard is part of the page, not the phone's own keyboard, so the phone's Back
 // button would leave the lesson while it is open. A close watcher makes Back close it first;
 // browsers without one get a history entry for the open keyboard instead. Opening the
-// keyboard also scrolls the field into view above it.
+// keyboard also scrolls the field into view above it, and the page learns its height from
+// the CSS variable --math-keyboard and the attribute data-math-keyboard="open" on <html>.
 const watchKeyboard = () => {
   const keyboard = window.mathVirtualKeyboard;
   const Watcher = (window as unknown as { CloseWatcher?: CloseWatcherConstructor }).CloseWatcher;
@@ -39,7 +40,17 @@ const watchKeyboard = () => {
     (document.activeElement as HTMLElement | null)?.blur?.();
   };
 
+  const publish = () => {
+    const root = document.documentElement;
+    const height = keyboard.visible ? Math.round(keyboard.boundingRect.height) : 0;
+    root.style.setProperty("--math-keyboard", `${height}px`);
+    if (height) root.dataset.mathKeyboard = "open";
+    else delete root.dataset.mathKeyboard;
+  };
+  keyboard.addEventListener("geometrychange", publish);
+
   keyboard.addEventListener("virtual-keyboard-toggle", () => {
+    publish();
     if (keyboard.visible) {
       requestAnimationFrame(() =>
         (document.activeElement as HTMLElement | null)?.scrollIntoView?.({ block: "nearest" })
