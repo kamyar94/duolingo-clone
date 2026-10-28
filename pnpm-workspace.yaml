@@ -2,3 +2,10 @@ allowBuilds:
   esbuild: false
   sharp: false
   unrs-resolver: false
+
+# Newer versions of two libraries that other packages bring in, for published security
+# advisories: DOMPurify in react-admin (admin screens) and Mafs's own copy of KaTeX, which then
+# shares the 0.19.1 the app already uses.
+overrides:
+  dompurify: ^3.4.17
+  mafs>katex: 0.19.1
