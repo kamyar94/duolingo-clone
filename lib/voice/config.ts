@@ -78,7 +78,8 @@ export const readVoiceConfig = (env: VoiceEnv = process.env): VoiceConfig | null
     sttModel: env.VOICE_STT_MODEL?.trim() || DEFAULT_STT_MODEL,
     sttLanguage: language && /^[a-z]{2,3}$/.test(language) ? language : null,
     defaultVoice: env.VOICE_DEFAULT_VOICE?.trim() || DEFAULT_VOICE,
-    dataDir: path.resolve(env.VOICE_DATA_DIR?.trim() || ".voice-data"),
+    // The ignore comment keeps Next from tracing the whole project into the server build.
+    dataDir: path.resolve(/*turbopackIgnore: true*/ env.VOICE_DATA_DIR?.trim() || ".voice-data"),
     cacheMaxBytes: Math.floor(positive(env.VOICE_CACHE_MAX_MB, 512) * 1024 * 1024),
     timeoutMs: Math.floor(positive(env.VOICE_TIMEOUT_MS, 60_000)),
   };

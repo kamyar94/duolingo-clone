@@ -47,7 +47,7 @@
     "lucide-react": "^1.52.0",
     "mafs": "0.21.0",
     "mathlive": "0.111.1",
-    "next": "^16.4.0",
+    "next": "^16.4.1",
     "perfect-freehand": "1.2.3",
     "pg": "^8.23.1",
     "pyodide": "314.0.7",

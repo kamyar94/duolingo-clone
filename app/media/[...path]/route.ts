@@ -8,8 +8,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 
 // Serves your own course pictures, audio and video from the media folder (mounted read-only),
-// only to signed-in people. Use them in a course as "/media/<file name>".
-const MEDIA_DIR = path.resolve(process.env.MEDIA_DIR ?? "/media");
+// only to signed-in people. Use them in a course as "/media/<file name>". The turbopackIgnore
+// comments stop Next from tracing the whole project into the server build because of these paths.
+const MEDIA_DIR = path.resolve(/*turbopackIgnore: true*/ process.env.MEDIA_DIR ?? "/media");
 
 const TYPES: Record<string, string> = {
   ".svg": "image/svg+xml",
@@ -44,7 +45,7 @@ export const GET = async (
   let file: string;
   let size: number;
   try {
-    file = await realpath(path.join(MEDIA_DIR, ...parts));
+    file = await realpath(path.join(/*turbopackIgnore: true*/ MEDIA_DIR, ...parts));
     if (!file.startsWith(MEDIA_DIR + path.sep)) return notFound();
     const info = await stat(file);
     if (!info.isFile()) return notFound();
