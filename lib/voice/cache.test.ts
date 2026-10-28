@@ -11,7 +11,8 @@ beforeEach(async () => {
   dir = await mkdtemp(path.join(os.tmpdir(), "lingo-voice-cache-"));
 });
 afterEach(async () => {
-  await rm(dir, { recursive: true, force: true });
+  // Retries: on Windows a file that was just written can still be held open for a moment.
+  await rm(dir, { recursive: true, force: true, maxRetries: 5 });
 });
 
 const input = { model: "kokoro", voice: "af_heart", speed: 1, text: "Divide both sides by v." };
