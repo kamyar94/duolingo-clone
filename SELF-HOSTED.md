@@ -523,3 +523,10 @@ Two GitHub settings matter for this fork:
   `README.md` from this fork's `package.json`, and every later upstream merge would then
   conflict on it. Dependabot (`.github/dependabot.yml`) proposes this fork's own dependency
   updates as pull requests.
+
+## License
+
+The original project by Sanidhya Kumar Verma stays under the MIT License in `LICENSE`. Everything
+this fork adds or changes is under the KF Source-Available License in `LICENSE-KF.md`, which allows
+reading, keeping a copy, forking and private non-commercial use, and needs written permission for
+hosting, changes and commercial use. `LICENSING.md` explains which license covers what.
