@@ -9,6 +9,7 @@ import { useAudio, useWindowSize, useMount } from "react-use";
 import { toast } from "sonner";
 
 import { upsertChallengeProgress } from "@/actions/challenge-progress";
+import { revealAnswer, type RevealedAnswer } from "@/actions/reveal-answer";
 import { reduceHearts } from "@/actions/user-progress";
 import { ExerciseHost } from "@/components/exercises/exercise-host";
 import { getExercise } from "@/components/exercises/registry";
@@ -24,6 +25,7 @@ import { Footer } from "./footer";
 import { Header } from "./header";
 import { QuestionBubble } from "./question-bubble";
 import { ResultCard } from "./result-card";
+import { RevealedAnswerCard } from "./revealed-answer";
 
 type QuizProps = {
   initialPercentage: number;
@@ -70,6 +72,9 @@ export const Quiz = ({
     return initialPercentage === 100 ? 0 : initialPercentage;
   });
   const [challenges] = useState(initialLessonChallenges);
+  // The run of the lesson: every challenge once, then each one answered with "I don't know"
+  // once more at the end. activeIndex is the position in this run.
+  const [order, setOrder] = useState(() => challenges.map((_, index) => index));
   const [activeIndex, setActiveIndex] = useState(() => {
     const uncompletedIndex = challenges.findIndex(
       (challenge) => !challenge.completed
@@ -79,9 +84,13 @@ export const Quiz = ({
   });
 
   const [selectedOption, setSelectedOption] = useState<number>();
-  const [status, setStatus] = useState<"none" | "wrong" | "correct">("none");
+  const [status, setStatus] = useState<"none" | "wrong" | "correct" | "revealed">("none");
+  const [revealed, setRevealed] = useState<RevealedAnswer | null>(null);
+  const [revealedAgain, setRevealedAgain] = useState(false);
+  const [revealing, setRevealing] = useState(false);
+  const [review, setReview] = useState<number[]>([]);
 
-  const challenge = challenges[activeIndex];
+  const challenge = challenges[order[activeIndex]];
   const options = challenge?.challengeOptions ?? [];
 
   // Coding and math challenges render through the exercise registry and report their result.
@@ -109,7 +118,36 @@ export const Quiz = ({
     setSelectedOption(id);
   };
 
+  // "I don't know": the answer is shown, the question is marked for review and comes back once
+  // at the end of the lesson. No heart is lost, and the question stays open.
+  const onDontKnow = () => {
+    if (!challenge || status !== "none" || revealing || pending || checking) return;
+    const index = order[activeIndex];
+    const comesBack = order.filter((i) => i === index).length < 2;
+    setRevealing(true);
+    revealAnswer(challenge.id)
+      .then((answer) => {
+        setRevealed(answer);
+        setRevealedAgain(!comesBack);
+        const right = options.find((option) => option.correct);
+        if (!exercise && right) setSelectedOption(right.id);
+        setStatus("revealed");
+        setReview((current) => (current.includes(index) ? current : [...current, index]));
+        if (comesBack) setOrder((current) => [...current, index]);
+      })
+      .catch(() => toast.error("The answer could not be loaded. Please try again."))
+      .finally(() => setRevealing(false));
+  };
+
   const onContinue = () => {
+    if (status === "revealed") {
+      onNext();
+      setStatus("none");
+      setSelectedOption(undefined);
+      setRevealed(null);
+      return;
+    }
+
     if (!selectedOption && !exercise) return;
 
     if (status === "wrong") {
@@ -224,6 +262,17 @@ export const Quiz = ({
               value={userSubscription?.isActive ? Infinity : hearts}
             />
           </div>
+
+          {review.length > 0 && (
+            <div className="max-h-48 w-full overflow-y-auto rounded-xl border-2 border-sky-200 bg-sky-50 px-4 py-3 text-left text-sm text-neutral-700">
+              <p className="mb-1 font-bold text-sky-600">Marked for review</p>
+              <ul className="list-disc space-y-1 pl-5">
+                {review.map((index) => (
+                  <li key={index}>{challenges[index].question}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
         <Footer
@@ -247,14 +296,23 @@ export const Quiz = ({
         />
 
         <ExerciseHost
-          key={challenge.id}
+          key={`${challenge.id}-${activeIndex}`}
           entry={exercise}
           challenge={challenge}
-          status={status}
-          disabled={pending || checking}
+          status={status === "revealed" ? "wrong" : status}
+          disabled={pending || checking || status === "revealed"}
           setCheck={setCheck}
           onResult={(result) => applyResult(result.correct)}
           onRetry={onRetry}
+          revealed={
+            status === "revealed" ? (
+              <RevealedAnswerCard
+                challengeId={challenge.id}
+                answer={revealed}
+                again={revealedAgain}
+              />
+            ) : null
+          }
         />
 
         <Footer
@@ -263,6 +321,8 @@ export const Quiz = ({
           }
           status={status}
           onCheck={onContinue}
+          onDontKnow={onDontKnow}
+          dontKnowDisabled={revealing || pending || checking}
         />
       </>
     );
@@ -296,7 +356,7 @@ export const Quiz = ({
 
               {challenge.hint && (
                 <ChallengeHint
-                  key={challenge.id}
+                  key={`${challenge.id}-${activeIndex}`}
                   hint={challenge.hint}
                   answered={status !== "none"}
                 />
@@ -305,16 +365,27 @@ export const Quiz = ({
               <Challenge
                 options={options}
                 onSelect={onSelect}
-                status={status}
+                status={status === "revealed" ? "correct" : status}
                 selectedOption={selectedOption}
                 disabled={pending}
                 type={challenge.type}
               />
 
+              {status === "revealed" && (
+                <div className="mt-6">
+                  <RevealedAnswerCard
+                    challengeId={challenge.id}
+                    answer={revealed}
+                    again={revealedAgain}
+                  />
+                </div>
+              )}
+
               {status !== "none" && challenge.explanation && (
                 <ChallengeExplanation
+                  key={`${challenge.id}-${activeIndex}`}
                   explanation={challenge.explanation}
-                  status={status}
+                  status={status === "revealed" ? "wrong" : status}
                 />
               )}
             </div>
@@ -326,6 +397,8 @@ export const Quiz = ({
         disabled={pending || !selectedOption}
         status={status}
         onCheck={onContinue}
+        onDontKnow={onDontKnow}
+        dontKnowDisabled={revealing || pending}
       />
     </>
   );

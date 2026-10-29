@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useState, type KeyboardEvent, type ReactNode } from "react";
 
 import {
   ChallengeExplanation,
@@ -25,6 +25,8 @@ type ExerciseHostProps = {
   setCheck: (check: ExerciseCheck | null) => void;
   onResult: (result: ExerciseResult) => void;
   onRetry: () => void;
+  /** The answer card after "I don't know", shown above the explanation. */
+  revealed?: ReactNode;
 };
 
 // Enter checks the answer anywhere in a lesson (footer shortcut). Inside an editor, a text
@@ -48,6 +50,7 @@ export const ExerciseHost = ({
   setCheck,
   onResult,
   onRetry,
+  revealed,
 }: ExerciseHostProps) => {
   const Exercise = entry.component;
   const wide = entry.layout === "wide";
@@ -104,6 +107,8 @@ export const ExerciseHost = ({
               reportResult={reportResult}
               retry={retry}
             />
+
+            {revealed && <div className="mt-6">{revealed}</div>}
 
             {shown && challenge.explanation && (
               <ChallengeExplanation

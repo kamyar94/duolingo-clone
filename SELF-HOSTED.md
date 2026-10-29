@@ -20,6 +20,11 @@ what is different here.
 - **Hints and explanations**: a question can carry a hint, opened on request, and an
   explanation shown once the answer is checked (`app/lesson/challenge-notes.tsx`). Answer options
   keep the order they were added in.
+- **I don't know**: every question has this button beside Check. It shows the answer (math
+  answers and coding solutions are read on the server only then, `actions/reveal-answer.ts`),
+  marks the question for review, asks it once more at the end of the lesson and lists every
+  marked question on the finish screen. No heart is lost, and a math problem's animated
+  solution opens as after a check.
 - **Own pictures and audio** are served to signed-in users from `/media/...` (`app/media/`),
   with range requests for audio.
 - **Build**: standalone Next.js output in a non-root Docker image (`Dockerfile`), security
@@ -214,8 +219,13 @@ copied as text. It is the quickest way to see whether a new device reports press
 On a phone the answer box opens MathLive's math keyboard. The lesson ends at the top of the
 keyboard, so Check stays in view, and while it is open the drawing tools fold away and the
 canvas shrinks, so the top of the writing and the answer box show together above it. The
-phone's Back button closes the keyboard instead of leaving the lesson. Changing the answer, the writing or a read line after a wrong check turns Retry back
-into Check, and the explanation stays on screen while the answer is fixed.
+phone's Back button closes the keyboard instead of leaving the lesson. Changing the answer, the
+writing or a read line after a wrong check turns Retry back into Check, and the explanation
+stays on screen while the answer is fixed.
+
+Reading the writing needs an AI provider. When none is set up, for the account or on the
+server, a typed final answer is checked on its own even with writing on the canvas, and the
+writing is not sent again during that visit.
 
 ### Animated solutions
 

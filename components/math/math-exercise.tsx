@@ -49,6 +49,12 @@ type Reading = {
 
 type Problem = { message: string; aiError?: string; offerTyping?: boolean };
 
+/** AI failures that will not go away by trying again: the reading is switched off for them. */
+const AI_SETUP_ERRORS = new Set(["config", "no-key", "auth", "quota"]);
+
+/** Set once such a failure happened, so later problems in this visit do not send writing again. */
+let readingUnavailable = false;
+
 const SHORTCUT_TOOLS: Record<string, InkTool> = {
   p: "pen",
   h: "highlighter",
@@ -110,6 +116,9 @@ export const MathExercise = ({
     load(saved.strokes);
     setAnswer(saved.answer);
   });
+  // The draft object is new on every render; only its stable clear() may feed the check,
+  // or registering the check would re-render the lesson without end.
+  const clearDraft = draft.clear;
 
   const locked = status === "correct";
   const penStrokes = doc.strokes.some((stroke) => stroke.k === "p");
@@ -190,6 +199,13 @@ export const MathExercise = ({
     scroller.scrollBy({ top: box.getBoundingClientRect().top - scroller.getBoundingClientRect().top - 8 });
   }, [typing, keyboardHeight]);
 
+  // Without an AI provider (no key on this account, or none on the server) the writing cannot
+  // be read; a typed final answer is then graded on its own, and after the first such failure
+  // the writing is not sent again during this visit.
+  const [readingOff, setReadingOff] = useState(() => readingUnavailable);
+  const typedAnswer = kind !== "freeform" && answer.mode === "type" && !!givenAnswer;
+  const skipReading = readingOff && typedAnswer;
+
   const describe = (error: unknown): Problem => {
     if (error instanceof MathApiError)
       return { message: error.message, aiError: error.aiError };
@@ -217,7 +233,7 @@ export const MathExercise = ({
         });
         setResult(graded);
         setGradedLines(gradeLines);
-        if (graded.correct) void draft.clear();
+        if (graded.correct) void clearDraft();
         return { correct: graded.correct };
       } catch (error) {
         setProblem(describe(error));
@@ -226,7 +242,7 @@ export const MathExercise = ({
         setBusy(null);
       }
     },
-    [challenge.id, draft, givenAnswer, kind]
+    [challenge.id, clearDraft, givenAnswer, kind]
   );
 
   const runCheck = useCallback(async (): Promise<ExerciseResult | null> => {
@@ -235,7 +251,7 @@ export const MathExercise = ({
 
     if (stage === "review") return runGrade(reading?.attemptId ?? null, workLines);
 
-    if (!penStrokes) {
+    if (!penStrokes || skipReading) {
       if (kind === "freeform" || answer.mode === "last-line") {
         setProblem({ message: "Write your solution on the canvas first." });
         return null;
@@ -270,7 +286,24 @@ export const MathExercise = ({
       setLines(read.lines.length ? read.lines.map((line) => line.latex) : [""]);
       setStage("review");
     } catch (error) {
-      setProblem({ ...describe(error), offerTyping: true });
+      const failure = describe(error);
+      if (!typedAnswer || !failure.aiError) {
+        setProblem({ ...failure, offerTyping: true });
+        return null;
+      }
+      // The writing could not be read, but the typed answer can be checked without AI.
+      if (AI_SETUP_ERRORS.has(failure.aiError)) {
+        readingUnavailable = true;
+        setReadingOff(true);
+      }
+      setBusy(null);
+      const outcome = await runGrade(null, []);
+      if (outcome)
+        setProblem({
+          message:
+            "Your writing was not read, because no AI provider is set up for it, so only your typed answer was checked.",
+        });
+      return outcome;
     } finally {
       setBusy(null);
     }
@@ -285,8 +318,10 @@ export const MathExercise = ({
     reading,
     readingIsCurrent,
     runGrade,
+    skipReading,
     stage,
     status,
+    typedAnswer,
     workLines,
   ]);
 
@@ -538,14 +573,14 @@ export const MathExercise = ({
               >
                 {busy ? (
                   <LoaderCircle className="h-4 w-4 animate-spin" />
-                ) : stage === "write" && penStrokes ? (
+                ) : stage === "write" && penStrokes && !skipReading ? (
                   <ScanText className="h-4 w-4" />
                 ) : null}
                 {busy === "reading"
                   ? "Reading..."
                   : busy === "grading"
                     ? "Checking..."
-                    : stage === "write" && penStrokes
+                    : stage === "write" && penStrokes && !skipReading
                       ? "Submit"
                       : "Check my answer"}
               </Button>
